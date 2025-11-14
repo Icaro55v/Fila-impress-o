@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Fila de Impressão 3D</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Sortable.js (Drag and Drop) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <!-- DOMPurify (Segurança) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <!-- Fonte -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .sortable-ghost { opacity: 0.3; background: #dbeafe; border: 2px dashed #60a5fa; }
+        .sortable-chosen { cursor: grabbing; opacity: 0.9; transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .kanban-column-body { 
+            max-height: calc(100vh - 220px); 
+            overflow-y: auto; 
+        }
+        .kanban-column-header {
+            position: sticky;
+            top: 124px; 
+            z-index: 10;
+        }
+        /* MUDANÇA: Esconder controlos para utilizadores comuns */
+        .user-controls-hidden { display: none; }
+    </style>
+</head>
+<body class="antialiased text-gray-900">
+
+<!-- Cabeçalho (Design Heineken) -->
+<header class="bg-green-800 text-white shadow-lg sticky top-0 z-40">
+    <div class="container mx-auto max-w-full px-4 md:px-8 py-4 flex justify-between items-center">
+        <!-- Logo e Título -->
+        <div class="flex items-center space-x-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 3DP 11 3H11.01M12 21V11.828M18 8V4m0 4H6M4 12v8a1 1 0 001 1h14a1 1 0 001-1v-8M4 12H2M20 12h2M6 4h12M6 8v4m12-4v4" />
+            </svg>
+            <div class="flex items-center space-x-3">
+                <div>
+                    <h1 class="text-2xl font-bold">Gestor de Fila de Impressão 3D</h1>
+                    <p class="text-sm text-gray-200 font-light">Cervejaria Heineken - Manufatura</p>
+                </div>
+            </div>
+        </div>
+        <!-- Botões de Ação -->
+        <div class="flex items-center space-x-3">
+            <!-- MUDANÇA: Dropdown de Ordenação (Apenas Admins) -->
+            <div id="admin-sort-control" class="flex items-center space-x-2 mr-2 hidden">
+                <label for="header-sort-select" class="text-sm font-medium sr-only">Ordenar por</label>
+                <select id="header-sort-select" class="px-3 py-2 rounded-lg bg-white text-gray-800 text-sm border border-green-600">
+                    <option value="createdAt" selected>Data de Adição</option>
+                    <option value="priority">Prioridade</option>
+                </select>
+            </div>
+            <button id="add-task-btn" class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg font-semibold transition-colors">Adicionar Pedido</button>
+            <button id="logout-btn" class="bg-green-500 text-white px-3 py-2 rounded-lg border border-green-600 text-sm font-medium hover:bg-red-600 hover:border-red-700 transition-colors">Sair</button>
+        </div>
+    </div>
+</header>
+
+<!-- Barra de Status da Autenticação -->
+<div id="auth-status" class="py-2 px-6 bg-green-900 text-green-200 text-sm text-center sticky top-[80px] z-30">A conectar...</div>
+
+<!-- Corpo Principal do Kanban (4 Colunas) -->
+<main id="kanban-board" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+    
+    <!-- Coluna 1: Pendente -->
+    <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center kanban-column-header bg-white rounded-t-xl">
+            <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                <h3 class="font-semibold text-red-600 uppercase text-sm">Pendente</h3>
+            </div>
+            <span id="count-col-pendente" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+        </div>
+        <div id="col-pendente" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="col-pendente"></div>
+    </div>
+
+    <!-- Coluna 2: Em Andamento -->
+    <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center kanban-column-header bg-white rounded-t-xl">
+            <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
+                <h3 class="font-semibold text-blue-600 uppercase text-sm">Em Andamento</h3>
+            </div>
+            <span id="count-col-andamento" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+        </div>
+        <div id="col-andamento" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="col-andamento"></div>
+    </div>
+
+    <!-- Coluna 3: Concluído -->
+    <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center kanban-column-header bg-white rounded-t-xl">
+            <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                <h3 class="font-semibold text-green-600 uppercase text-sm">Concluído</h3>
+            </div>
+            <span id="count-col-concluido" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+        </div>
+        <div id="col-concluido" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="col-concluido"></div>
+    </div>
+
+    <!-- Coluna 4: Falha / Cancelado -->
+    <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center kanban-column-header bg-white rounded-t-xl">
+            <div class="flex items-center space-x-3">
+                <span class="w-3 h-3 bg-orange-500 rounded-full"></span>
+                <h3 class="font-semibold text-orange-600 uppercase text-sm">Falha / Cancelado</h3>
+            </div>
+            <span id="count-col-falha" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+        </div>
+        <div id="col-falha" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="col-falha"></div>
+    </div>
+</main>
+
+<!-- Modal de Adicionar/Editar Pedido -->
+<div id="task-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden">
+    <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full transform scale-95 opacity-0" id="task-modal-content">
+        <form id="task-form">
+            <div class="flex justify-between items-center p-5 border-b border-gray-200">
+                <h4 id="modal-title" class="text-2xl font-semibold text-gray-800">Adicionar Pedido</h4>
+                <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            
+            <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+                
+                <!-- Campos do Solicitante -->
+                <fieldset class="border border-gray-300 rounded-lg p-4">
+                    <legend class="text-sm font-medium text-gray-700 px-2">Solicitante</legend>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="task-requester-name" class="block text-sm font-medium text-gray-700 mb-1">Nome <span class="text-red-500">*</span></label>
+                                <input type="text" id="task-requester-name" placeholder="Nome e Sobrenome" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                            </div>
+                            <div>
+                                <label for="task-requester-id" class="block text-sm font-medium text-gray-700 mb-1">Matrícula <span class="text-red-500">*</span></label>
+                                <input type="text" id="task-requester-id" placeholder="Sua matrícula" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="task-area" class="block text-sm font-medium text-gray-700 mb-1">Área <span class="text-red-500">*</span></label>
+                                <select id="task-area" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Envase">Envase</option>
+                                    <option value="Processos">Processos</option>
+                                    <option value="Utilidades">Utilidades</option>
+                                    <option value="Manutenção">Manutenção</option>
+                                    <option value="Qualidade">Qualidade</option>
+                                    <option value="Outra">Outra Área</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="task-email" class="block text-sm font-medium text-gray-700 mb-1">E-mail para Contato <span class="text-red-500">*</span></label>
+                                <input type="email" id="task-email" placeholder="seu.email@heineken.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Campos da Peça -->
+                <fieldset class="border border-gray-300 rounded-lg p-4">
+                    <legend class="text-sm font-medium text-gray-700 px-2">Detalhes da Peça</legend>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="task-piece-select" class="block text-sm font-medium text-gray-700 mb-1">Peça de Interesse <span class="text-red-500">*</span></label>
+                            <select id="task-piece-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
+                                <option value="">Selecione...</option>
+                                <option value="Faca para Etiquetadora">Faca para Etiquetadora</option>
+                                <option value="Sapata">Sapata</option>
+                                <option value="Tampão">Tampão</option>
+                                <option value="Chave para área de Processos">Chave para área de Processos</option>
+                                <option value="Hélice">Hélice</option>
+                                <option value="Tampa do Lava Olhos">Tampa do Lava Olhos</option>
+                                <option value="Tampa do Lava Olhos - Linha de Chopp">Tampa do Lava Olhos - Linha de Chopp</option>
+                                <option value="Pino identificador da abertura da válvula on-off">Pino identificador da abertura da válvula on-off</option>
+                                <option value="Outra">Outra (descrever abaixo)</option>
+                            </select>
+                        </div>
+                        <div id="task-piece-other-container" class="hidden">
+                            <label for="task-piece-other" class="block text-sm font-medium text-gray-700 mb-1">Outra Peça (descreva) <span class="text-red-500">*</span></label>
+                            <input type="text" id="task-piece-other" placeholder="Descreva a peça necessária" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="task-manufacturer-code" class="block text-sm font-medium text-gray-700 mb-1">Código do Fabricante (Original)</label>
+                            <input type="text" id="task-manufacturer-code" placeholder="Ex: KHS-100293-B" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="task-equipment" class="block text-sm font-medium text-gray-700 mb-1">Equipamento onde será usada</label>
+                            <input type="text" id="task-equipment" placeholder="Ex: Enchedora KHS Linha 2" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- MUDANÇA: Campos da Equipa de Impressão (Apenas Admins) -->
+                <fieldset id="admin-fields-fieldset" class="border border-gray-300 rounded-lg p-4 hidden">
+                    <legend class="text-sm font-medium text-gray-700 px-2">Detalhes da Impressão (Equipa Manufatura)</legend>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="task-file-name" class="block text-sm font-medium text-gray-700 mb-1">Nome do Arquivo (STL, 3mf, etc.)</label>
+                            <input type="text" id="task-file-name" placeholder="Ex: peca_final_v2.stl" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="task-priority-input" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</f>
+                                <select id="task-priority-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                                    <option value="3">Baixa</option>
+                                    <option value="2" selected>Média</option>
+                                    <option value="1">Alta</option>
+                                </select>
+                            </div>
+                             <div>
+                                <label for="task-material-input" class="block text-sm font-medium text-gray-700 mb-1">Material</label>
+                                <select id="task-material-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                                    <option value="PLA">PLA</option>
+                                    <option value="PETG">PETG</option>
+                                    <option value="ABS">ABS</option>
+                                    <option value="TPU">TPU</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="task-color-input" class="block text-sm font-medium text-gray-700 mb-1">Cor</label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" id="task-color-input" value="#3B82F6" class="h-10 w-10 p-0 border border-gray-300 rounded-lg">
+                                <input type="text" id="task-color-text" value="#3B82F6" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <input type="hidden" id="task-id-hidden">
+                <p id="modal-error-message" class="text-red-500 text-sm h-5"></p>
+            </div>
+            
+            <div class="flex justify-end items-center space-x-4 p-5 bg-gray-50 rounded-b-lg">
+                <button type="button" id="cancel-modal-btn" class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors">Cancelar</button>
+                <button type="submit" id="save-task-btn" class="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden">
+    <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full transform scale-95 opacity-0" id="delete-modal-content">
+        <h4 class="text-xl font-semibold mb-4">Confirmar exclusão</h4>
+        <p class="text-gray-600 mb-6">Tem certeza de que deseja excluir este pedido?</p>
+        <div class="flex justify-end space-x-3">
+            <button id="cancel-delete-btn" class="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition-colors">Cancelar</button>
+            <button id="confirm-delete-btn" class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Excluir</button>
+        </div>
+    </div>
+</div>
+
+<!-- MUDANÇA: Firebase (v9+ para v8 Compat) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+// MUDANÇA: Removido 'type="module"'
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- 1. CONFIGURAÇÃO DO FIREBASE (Moderno) ---
+    // MUDANÇA: Configuração do Firebase agora está 'hardcoded' como fornecido.
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1k7xHT1gJj71cX6IQIgsZxYSoFrQuz9Q",
+      authDomain: "stockmind-ai-lite.firebaseapp.com",
+      databaseURL: "https://stockmind-ai-lite-default-rtdb.firebaseio.com",
+      projectId: "stockmind-ai-lite",
+      storageBucket: "stockmind-ai-lite.firebasestorage.app",
+      messagingSenderId: "120136368220",
+      appId: "1:120136368220:web:c6d547fb48d6f5aa71e699"
+    };
+
+    // MUDANÇA: appId agora é o projectId, usado nos caminhos da base de dados.
+    const appId = firebaseConfig.projectId;
+    let app, auth, db;
+
+    try {
+        app = firebase.initializeApp(firebaseConfig); // MUDANÇA: Init v8
+        auth = firebase.auth(); // MUDANÇA: Auth v8
+        db = firebase.database(); // MUDANÇA: RTDB v8
+    } catch (e) {
+        console.error("Erro na inicialização do Firebase:", e);
+        document.getElementById('auth-status').textContent = 'Erro de Configuração. Verifique o console.';
+    }
+    
+    // setLogLevel('Debug'); // Não disponível da msm forma no v8
+
+
+    // --- 2. VARIÁVEIS GLOBAIS E ESTADO ---
+    let currentUser = null;
+    let userUid = null;
+    let currentUserRole = 'user'; // MUDANÇA: Padrão é 'user'
+    let tasksCollectionRef = null; // MUDANÇA: Agora é uma 'ref' do RTDB
+    let taskToDeleteId = null;
+    let unsubscribeSnapshot = null; // MUDANÇA: Agora é uma função 'off'
+    let allTasks = []; 
+
+    // --- 3. MAPEAMENTO DE ELEMENTOS DO DOM ---
+    const authStatus = document.getElementById('auth-status');
+    const logoutBtn = document.getElementById('logout-btn');
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const headerSortSelect = document.getElementById('header-sort-select');
+    const adminSortControl = document.getElementById('admin-sort-control'); // MUDANÇA
+    const adminFieldsFieldset = document.getElementById('admin-fields-fieldset'); // MUDANÇA
+
+    // Colunas
+    const columns = {
+        "col-pendente": document.getElementById('col-pendente'),
+        "col-andamento": document.getElementById('col-andamento'),
+        "col-concluido": document.getElementById('col-concluido'),
+        "col-falha": document.getElementById('col-falha')
+    };
+    const columnIds = Object.keys(columns);
+    const columnCounts = {
+        "col-pendente": document.getElementById('count-col-pendente'),
+        "col-andamento": document.getElementById('count-col-andamento'),
+        "col-concluido": document.getElementById('count-col-concluido'),
+        "col-falha": document.getElementById('count-col-falha')
+    };
+
+    // Modais
+    const taskModal = document.getElementById('task-modal');
+    const taskModalContent = document.getElementById('task-modal-content');
+    const taskForm = document.getElementById('task-form');
+    const modalTitle = document.getElementById('modal-title');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const cancelModalBtn = document.getElementById('cancel-modal-btn');
+    const saveTaskBtn = document.getElementById('save-task-btn');
+    const taskIdHidden = document.getElementById('task-id-hidden');
+    const modalErrorMessage = document.getElementById('modal-error-message');
+    
+    // Campos do Modal
+    const taskFileName = document.getElementById('task-file-name');
+    const taskPriorityInput = document.getElementById('task-priority-input');
+    const taskMaterialInput = document.getElementById('task-material-input');
+    const taskColorInput = document.getElementById('task-color-input');
+    const taskColorText = document.getElementById('task-color-text');
+    const taskRequesterName = document.getElementById('task-requester-name');
+    const taskRequesterId = document.getElementById('task-requester-id');
+    const taskArea = document.getElementById('task-area');
+    const taskEmail = document.getElementById('task-email');
+    const taskPieceSelect = document.getElementById('task-piece-select');
+    const taskPieceOtherContainer = document.getElementById('task-piece-other-container');
+    const taskPieceOther = document.getElementById('task-piece-other');
+    const taskManufacturerCode = document.getElementById('task-manufacturer-code');
+    const taskEquipment = document.getElementById('task-equipment');
+
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteModalContent = document.getElementById('delete-modal-content');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
+
+    // --- 4. LÓGICA DE AUTENTICAÇÃO (v8) ---
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUser = user;
+            userUid = user.uid;
+            
+            // MUDANÇA: Buscar a 'role' do RTDB
+            const usersCollectionPath = `/artifacts/${appId}/users`;
+            const userDocRef = db.ref(usersCollectionPath + '/' + user.uid); // MUDANÇA: db.ref
+            const userDocSnap = await userDocRef.once('value'); // MUDANÇA: .once('value')
+
+            if (userDocSnap.exists() && userDocSnap.val().role === 'admin') { // MUDANÇA: .val()
+                currentUserRole = 'admin';
+            } else {
+                currentUserRole = 'user';
+            }
+
+            // MUDANÇA: O path dos pedidos agora é público
+            const collectionPath = `/artifacts/${appId}/public/data/allPrintJobs`;
+            tasksCollectionRef = db.ref(collectionPath); // MUDANÇA: db.ref
+            
+            const userName = user.email ? user.email.split('@')[0] : 'Utilizador';
+            authStatus.textContent = `Conectado como: ${userName} (${currentUserRole.toUpperCase()})`;
+            
+            initializeAppUI(currentUserRole);
+
+        } else {
+            // MUDANÇA: Se não estiver logado, redireciona para o login
+            window.location.replace('login.html');
+        }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        if (unsubscribeSnapshot) {
+            tasksCollectionRef.off('value', unsubscribeSnapshot); // MUDANÇA: .off()
+        }
+        auth.signOut(); 
+    });
+
+    // --- 5. LÓGICA DA UI E DADOS (Baseada na Função) ---
+
+    function initializeAppUI(userRole) {
+        if (userRole === 'admin') {
+            adminSortControl.classList.remove('hidden'); 
+        } else {
+            adminSortControl.classList.add('hidden'); 
+        }
+
+        initRTDBListener(userRole); // MUDANÇA: Nome da função
+        initSortable(userRole);
+    }
+
+    /**
+     * Ouve o RTDB. Admins veem tudo, utilizadores veem apenas os seus pedidos.
+     */
+    function initRTDBListener(userRole) {
+        if (!tasksCollectionRef) return;
+        if (unsubscribeSnapshot) {
+            tasksCollectionRef.off('value', unsubscribeSnapshot);
+        }
+
+        let jobsQuery;
+
+        if (userRole === 'admin') {
+            jobsQuery = tasksCollectionRef; 
+        } else {
+            // MUDANÇA: Query do RTDB v8
+            jobsQuery = tasksCollectionRef.orderByChild("createdBy").equalTo(userUid);
+        }
+
+        // MUDANÇA: Listener 'onValue' do RTDB
+        unsubscribeSnapshot = jobsQuery.on('value', (snapshot) => {
+            allTasks = []; 
+            snapshot.forEach(childSnapshot => { // MUDANÇA: childSnapshot
+                allTasks.push({ id: childSnapshot.key, ...childSnapshot.val() }); // MUDANÇA: .key e .val()
+            });
+            renderTasks();
+        }, (error) => {
+            console.error("Erro ao ouvir o RTDB:", error);
+            authStatus.textContent = "Erro ao carregar dados.";
+        });
+    }
+
+    /**
+     * Renderiza/Re-renderiza todos os cartões no DOM com base na ordenação.
+     */
+    function renderTasks() {
+        columnIds.forEach(colId => {
+            columns[colId].innerHTML = '';
+        });
+
+        const sortBy = headerSortSelect.value;
+        const sortedTasks = [...allTasks].sort((a, b) => {
+            if (sortBy === 'priority') {
+                return (a.priority || 99) - (b.priority || 99);
+            } else {
+                // MUDANÇA: RTDB usa timestamp numérico
+                const timeA = a.createdAt || 0;
+                const timeB = b.createdAt || 0;
+                return timeB - timeA;
+            }
+        });
+
+        sortedTasks.forEach(task => {
+            const cardElement = createTaskElement(task, currentUserRole);
+            const columnId = task.column || 'col-pendente';
+            if (columns[columnId]) {
+                columns[columnId].appendChild(cardElement);
+            }
+        });
+
+        updateAllCounts();
+    }
+
+
+    /**
+     * Atualiza os contadores de todas as colunas.
+     */
+    function updateAllCounts() {
+        columnIds.forEach(colId => {
+            const count = columns[colId].children.length;
+            columnCounts[colId].textContent = count;
+        });
+    }
+
+    // --- 6. RENDERIZAÇÃO E MODAIS (Funções Auxiliares) ---
+    
+    function showModal(modal, content){ 
+        modal.classList.remove('hidden'); 
+        setTimeout(()=>{ 
+            modal.classList.add('opacity-100'); 
+            content.classList.add('scale-100','opacity-100'); 
+            content.classList.remove('scale-95','opacity-0'); 
+        }, 10);
+    }
+
+    function hideModal(modal, content){ 
+        content.classList.remove('scale-100','opacity-100'); 
+        content.classList.add('scale-95','opacity-0'); 
+        modal.classList.remove('opacity-100'); 
+        setTimeout(()=> modal.classList.add('hidden'), 200); 
+    }
+
+    // Abertura do Modal de Tarefa
+    async function openTaskModal(mode = 'add', taskId = null){
+        modalErrorMessage.textContent = '';
+        taskForm.reset();
+        taskColorInput.value = '#3B82F6';
+        taskColorText.value = '#3B82F6';
+        taskPriorityInput.value = '2';
+        taskMaterialInput.value = 'PLA';
+        taskPieceOtherContainer.classList.add('hidden');
+        saveTaskBtn.disabled = false;
+        saveTaskBtn.textContent = "Salvar";
+
+        if (currentUserRole === 'admin') {
+            adminFieldsFieldset.classList.remove('hidden');
+        } else {
+            adminFieldsFieldset.classList.add('hidden');
+        }
+
+        if (mode === 'add') {
+            modalTitle.textContent = 'Adicionar Pedido';
+            taskIdHidden.value = '';
+        } else if (mode === 'edit' && taskId && currentUserRole === 'admin') { 
+            try {
+                // MUDANÇA: Buscar do RTDB
+                const docRef = tasksCollectionRef.child(taskId); // MUDANÇA: .child()
+                const docSnap = await docRef.once('value'); // MUDANÇA: .once('value')
+
+                if (!docSnap.exists()) { // MUDANÇA: .exists()
+                    modalErrorMessage.textContent = "Erro: Pedido não encontrado.";
+                    return;
+                }
+                const task = docSnap.val(); // MUDANÇA: .val()
+
+                modalTitle.textContent = 'Editar Pedido';
+                taskIdHidden.value = taskId;
+                
+                // Preenche campos de admin
+                taskFileName.value = task.fileName || '';
+                taskPriorityInput.value = task.priority || '2';
+                taskMaterialInput.value = task.material || 'PLA';
+                taskColorInput.value = task.color || '#3B82F6';
+                taskColorText.value = task.color || '#3B82F6';
+
+                // Preenche campos do solicitante
+                taskRequesterName.value = task.requesterName || '';
+                taskRequesterId.value = task.requesterId || '';
+                taskArea.value = task.area || '';
+                taskEmail.value = task.email || '';
+
+                // Preenche campos da peça
+                taskPieceSelect.value = task.pieceSelect || '';
+                taskManufacturerCode.value = task.manufacturerCode || '';
+                taskEquipment.value = task.equipment || '';
+                
+                if (task.pieceSelect === 'Outra') {
+                    taskPieceOtherContainer.classList.remove('hidden');
+                    taskPieceOther.value = task.pieceOther || '';
+                }
+
+            } catch(err) {
+                modalErrorMessage.textContent = "Erro ao carregar pedido: " + err.message;
+                return;
+            }
+        }
+        
+        showModal(taskModal, taskModalContent);
+        setTimeout(()=> taskRequesterName.focus(), 150);
+    }
+
+    function closeTaskModal(){ 
+        hideModal(taskModal, taskModalContent); 
+    }
+
+    function showDeleteModal(id){ 
+        taskToDeleteId = id; 
+        confirmDeleteBtn.disabled = false;
+        showModal(deleteModal, deleteModalContent); 
+    }
+
+    function hideDeleteModal(){ 
+        hideModal(deleteModal, deleteModalContent); 
+        taskToDeleteId = null; 
+    }
+
+    // Gerador de Classes de Prioridade
+    function getPriorityClasses(priority){
+        if (priority === '1') return { border:'border-red-500', text:'Alta', bg:'bg-red-500' };
+        if (priority === '2') return { border:'border-orange-500', text:'Média', bg:'bg-orange-500' };
+        if (priority === '3') return { border:'border-blue-500', text:'Baixa', bg:'bg-blue-500' };
+        return { border:'border-gray-400', text:'N/A', bg:'bg-gray-500' };
+    }
+
+    // Criação do Elemento Card (Cartão Atualizado)
+    function createTaskElement(task, userRole){ 
+        const p = getPriorityClasses(task.priority);
+        
+        let pieceDisplayName = task.pieceSelect === 'Outra' ? (task.pieceOther || 'Outra') : task.pieceSelect;
+        const pieceName = DOMPurify.sanitize(pieceDisplayName || 'Sem Título');
+        const requesterName = DOMPurify.sanitize(task.requesterName || 'Sem Solicitante');
+        const area = DOMPurify.sanitize(task.area || 'Sem Área');
+        const material = DOMPurify.sanitize(task.material || 'N/A');
+        const color = DOMPurify.sanitize(task.color || '#CCC');
+        
+        const isAdmin = (userRole === 'admin');
+        const cursorClass = isAdmin ? 'cursor-move' : 'cursor-default'; 
+
+        const card = document.createElement('div');
+        card.className = `task-card bg-white p-4 rounded-lg shadow-md border-l-4 ${p.border} ${cursorClass} group relative`;
+        card.dataset.taskId = task.id; // MUDANÇA: task.id (que é a 'key' do RTDB)
+        
+        card.innerHTML = `
+            <button class="delete-task-btn absolute top-2 right-2 text-gray-400 hover:text-red-600 ${isAdmin ? 'opacity-0 group-hover:opacity-100' : 'hidden'} transition-opacity" aria-label="Excluir Pedido">✕</button>
+            
+            <p class="text-base font-semibold text-gray-800 task-text">${pieceName}</p>
+            <p class="text-sm text-gray-600 mt-1">${requesterName}</p>
+            <p class="text-xs text-gray-500 font-medium uppercase mt-1" title="Área">${area}</p>
+            
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${p.bg} text-white">${p.text}</span>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-medium text-gray-700">${material}</span>
+                    <span class="w-4 h-4 rounded-full border border-gray-300" style="background-color: ${color};"></span>
+                </div>
+            </div>
+        `;
+        
+        card.addEventListener('click', (e) => {
+            if (isAdmin && !e.target.closest('.delete-task-btn')) {
+                openTaskModal('edit', card.dataset.taskId);
+            }
+        });
+        
+        if (isAdmin) {
+            card.querySelector('.delete-task-btn').addEventListener('click', (e)=>{ 
+                e.stopPropagation(); 
+                showDeleteModal(card.dataset.taskId); 
+            });
+        }
+        
+        return card;
+    }
+
+    // --- 7. EVENT LISTENERS PRINCIPAIS (Modais e Botões) ---
+
+    taskColorInput.addEventListener('input', (e) => taskColorText.value = e.target.value);
+    taskColorText.addEventListener('input', (e) => taskColorInput.value = e.target.value);
+
+    taskPieceSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'Outra') {
+            taskPieceOtherContainer.classList.remove('hidden');
+            taskPieceOther.required = true;
+        } else {
+            taskPieceOtherContainer.classList.add('hidden');
+            taskPieceOther.required = false;
+        }
+    });
+
+    // Evento de Envio do Formulário (RTDB v8)
+    taskForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        modalErrorMessage.textContent = '';
+        saveTaskBtn.disabled = true;
+        saveTaskBtn.textContent = "Salvando...";
+
+        // Dados do Solicitante
+        const requesterName = taskRequesterName.value.trim();
+        const requesterId = taskRequesterId.value.trim();
+        const area = taskArea.value;
+        const email = taskEmail.value.trim();
+        const pieceSelect = taskPieceSelect.value;
+        const pieceOther = taskPieceOther.value.trim();
+        const editingId = taskIdHidden.value;
+
+        // Validação
+        if (!requesterName || !requesterId || !area || !email || !pieceSelect) { 
+            modalErrorMessage.textContent = 'Preencha todos os campos de Solicitante e Peça.'; 
+            saveTaskBtn.disabled = false;
+            saveTaskBtn.textContent = "Salvar";
+            return; 
+        }
+        if (pieceSelect === 'Outra' && !pieceOther) {
+            modalErrorMessage.textContent = 'Por favor, descreva a peça no campo "Outra Peça".'; 
+            saveTaskBtn.disabled = false;
+            saveTaskBtn.textContent = "Salvar";
+            return;
+        }
+
+        // Monta o objeto de dados
+        const taskData = {
+            requesterName,
+            requesterId,
+            area,
+            email,
+            pieceSelect,
+            pieceOther,
+            manufacturerCode: taskManufacturerCode.value.trim(),
+            equipment: taskEquipment.value.trim()
+        };
+
+        if (currentUserRole === 'admin') {
+            taskData.fileName = taskFileName.value.trim();
+            taskData.priority = taskPriorityInput.value;
+            taskData.material = taskMaterialInput.value;
+            taskData.color = taskColorInput.value;
+        }
+
+        try {
+            if (editingId && currentUserRole === 'admin') { 
+                // MUDANÇA: Update no RTDB
+                const docRef = tasksCollectionRef.child(editingId);
+                await docRef.update(taskData);
+            } else if (!editingId) {
+                // Modo Adição (Qualquer utilizador)
+                taskData.column = 'col-pendente'; 
+                taskData.createdAt = firebase.database.ServerValue.TIMESTAMP; // MUDANÇA: Timestamp do RTDB
+                taskData.createdBy = userUid; 
+
+                if (currentUserRole !== 'admin') {
+                    taskData.priority = '2'; 
+                }
+                
+                // MUDANÇA: Push no RTDB
+                const newRef = tasksCollectionRef.push();
+                await newRef.set(taskData);
+            }
+            
+            closeTaskModal();
+            // O on('value') cuidará da renderização
+
+        } catch (err) {
+             modalErrorMessage.textContent = 'Erro ao salvar: ' + err.message;
+             saveTaskBtn.disabled = false;
+             saveTaskBtn.textContent = "Salvar";
+        }
+    });
+
+    // Evento de Exclusão (RTDB v8)
+    confirmDeleteBtn.addEventListener('click', async () => {
+        if (taskToDeleteId && currentUserRole === 'admin') { 
+            confirmDeleteBtn.disabled = true;
+            try {
+                // MUDANÇA: Remove do RTDB
+                const docRef = tasksCollectionRef.child(taskToDeleteId);
+                await docRef.remove();
+                hideDeleteModal();
+            } catch (err) {
+                modalErrorMessage.textContent = "Erro ao excluir: " + err.message;
+                confirmDeleteBtn.disabled = false;
+            }
+        }
+    });
+
+    // Listeners de fechar modais
+    cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+    closeModalBtn.addEventListener('click', closeTaskModal);
+    cancelModalBtn.addEventListener('click', closeTaskModal);
+    taskModal.addEventListener('click', (e) => { if (e.target === taskModal) closeTaskModal(); });
+    deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) hideDeleteModal(); });
+    
+    addTaskBtn.addEventListener('click', () => openTaskModal('add'));
+    headerSortSelect.addEventListener('change', renderTasks);
+
+    // --- 8. INICIALIZAÇÃO DO DRAG & DROP (Sortable.js) ---
+
+    function initSortable(userRole){
+        if (userRole !== 'admin') return; 
+
+        columnIds.forEach(colId => {
+            new Sortable(columns[colId], {
+                group: 'kanban',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                
+                onEnd: (evt) => {
+                    const taskId = evt.item.dataset.taskId;
+                    const newCol = evt.to.dataset.columnId;
+                    const oldCol = evt.from.dataset.columnId;
+
+                    if (newCol === oldCol) return; 
+                    
+                    // MUDANÇA: Update no RTDB
+                    const docRef = tasksCollectionRef.child(taskId);
+                    docRef.update({ column: newCol }) 
+                    .catch(err => {
+                        console.error("Erro ao mover card:", err);
+                        evt.from.appendChild(evt.item);
+                    });
+                    
+                    updateAllCounts();
+                }
+            });
+        });
+    }
+
+    // --- 9. EXECUÇÃO INICIAL ---
+    // A inicialização é controlada pelo onAuthStateChanged (seção 4)
+});
+</script>
+</body>
+</html>
