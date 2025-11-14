@@ -122,13 +122,9 @@
                 const userCredential = await auth.createUserWithEmailAndPassword(emailInput.value, passwordInput.value);
                 const user = userCredential.user;
 
-                // MUDANÇA: Salvando a 'role' no Realtime Database
-                const usersCollectionPath = `/artifacts/${appId}/users`;
-                const userDocRef = db.ref(usersCollectionPath + '/' + user.uid); // MUDANÇA: db.ref()
-                await userDocRef.set({ // MUDANÇA: set()
-                    email: user.email,
-                    role: 'user' // Define a função padrão
-                });
+                // MUDANÇA: Lógica de 'role' removida. 
+                // O novo 'print_queue_manager.html' (baseado no seu index.html)
+                // usa um caminho de BD diferente (/users/[uid]/tasks) e não usa roles.
 
                 // Sucesso! Redireciona para o gestor
                 window.location.href = 'print_queue_manager.html';
@@ -165,5 +161,3 @@
     </script>
 </body>
 </html>
-
-
