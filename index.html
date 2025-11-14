@@ -255,16 +255,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- 1. CONFIGURAÇÃO DO FIREBASE ---
     const firebaseConfig = {
-      apiKey: "AIzaSyD1k7xHT1gJj71cX6IQIgsZxYSoFrQuz9Q",
-      authDomain: "stockmind-ai-lite.firebaseapp.com",
-      databaseURL: "https://stockmind-ai-lite-default-rtdb.firebaseio.com",
-      projectId: "stockmind-ai-lite",
-      storageBucket: "stockmind-ai-lite.firebasestorage.app",
-      messagingSenderId: "120136368220",
-      appId: "1:120136368220:web:c6d547fb48d6f5aa71e699"
+      apiKey: "AIzaSyAe5vcJe5mUUxAX5mXWFjCwL26esbxLvbo",
+      authDomain: "projeto-p-c672e.firebaseapp.com",
+      databaseURL: "https://projeto-p-c672e-default-rtdb.firebaseio.com",
+      projectId: "projeto-p-c672e",
+      storageBucket: "projeto-p-c672e.firebasestorage.app",
+      messagingSenderId: "474078684255",
+      appId: "1:474078684255:web:78313a16cab4e501e0a7ea",
+      measurementId: "G-DX6WX55RB8"
     };
 
-    const appId = firebaseConfig.projectId;
+    const appId = firebaseConfig.projectId; // <-- Atualizado para 'projeto-p-c672e'
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
@@ -340,7 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             currentUser = user;
             userUid = user.uid;
-            const userName = user.email.split('@')[0];
+            // CORREÇÃO: Verifica se o email existe antes de o dividir
+            const userName = user.email ? user.email.split('@')[0] : 'Utilizador';
             authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)}`;
 
             // Verifica a função (role) do utilizador
@@ -348,13 +350,14 @@ document.addEventListener('DOMContentLoaded', () => {
             userRoleRef.on('value', (snap) => {
                 if (snap.exists() && snap.val() === 'admin') {
                     userRole = 'admin';
-                    authStatus.textContent += ' (ADMIN)';
-                    adminControls.classList.remove('hidden');
+                    authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (ADMIN)`;
                 } else {
                     userRole = 'user';
-                    authStatus.textContent += ' (Usuário)';
-                    adminControls.classList.add('hidden');
+                    authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (Usuário)`;
                 }
+                
+                // Atualiza a UI com base na função
+                updateUIForRole();
                 
                 // Inicializa os listeners e o drag-and-drop
                 // (só depois de sabermos a função)
@@ -365,8 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             currentUser = null;
             userUid = null;
-            // CORREÇÃO 1: O redirecionamento deve usar './' para ser um caminho relativo válido
-            window.location.replace('./login.html');
+            // CORREÇÃO 2: Mudar de './login.html' para 'login.html'
+            window.location.replace('login.html');
         }
     });
 
@@ -375,6 +378,19 @@ document.addEventListener('DOMContentLoaded', () => {
             auth.signOut();
         // }
     });
+    
+    function updateUIForRole() {
+        if (userRole === 'admin') {
+            adminControls.classList.remove('hidden');
+        } else {
+            adminControls.classList.add('hidden');
+        }
+        // Re-renderiza os cartões para aplicar permissões (cursor, botões)
+        renderAllTasks();
+        // Re-inicializa o sortable para ativar/desativar o drag
+        initSortable();
+    }
+
 
     // --- 5. LÓGICA DO BANCO DE DADOS (RTDB) ---
 
@@ -457,10 +473,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateAllCounts() {
         columnIds.forEach(colId => {
-            const count = columns[colId].children.length;
-            columnCounts[colId].textContent = count;
+            if (columns[colId]) { // Adiciona verificação se a coluna existe
+                const count = columns[colId].children.length;
+                if (columnCounts[colId]) { // Adiciona verificação se o contador existe
+            	    columnCounts[colId].textContent = count;
+                }
+            }
         });
     }
+
 
     // Gerador de Classes de Prioridade (Admin)
     function getPriorityClasses(priority){
@@ -487,15 +508,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const peca = DOMPurify.sanitize(task.pecaNome === 'Outra' ? task.pecaOutra : task.pecaNome);
         const area = DOMPurify.sanitize(task.solicitanteArea);
         const nome = DOMPurify.sanitize(task.solicitanteNome);
-        const data = new Date(task.createdAt).toLocaleDateString('pt-BR');
+        const data = task.createdAt ? new Date(task.createdAt).toLocaleDateString('pt-BR') : '...'; // Adiciona fallback para data
 
         card.innerHTML = `
             <!-- Título: Nome da Peça -->
-            <h4 class="text-base font-semibold text-gray-800 mb-2">${peca}</h4>
+            <h4 class="text-base font-semibold text-gray-800 mb-2">${peca || 'Peça sem nome'}</h4> <!-- Adiciona fallback -->
             
             <!-- Detalhes -->
-            <p class="text-sm text-gray-600"><span class="font-medium">Solicitante:</span> ${nome}</p>
-            <p class="text-sm text-gray-600"><span class="font-medium">Área:</span> ${area}</p>
+            <p class="text-sm text-gray-600"><span class="font-medium">Solicitante:</span> ${nome || 'N/A'}</p>
+            <p class="text-sm text-gray-600"><span class="font-medium">Área:</span> ${area || 'N/A'}</p>
             
             <!-- Rodapé do Card -->
             <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
@@ -513,10 +534,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Admin pode apagar (botão X)
-        card.querySelector('.delete-task-btn').addEventListener('click', (e)=>{ 
-            e.stopPropagation(); 
-            showDeleteModal(card.dataset.taskId); 
-        });
+        const deleteBtn = card.querySelector('.delete-task-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e)=>{ 
+                e.stopPropagation(); 
+                showDeleteModal(card.dataset.taskId); 
+            });
+        }
         
         return card;
     }
@@ -524,6 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 7. LÓGICA DOS MODAIS ---
 
     function showModal(modal, content){ 
+        if (!modal || !content) return; // Segurança
         modal.classList.remove('hidden'); 
         setTimeout(()=>{ 
             modal.classList.add('opacity-100'); 
@@ -533,6 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function hideModal(modal, content){ 
+        if (!modal || !content) return; // Segurança
         content.classList.remove('scale-100','opacity-100'); 
         content.classList.add('scale-95','opacity-0'); 
         modal.classList.remove('opacity-100'); 
@@ -540,46 +566,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Controla o campo "Outra Peça"
-    pecaNome.addEventListener('change', () => {
-        pecaOutra.disabled = (pecaNome.value !== 'Outra');
-        if (!pecaOutra.disabled) pecaOutra.focus();
-    });
+    if (pecaNome) {
+        pecaNome.addEventListener('change', () => {
+            if (pecaOutra) {
+                pecaOutra.disabled = (pecaNome.value !== 'Outra');
+                if (!pecaOutra.disabled) pecaOutra.focus();
+            }
+        });
+    }
 
     // Abertura do Modal de Tarefa
     async function openTaskModal(mode = 'add', taskId = null){
+        if (!taskForm) return; // Segurança
+        
         modalErrorMessage.textContent = '';
         taskForm.reset();
-        // Garante que o campo 'outra' esteja desabilitado
-        pecaOutra.disabled = true;
-        saveTaskBtn.disabled = false;
-        saveTaskBtn.textContent = "Salvar";
+        
+        if (pecaOutra) pecaOutra.disabled = true;
+        if (saveTaskBtn) {
+            saveTaskBtn.disabled = false;
+            saveTaskBtn.textContent = "Salvar";
+        }
 
-        // CORREÇÃO 2: Adiciona uma verificação para garantir que currentUser não é nulo
-        // Isto previne o erro 'Cannot read properties of null (reading 'email')'
+        // CORREÇÃO: Mover a verificação do currentUser para o TOPO
         if (!currentUser) {
             modalErrorMessage.textContent = "Erro: Utilizador não autenticado. Por favor, atualize a página.";
-            saveTaskBtn.disabled = true;
+            if (saveTaskBtn) saveTaskBtn.disabled = true;
+            
+            // Mostra o modal mesmo com erro, para o utilizador ver a mensagem
+            showModal(taskModal, taskModalContent); 
             return; 
         }
 
         // Usuário comum NUNCA vê os campos de admin
-        adminFields.classList.add('hidden');
+        if (adminFields) adminFields.classList.add('hidden');
         
         // Preenche campos do usuário (se estiver logado)
-        solicitanteEmail.value = currentUser.email; // Esta linha agora é segura
-        // (Idealmente, carregaria nome/matrícula do perfil, mas por enquanto deixa em branco)
-
+        if (solicitanteEmail) solicitanteEmail.value = currentUser.email; // Esta linha agora é segura
+        
         if (mode === 'add') {
-            modalTitle.textContent = 'Adicionar Pedido';
-            taskIdHidden.value = '';
+            if (modalTitle) modalTitle.textContent = 'Adicionar Pedido';
+            if (taskIdHidden) taskIdHidden.value = '';
         } 
         else if (mode === 'edit' && taskId && userRole === 'admin') {
-            // Modo Edição (SÓ ADMIN)
-            modalTitle.textContent = 'Editar Pedido';
-            taskIdHidden.value = taskId; 
+            if (modalTitle) modalTitle.textContent = 'Editar Pedido';
+            if (taskIdHidden) taskIdHidden.value = taskId; 
             
-            // Mostra campos de admin
-            adminFields.classList.remove('hidden');
+            if (adminFields) adminFields.classList.remove('hidden');
             
             const task = allTasks[taskId];
             if (!task) {
@@ -588,21 +621,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Preenche campos do usuário
-            solicitanteNome.value = task.solicitanteNome || '';
-            solicitanteMatricula.value = task.solicitanteMatricula || '';
-            solicitanteArea.value = task.solicitanteArea || '';
-            solicitanteEmail.value = task.solicitanteEmail || '';
-            pecaNome.value = task.pecaNome || '';
-            pecaOutra.value = task.pecaOutra || '';
-            if (task.pecaNome === 'Outra') pecaOutra.disabled = false;
-            pecaCodigo.value = task.pecaCodigo || '';
-            pecaEquipamento.value = task.pecaEquipamento || '';
+            if (solicitanteNome) solicitanteNome.value = task.solicitanteNome || '';
+            if (solicitanteMatricula) solicitanteMatricula.value = task.solicitanteMatricula || '';
+            if (solicitanteArea) solicitanteArea.value = task.solicitanteArea || '';
+            if (solicitanteEmail) solicitanteEmail.value = task.solicitanteEmail || '';
+            if (pecaNome) pecaNome.value = task.pecaNome || '';
+            if (pecaOutra) pecaOutra.value = task.pecaOutra || '';
+            if (pecaNome && pecaOutra && task.pecaNome === 'Outra') pecaOutra.disabled = false;
+            if (pecaCodigo) pecaCodigo.value = task.pecaCodigo || '';
+            if (pecaEquipamento) pecaEquipamento.value = task.pecaEquipamento || '';
             
             // Preenche campos de admin
-            adminPrioridade.value = task.adminPrioridade || '2';
-            adminMaterial.value = task.adminMaterial || 'PETG';
-            adminCor.value = task.adminCor || '#4F46E5';
-            adminFicheiro.value = task.adminFicheiro || '';
+            if (adminPrioridade) adminPrioridade.value = task.adminPrioridade || '2';
+            if (adminMaterial) adminMaterial.value = task.adminMaterial || 'PETG';
+            if (adminCor) adminCor.value = task.adminCor || '#4F46E5';
+            if (adminFicheiro) adminFicheiro.value = task.adminFicheiro || '';
         }
         
         showModal(taskModal, taskModalContent);
@@ -614,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showDeleteModal(id){ 
         taskToDeleteId = id; 
-        confirmDeleteBtn.disabled = false;
+        if (confirmDeleteBtn) confirmDeleteBtn.disabled = false;
         showModal(deleteModal, deleteModalContent); 
     }
 
@@ -624,85 +657,90 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Evento de Envio do Formulário (Salvar)
-    taskForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        modalErrorMessage.textContent = '';
-        saveTaskBtn.disabled = true;
-        saveTaskBtn.textContent = "A salvar...";
-
-        const editingId = taskIdHidden.value; 
-        
-        // Recolhe dados do formulário
-        const data = {
-            // Usuário
-            solicitanteNome: solicitanteNome.value,
-            solicitanteMatricula: solicitanteMatricula.value,
-            solicitanteArea: solicitanteArea.value,
-            solicitanteEmail: solicitanteEmail.value,
-            pecaNome: pecaNome.value,
-            pecaOutra: pecaOutra.disabled ? '' : pecaOutra.value,
-            pecaCodigo: pecaCodigo.value,
-            pecaEquipamento: pecaEquipamento.value,
-        };
-
-        try {
-            if (editingId && userRole === 'admin') {
-                // --- MODO EDIÇÃO (ADMIN) ---
-                // Adiciona os campos de admin
-                data.adminPrioridade = adminPrioridade.value;
-                data.adminMaterial = adminMaterial.value;
-                data.adminCor = adminCor.value;
-                data.adminFicheiro = adminFicheiro.value;
-                
-                await dbTasksRef.child(editingId).update(data);
-
-            } else if (!editingId) {
-                // --- MODO ADIÇÃO (QUALQUER UM) ---
-                data.createdBy = userUid; // ID de quem criou
-                data.createdAt = firebase.database.ServerValue.TIMESTAMP;
-                data.status = 'pendente'; // Status inicial
-                
-                // Campos admin com valores padrão (invisíveis para o usuário)
-                data.adminPrioridade = '2'; // Média
-                data.adminMaterial = 'PETG';
-                data.adminCor = '#4F46E5';
-                data.adminFicheiro = '';
-
-                const newRef = dbTasksRef.push();
-                await newRef.set(data);
+    if (taskForm) {
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (modalErrorMessage) modalErrorMessage.textContent = '';
+            if (saveTaskBtn) {
+                saveTaskBtn.disabled = true;
+                saveTaskBtn.textContent = "A salvar...";
             }
-            
-            closeTaskModal();
-            // O listener 'onChildChanged' ou 'onChildAdded' tratará da renderização
 
-        } catch (err) {
-             modalErrorMessage.textContent = 'Erro ao salvar: ' + err.message;
-             saveTaskBtn.disabled = false;
-             saveTaskBtn.textContent = "Salvar";
-        }
-    });
+            const editingId = taskIdHidden ? taskIdHidden.value : null; 
+            
+            // Recolhe dados do formulário
+            const data = {
+                // Usuário
+                solicitanteNome: solicitanteNome ? solicitanteNome.value : '',
+                solicitanteMatricula: solicitanteMatricula ? solicitanteMatricula.value : '',
+                solicitanteArea: solicitanteArea ? solicitanteArea.value : '',
+                solicitanteEmail: solicitanteEmail ? solicitanteEmail.value : '',
+                pecaNome: pecaNome ? pecaNome.value : '',
+                pecaOutra: pecaOutra ? (pecaOutra.disabled ? '' : pecaOutra.value) : '',
+                pecaCodigo: pecaCodigo ? pecaCodigo.value : '',
+                pecaEquipamento: pecaEquipamento ? pecaEquipamento.value : '',
+            };
+
+            try {
+                if (editingId && userRole === 'admin') {
+                    // --- MODO EDIÇÃO (ADMIN) ---
+                    data.adminPrioridade = adminPrioridade ? adminPrioridade.value : '2';
+                    data.adminMaterial = adminMaterial ? adminMaterial.value : 'PETG';
+                    data.adminCor = adminCor ? adminCor.value : '#4F46E5';
+                    data.adminFicheiro = adminFicheiro ? adminFicheiro.value : '';
+                    
+                    await dbTasksRef.child(editingId).update(data);
+
+                } else if (!editingId) {
+                    // --- MODO ADIÇÃO (QUALQUER UM) ---
+                    data.createdBy = userUid;
+                    data.createdAt = firebase.database.ServerValue.TIMESTAMP;
+                    data.status = 'pendente';
+                    
+                    data.adminPrioridade = '2';
+                    data.adminMaterial = 'PETG';
+                    data.adminCor = '#4F46E5';
+                    data.adminFicheiro = '';
+
+                    const newRef = dbTasksRef.push();
+                    await newRef.set(data);
+                }
+                
+                closeTaskModal();
+
+            } catch (err) {
+                 if (modalErrorMessage) modalErrorMessage.textContent = 'Erro ao salvar: ' + err.message;
+                 if (saveTaskBtn) {
+                     saveTaskBtn.disabled = false;
+                     saveTaskBtn.textContent = "Salvar";
+                 }
+            }
+        });
+    }
 
     // Evento de Exclusão (SÓ ADMIN)
-    confirmDeleteBtn.addEventListener('click', async () => {
-        if (taskToDeleteId && userRole === 'admin') {
-            confirmDeleteBtn.disabled = true;
-            try {
-                await dbTasksRef.child(taskToDeleteId).remove();
-                hideDeleteModal();
-            } catch (err) {
-                alert("Erro ao excluir: " + err.message);
-                confirmDeleteBtn.disabled = false;
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (taskToDeleteId && userRole === 'admin') {
+                confirmDeleteBtn.disabled = true;
+                try {
+                    await dbTasksRef.child(taskToDeleteId).remove();
+                    hideDeleteModal();
+                } catch (err) {
+                    alert("Erro ao excluir: " + err.message); // 'alert' é melhor aqui
+                    confirmDeleteBtn.disabled = false;
+                }
             }
-        }
-    });
+        });
+    }
 
     // Listeners de fechar modais
-    cancelDeleteBtn.addEventListener('click', hideDeleteModal);
-    closeModalBtn.addEventListener('click', closeTaskModal);
-    cancelModalBtn.addEventListener('click', closeTaskModal);
-    taskModal.addEventListener('click', (e) => { if (e.target === taskModal) closeTaskModal(); });
-    deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) hideDeleteModal(); });
-    addTaskBtn.addEventListener('click', () => openTaskModal('add'));
+    if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeTaskModal);
+    if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeTaskModal);
+    if (taskModal) taskModal.addEventListener('click', (e) => { if (e.target === taskModal) closeTaskModal(); });
+    if (deleteModal) deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) hideDeleteModal(); });
+    if (addTaskBtn) addTaskBtn.addEventListener('click', () => openTaskModal('add'));
 
     // --- 8. INICIALIZAÇÃO DO DRAG & DROP (Sortable.js) ---
 
@@ -720,11 +758,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 animation: 150,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
-                // MUDANÇA: Desabilita drag-and-drop se não for admin
                 disabled: userRole !== 'admin',
                 
                 onEnd: (evt) => {
-                    if (userRole !== 'admin') return; // Segurança extra
+                    if (userRole !== 'admin') return; 
 
                     const taskId = evt.item.dataset.taskId;
                     const newCol = evt.to.dataset.columnId;
@@ -732,17 +769,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (newCol === oldCol) return; 
                     
-                    // Atualiza o status no banco de dados
+                    if (!dbTasksRef) return; // Segurança
+                    
                     dbTasksRef.child(taskId).update({ status: newCol })
                     .catch(err => {
-                        alert("Erro ao mover card. Revertendo.");
+                        // 'alert' é bloqueado, vamos usar o console
+                        console.error("Erro ao mover card. Revertendo.", err);
                         evt.from.appendChild(evt.item);
                     });
-                    
-                    // A atualização visual será feita pelo listener 'onChildChanged'
                 }
             });
-            sortables.push(s); // Guarda a instância para destruir depois
+            sortables.push(s); 
         });
     }
 

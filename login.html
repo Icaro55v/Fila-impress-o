@@ -54,16 +54,17 @@
         document.addEventListener('DOMContentLoaded', () => {
             
             const firebaseConfig = {
-              apiKey: "AIzaSyD1k7xHT1gJj71cX6IQIgsZxYSoFrQuz9Q",
-              authDomain: "stockmind-ai-lite.firebaseapp.com",
-              databaseURL: "https://stockmind-ai-lite-default-rtdb.firebaseio.com",
-              projectId: "stockmind-ai-lite",
-              storageBucket: "stockmind-ai-lite.firebasestorage.app",
-              messagingSenderId: "120136368220",
-              appId: "1:120136368220:web:c6d547fb48d6f5aa71e699"
+              apiKey: "AIzaSyAe5vcJe5mUUxAX5mXWFjCwL26esbxLvbo",
+              authDomain: "projeto-p-c672e.firebaseapp.com",
+              databaseURL: "https://projeto-p-c672e-default-rtdb.firebaseio.com",
+              projectId: "projeto-p-c672e",
+              storageBucket: "projeto-p-c672e.firebasestorage.app",
+              messagingSenderId: "474078684255",
+              appId: "1:474078684255:web:78313a16cab4e501e0a7ea",
+              measurementId: "G-DX6WX55RB8"
             };
 
-            const appId = firebaseConfig.projectId;
+            const appId = firebaseConfig.projectId; // <-- Atualizado para 'projeto-p-c672e'
             const app = firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.database();
