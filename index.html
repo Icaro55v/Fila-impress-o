@@ -24,766 +24,824 @@
 </head>
 <body class="antialiased text-gray-900">
 
-<!-- Cabeçalho -->
-<header class="bg-green-800 text-white shadow-lg sticky top-0 z-40">
-    <div class="container mx-auto max-w-full px-4 md:px-8 py-4 flex justify-between items-center">
-        <!-- Logo e Título -->
-        <div class="flex items-center space-x-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12a7.5 7.5 0 0 0 15 0"/></svg>
-            <div class="flex items-center space-x-3">
+    <!-- 
+      PÁGINA DE LOGIN
+      Agora faz parte do mesmo ficheiro.
+    -->
+    <div id="login-page" class="flex items-center justify-center min-h-screen">
+        <div class="bg-white p-8 md:p-10 rounded-xl shadow-2xl max-w-md w-full">
+            
+            <div class="flex justify-center mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-green-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12a7.5 7.5 0 0 0 15 0"/></svg>
+            </div>
+            
+            <h2 id="form-title" class="text-3xl font-bold text-center text-gray-800 mb-6">Entrar</h2>
+
+            <form id="auth-form" class="space-y-5">
                 <div>
-                    <h1 class="text-2xl font-bold">Gestor de Fila de Impressão 3D</h1>
-                    <p class="text-sm text-gray-200 font-light">Gestão de Pedidos</p>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="email" name="email" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" name="password" required minlength="6"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+                </div>
+
+                <p id="error-message" class="text-red-500 text-sm h-5"></p>
+
+                <button type="submit" id="submit-btn" 
+                        class="w-full bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors">
+                    Entrar
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-gray-600 mt-6">
+                <a href="#" id="toggle-form-link" class="text-green-600 hover:underline">Não tem conta? Criar nova conta</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- 
+      PÁGINA DO KANBAN (APP PRINCIPAL)
+      Será mostrada/oculta via JS.
+    -->
+    <div id="kanban-page" class="hidden">
+        <!-- Cabeçalho -->
+        <header class="bg-green-800 text-white shadow-lg sticky top-0 z-40">
+            <div class="container mx-auto max-w-full px-4 md:px-8 py-4 flex justify-between items-center">
+                <!-- Logo e Título -->
+                <div class="flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12a7.5 7.5 0 0 0 15 0"/></svg>
+                    <div class="flex items-center space-x-3">
+                        <div>
+                            <h1 class="text-2xl font-bold">Gestor de Fila de Impressão 3D</h1>
+                            <p class="text-sm text-gray-200 font-light">Gestão de Pedidos</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Botões de Ação -->
+                <div class="flex items-center space-x-3">
+                    <div id="admin-controls" class="flex items-center space-x-3 hidden">
+                        <div class="flex items-center space-x-2 mr-2">
+                            <label for="header-sort-select" class="text-sm font-medium">Ordenar por:</label>
+                            <select id="header-sort-select" class="px-3 py-2 rounded-lg bg-white text-gray-800 text-sm border border-green-600">
+                                <option value="createdAt" selected>Data de Adição</option>
+                                <option value="priority">Prioridade (Admin)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="add-task-btn" class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg font-semibold transition-colors">Adicionar Pedido</button>
+                    <button id="logout-btn" class="bg-green-500 text-white px-3 py-2 rounded-lg border border-green-600 text-sm font-medium hover:bg-red-600 hover:border-red-700 transition-colors">Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Barra de Status da Autenticação -->
+        <div id="auth-status" class="py-2 px-6 bg-green-900 text-green-200 text-sm text-center sticky top-[80px] z-30">A conectar...</div>
+
+        <!-- Corpo Principal do Kanban -->
+        <main id="kanban-board" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+            
+            <!-- Coluna 1: Pendente -->
+            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                        <h3 class="font-semibold text-red-600 uppercase text-sm">PENDENTE</h3>
+                    </div>
+                    <span id="count-pendente" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+                </div>
+                <div id="col-pendente" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="pendente"></div>
+            </div>
+
+            <!-- Coluna 2: Em Andamento -->
+            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
+                        <h3 class="font-semibold text-blue-600 uppercase text-sm">EM ANDAMENTO</h3>
+                    </div>
+                    <span id="count-andamento" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+                </div>
+                <div id="col-andamento" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="andamento"></div>
+            </div>
+
+            <!-- Coluna 3: Concluído -->
+            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                        <h3 class="font-semibold text-green-600 uppercase text-sm">CONCLUÍDO</h3>
+                    </div>
+                    <span id="count-concluido" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+                </div>
+                <div id="col-concluido" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="concluido"></div>
+            </div>
+
+            <!-- Coluna 4: Falha / Cancelado -->
+            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-3 h-3 bg-gray-500 rounded-full"></span>
+                        <h3 class="font-semibold text-gray-600 uppercase text-sm">FALHA / CANCELADO</h3>
+                    </div>
+                    <span id="count-falha" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+                </div>
+                <div id="col-falha" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="falha"></div>
+            </div>
+        </main>
+
+        <!-- Modal de Adicionar/Editar Tarefa -->
+        <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden">
+            <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full transform scale-95 opacity-0 overflow-hidden" id="task-modal-content">
+                <form id="task-form">
+                    <div class="flex justify-between items-center p-5 border-b border-gray-200">
+                        <h4 id="modal-title" class="text-2xl font-semibold text-gray-800">Adicionar Pedido</h4>
+                        <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-600">✕</button>
+                    </div>
+                    
+                    <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+                        <fieldset>
+                            <legend class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 w-full">Detalhes do Solicitante</legend>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="solicitante-nome" class="block text-sm font-medium text-gray-700 mb-1">Nome <span class="text-red-500">*</span></label>
+                                    <input type="text" id="solicitante-nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                </div>
+                                <div>
+                                    <label for="solicitante-matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula <span class="text-red-500">*</span></label>
+                                    <input type="text" id="solicitante-matricula" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                </div>
+                                <div>
+                                    <label for="solicitante-area" class="block text-sm font-medium text-gray-700 mb-1">Área <span class="text-red-500">*</span></label>
+                                    <select id="solicitante-area" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
+                                        <option value="" disabled selected>Selecione uma área</option>
+                                        <option value="Envase">Envase</option>
+                                        <option value="Processos">Processos</option>
+                                        <option value="Utilidades">Utilidades</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="solicitante-email" class="block text-sm font-medium text-gray-700 mb-1">Email de Contato <span class="text-red-500">*</span></label>
+                                    <input type="email" id="solicitante-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 w-full">Detalhes da Peça</legend>
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="peca-nome" class="block text-sm font-medium text-gray-700 mb-1">Selecione a Peça <span class="text-red-500">*</span></label>
+                                    <select id="peca-nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
+                                        <option value="" disabled selected>Selecione uma peça</option>
+                                        <option value="Faca para Etiquetadora">Faca para Etiquetadora</option>
+                                        <option value="Sapata">Sapata</option>
+                                        <option value="Tampão">Tampão</option>
+                                        <option value="Chave para área de Processos">Chave para área de Processos</option>
+                                        <option value="Hélice">Hélice</option>
+                                        <option value="Tampa do Lava Olhos">Tampa do Lava Olhos</option>
+                                        <option value="Tampa do Lava Olhos - Linha de Chopp">Tampa do Lava Olhos - Linha de Chopp</option>
+                                        <option value="Pino identificador da abertura da válvula on-off">Pino identificador da abertura da válvula on-off</option>
+                                        <option value="Outra">Outra</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="peca-outra" class="block text-sm font-medium text-gray-700 mb-1">Se for "Outra", descreva:</label>
+                                    <input type="text" id="peca-outra" class="w-full px-4 py-2 border border-gray-300 rounded-lg" disabled>
+                                </div>
+                                <div>
+                                    <label for="peca-codigo" class="block text-sm font-medium text-gray-700 mb-1">Código do Fabricante (Original)</label>
+                                    <input type="text" id="peca-codigo" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label for="peca-equipamento" class="block text-sm font-medium text-gray-700 mb-1">Equipamento onde será usada</label>
+                                    <input type="text" id="peca-equipamento" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="admin-fields" class="hidden">
+                            <legend class="text-lg font-semibold text-indigo-700 border-b border-indigo-200 pb-2 mb-4 w-full">Controlo de Impressão (Admin)</legend>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="admin-prioridade" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label>
+                                    <select id="admin-prioridade" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                                        <option value="3">Baixa</option>
+                                        <option value="2" selected>Média</option>
+                                        <option value="1">Alta</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="admin-material" class="block text-sm font-medium text-gray-700 mb-1">Material</label>
+                                    <select id="admin-material" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                                        <option value="PLA">PLA</option>
+                                        <option value="PETG" selected>PETG</option>
+                                        <option value="ABS">ABS</option>
+                                        <option value="TPU">TPU</option>
+                                        <option value="Outro">Outro</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="admin-cor" class="block text-sm font-medium text-gray-700 mb-1">Cor</label>
+                                    <input type="color" id="admin-cor" value="#4F46E5" class="w-full h-10 p-0 border border-gray-300 rounded-lg cursor-pointer">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label for="admin-ficheiro" class="block text-sm font-medium text-gray-700 mb-1">Nome do Ficheiro (.stl, .3mf)</label>
+                                <input type="text" id="admin-ficheiro" placeholder="ex: peca_final_v2.stl" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            </div>
+                        </fieldset>
+
+                        <input type="hidden" id="task-id-hidden">
+                        <p id="modal-error-message" class="text-red-500 text-sm h-5"></p>
+                    </div>
+                    
+                    <div class="flex justify-end items-center space-x-4 p-5 bg-gray-50 rounded-b-lg">
+                        <button type="button" id="cancel-modal-btn" class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors">Cancelar</button>
+                        <button type="submit" id="save-task-btn" class="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Confirmação de Exclusão -->
+        <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full transform scale-95 opacity-0" id="delete-modal-content">
+                <h4 class="text-xl font-semibold mb-4">Confirmar exclusão</h4>
+                <p class="text-gray-600 mb-6">Tem certeza de que deseja excluir este item?</p>
+                <div class="flex justify-end space-x-3">
+                    <button id="cancel-delete-btn" class="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition-colors">Cancelar</button>
+                    <button id="confirm-delete-btn" class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Excluir</button>
                 </div>
             </div>
         </div>
-        <!-- Botões de Ação -->
-        <div class="flex items-center space-x-3">
-            <!-- MUDANÇA: 'Ordenar por' é apenas para Admins, será mostrado/oculto via JS -->
-            <div id="admin-controls" class="flex items-center space-x-3 hidden">
-                <div class="flex items-center space-x-2 mr-2">
-                    <label for="header-sort-select" class="text-sm font-medium">Ordenar por:</label>
-                    <select id="header-sort-select" class="px-3 py-2 rounded-lg bg-white text-gray-800 text-sm border border-green-600">
-                        <option value="createdAt" selected>Data de Adição</option>
-                        <option value="priority">Prioridade (Admin)</option>
-                    </select>
-                </div>
-            </div>
-            <button id="add-task-btn" class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg font-semibold transition-colors">Adicionar Pedido</button>
-            <button id="logout-btn" class="bg-green-500 text-white px-3 py-2 rounded-lg border border-green-600 text-sm font-medium hover:bg-red-600 hover:border-red-700 transition-colors">Sair</button>
-        </div>
-    </div>
-</header>
+    </div> <!-- Fim de #kanban-page -->
 
-<!-- Barra de Status da Autenticação -->
-<div id="auth-status" class="py-2 px-6 bg-green-900 text-green-200 text-sm text-center sticky top-[80px] z-30">A conectar...</div>
+    <!-- Firebase (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-<!-- Corpo Principal do Kanban -->
-<!-- MUDANÇA: Colunas atualizadas para o fluxo de Impressão 3D -->
-<main id="kanban-board" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-    
-    <!-- Coluna 1: Pendente -->
-    <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-        <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
-            <div class="flex items-center space-x-3">
-                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-                <h3 class="font-semibold text-red-600 uppercase text-sm">PENDENTE</h3>
-            </div>
-            <span id="count-pendente" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
-        </div>
-        <div id="col-pendente" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="pendente"></div>
-    </div>
-
-    <!-- Coluna 2: Em Andamento -->
-    <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-        <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
-            <div class="flex items-center space-x-3">
-                <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
-                <h3 class="font-semibold text-blue-600 uppercase text-sm">EM ANDAMENTO</h3>
-            </div>
-            <span id="count-andamento" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
-        </div>
-        <div id="col-andamento" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="andamento"></div>
-    </div>
-
-    <!-- Coluna 3: Concluído -->
-    <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-        <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
-            <div class="flex items-center space-x-3">
-                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                <h3 class="font-semibold text-green-600 uppercase text-sm">CONCLUÍDO</h3>
-            </div>
-            <span id="count-concluido" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
-        </div>
-        <div id="col-concluido" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="concluido"></div>
-    </div>
-
-    <!-- Coluna 4: Falha / Cancelado -->
-    <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-        <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
-            <div class="flex items-center space-x-3">
-                <span class="w-3 h-3 bg-gray-500 rounded-full"></span>
-                <h3 class="font-semibold text-gray-600 uppercase text-sm">FALHA / CANCELADO</h3>
-            </div>
-            <span id="count-falha" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
-        </div>
-        <div id="col-falha" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="falha"></div>
-    </div>
-</main>
-
-<!-- MUDANÇA: Modal atualizado com o formulário detalhado -->
-<div id="task-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden">
-    <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full transform scale-95 opacity-0 overflow-hidden" id="task-modal-content">
-        <form id="task-form">
-            <div class="flex justify-between items-center p-5 border-b border-gray-200">
-                <h4 id="modal-title" class="text-2xl font-semibold text-gray-800">Adicionar Pedido</h4>
-                <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-600">✕</button>
-            </div>
-            
-            <!-- Corpo do Modal com Scroll -->
-            <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
-                
-                <!-- Seção do Usuário -->
-                <fieldset>
-                    <legend class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 w-full">Detalhes do Solicitante</legend>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="solicitante-nome" class="block text-sm font-medium text-gray-700 mb-1">Nome <span class="text-red-500">*</span></label>
-                            <input type="text" id="solicitante-nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
-                        </div>
-                        <div>
-                            <label for="solicitante-matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula <span class="text-red-500">*</span></label>
-                            <input type="text" id="solicitante-matricula" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
-                        </div>
-                        <div>
-                            <label for="solicitante-area" class="block text-sm font-medium text-gray-700 mb-1">Área <span class="text-red-500">*</span></label>
-                            <select id="solicitante-area" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
-                                <option value="" disabled selected>Selecione uma área</option>
-                                <option value="Envase">Envase</option>
-                                <option value="Processos">Processos</option>
-                                <option value="Utilidades">Utilidades</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="solicitante-email" class="block text-sm font-medium text-gray-700 mb-1">Email de Contato <span class="text-red-500">*</span></label>
-                            <input type="email" id="solicitante-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <!-- Seção da Peça -->
-                <fieldset>
-                    <legend class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 w-full">Detalhes da Peça</legend>
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="peca-nome" class="block text-sm font-medium text-gray-700 mb-1">Selecione a Peça <span class="text-red-500">*</span></label>
-                            <select id="peca-nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
-                                <option value="" disabled selected>Selecione uma peça</option>
-                                <option value="Faca para Etiquetadora">Faca para Etiquetadora</option>
-                                <option value="Sapata">Sapata</option>
-                                <option value="Tampão">Tampão</option>
-                                <option value="Chave para área de Processos">Chave para área de Processos</option>
-                                <option value="Hélice">Hélice</option>
-                                <option value="Tampa do Lava Olhos">Tampa do Lava Olhos</option>
-                                <option value="Tampa do Lava Olhos - Linha de Chopp">Tampa do Lava Olhos - Linha de Chopp</option>
-                                <option value="Pino identificador da abertura da válvula on-off">Pino identificador da abertura da válvula on-off</option>
-                                <option value="Outra">Outra</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="peca-outra" class="block text-sm font-medium text-gray-700 mb-1">Se for "Outra", descreva:</label>
-                            <input type="text" id="peca-outra" class="w-full px-4 py-2 border border-gray-300 rounded-lg" disabled>
-                        </div>
-                        <div>
-                            <label for="peca-codigo" class="block text-sm font-medium text-gray-700 mb-1">Código do Fabricante (Original)</label>
-                            <input type="text" id="peca-codigo" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                        </div>
-                        <div>
-                            <label for="peca-equipamento" class="block text-sm font-medium text-gray-700 mb-1">Equipamento onde será usada</label>
-                            <input type="text" id="peca-equipamento" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                        </div>
-                    </div>
-                </fieldset>
-
-                <!-- Seção do Admin (Impressão) -->
-                <fieldset id="admin-fields" class="hidden">
-                    <legend class="text-lg font-semibold text-indigo-700 border-b border-indigo-200 pb-2 mb-4 w-full">Controlo de Impressão (Admin)</legend>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label for="admin-prioridade" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label>
-                            <select id="admin-prioridade" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
-                                <option value="3">Baixa</option>
-                                <option value="2" selected>Média</option>
-                                <option value="1">Alta</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="admin-material" class="block text-sm font-medium text-gray-700 mb-1">Material</label>
-                            <select id="admin-material" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
-                                <option value="PLA">PLA</option>
-                                <option value="PETG" selected>PETG</option>
-                                <option value="ABS">ABS</option>
-                                <option value="TPU">TPU</option>
-                                <option value="Outro">Outro</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="admin-cor" class="block text-sm font-medium text-gray-700 mb-1">Cor</label>
-                            <input type="color" id="admin-cor" value="#4F46E5" class="w-full h-10 p-0 border border-gray-300 rounded-lg cursor-pointer">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <label for="admin-ficheiro" class="block text-sm font-medium text-gray-700 mb-1">Nome do Ficheiro (.stl, .3mf)</label>
-                        <input type="text" id="admin-ficheiro" placeholder="ex: peca_final_v2.stl" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                    </div>
-                </fieldset>
-
-                <input type="hidden" id="task-id-hidden">
-                <p id="modal-error-message" class="text-red-500 text-sm h-5"></p>
-            </div>
-            
-            <div class="flex justify-end items-center space-x-4 p-5 bg-gray-50 rounded-b-lg">
-                <button type="button" id="cancel-modal-btn" class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors">Cancelar</button>
-                <button type="submit" id="save-task-btn" class="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors">Salvar</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal de Confirmação de Exclusão -->
-<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden">
-    <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full transform scale-95 opacity-0" id="delete-modal-content">
-        <h4 class="text-xl font-semibold mb-4">Confirmar exclusão</h4>
-        <p class="text-gray-600 mb-6">Tem certeza de que deseja excluir este item?</p>
-        <div class="flex justify-end space-x-3">
-            <button id="cancel-delete-btn" class="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition-colors">Cancelar</button>
-            <button id="confirm-delete-btn" class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Excluir</button>
-        </div>
-    </div>
-</div>
-
-<!--
-    ! IMPORTANTE!
-    Usamos as versões -compat para compatibilidade com a sintaxe estilo v8.
--->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- 1. CONFIGURAÇÃO DO FIREBASE ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyAe5vcJe5mUUxAX5mXWFjCwL26esbxLvbo",
-      authDomain: "projeto-p-c672e.firebaseapp.com",
-      databaseURL: "https://projeto-p-c672e-default-rtdb.firebaseio.com",
-      projectId: "projeto-p-c672e",
-      storageBucket: "projeto-p-c672e.firebasestorage.app",
-      messagingSenderId: "474078684255",
-      appId: "1:474078684255:web:78313a16cab4e501e0a7ea",
-      measurementId: "G-DX6WX55RB8"
-    };
-
-    const appId = firebaseConfig.projectId; // <-- Atualizado para 'projeto-p-c672e'
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    // --- 2. VARIÁVEIS GLOBAIS E ESTADO ---
-    let currentUser = null;
-    let userUid = null;
-    let userRole = 'user'; // Padrão é 'user'
-    let dbTasksRef = null; 
-    let taskToDeleteId = null;
-    let allTasks = {}; // Cache local de todas as tarefas
-    let sortables = []; // Array para guardar instâncias do Sortable
-
-    // --- 3. MAPEAMENTO DE ELEMENTOS DO DOM ---
-    const authStatus = document.getElementById('auth-status');
-    const logoutBtn = document.getElementById('logout-btn');
-    const addTaskBtn = document.getElementById('add-task-btn');
-    const adminControls = document.getElementById('admin-controls');
-    const headerSortSelect = document.getElementById('header-sort-select');
-
-    // MUDANÇA: Colunas de 4 status
-    const columns = {
-        "pendente": document.getElementById('col-pendente'),
-        "andamento": document.getElementById('col-andamento'),
-        "concluido": document.getElementById('col-concluido'),
-        "falha": document.getElementById('col-falha')
-    };
-    const columnIds = Object.keys(columns);
-    const columnCounts = {
-        "pendente": document.getElementById('count-pendente'),
-        "andamento": document.getElementById('count-andamento'),
-        "concluido": document.getElementById('count-concluido'),
-        "falha": document.getElementById('count-falha')
-    };
-
-    // Modais
-    const taskModal = document.getElementById('task-modal');
-    const taskModalContent = document.getElementById('task-modal-content');
-    const taskForm = document.getElementById('task-form');
-    const modalTitle = document.getElementById('modal-title');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    const cancelModalBtn = document.getElementById('cancel-modal-btn');
-    const saveTaskBtn = document.getElementById('save-task-btn');
-    const taskIdHidden = document.getElementById('task-id-hidden');
-    const modalErrorMessage = document.getElementById('modal-error-message');
-    
-    // Campos do Formulário (Usuário)
-    const solicitanteNome = document.getElementById('solicitante-nome');
-    const solicitanteMatricula = document.getElementById('solicitante-matricula');
-    const solicitanteArea = document.getElementById('solicitante-area');
-    const solicitanteEmail = document.getElementById('solicitante-email');
-    const pecaNome = document.getElementById('peca-nome');
-    const pecaOutra = document.getElementById('peca-outra');
-    const pecaCodigo = document.getElementById('peca-codigo');
-    const pecaEquipamento = document.getElementById('peca-equipamento');
-
-    // Campos do Formulário (Admin)
-    const adminFields = document.getElementById('admin-fields');
-    const adminPrioridade = document.getElementById('admin-prioridade');
-    const adminMaterial = document.getElementById('admin-material');
-    const adminCor = document.getElementById('admin-cor');
-    const adminFicheiro = document.getElementById('admin-ficheiro');
-    
-    const deleteModal = document.getElementById('delete-modal');
-    const deleteModalContent = document.getElementById('delete-modal-content');
-    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-
-
-    // --- 4. LÓGICA DE AUTENTICAÇÃO E FUNÇÕES (ROLES) ---
-
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUser = user;
-            userUid = user.uid;
-            // CORREÇÃO: Verifica se o email existe antes de o dividir
-            const userName = user.email ? user.email.split('@')[0] : 'Utilizador';
-            authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)}`;
-
-            // Verifica a função (role) do utilizador
-            const userRoleRef = db.ref(`/artifacts/${appId}/users/${user.uid}/role`);
-            userRoleRef.on('value', (snap) => {
-                if (snap.exists() && snap.val() === 'admin') {
-                    userRole = 'admin';
-                    authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (ADMIN)`;
-                } else {
-                    userRole = 'user';
-                    authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (Usuário)`;
-                }
-                
-                // Atualiza a UI com base na função
-                updateUIForRole();
-                
-                // Inicializa os listeners e o drag-and-drop
-                // (só depois de sabermos a função)
-                initRealtimeListener();
-                initSortable();
-            });
-
-        } else {
-            currentUser = null;
-            userUid = null;
-            // CORREÇÃO 2: Mudar de './login.html' para 'login.html'
-            window.location.replace('login.html');
-        }
-    });
-
-    logoutBtn.addEventListener('click', () => {
-        // if (confirm('Deseja sair?')) { // 'confirm' é bloqueado
-            auth.signOut();
-        // }
-    });
-    
-    function updateUIForRole() {
-        if (userRole === 'admin') {
-            adminControls.classList.remove('hidden');
-        } else {
-            adminControls.classList.add('hidden');
-        }
-        // Re-renderiza os cartões para aplicar permissões (cursor, botões)
-        renderAllTasks();
-        // Re-inicializa o sortable para ativar/desativar o drag
-        initSortable();
-    }
-
-
-    // --- 5. LÓGICA DO BANCO DE DADOS (RTDB) ---
-
-    function initRealtimeListener() {
-        // Limpa listeners antigos se existirem
-        if (dbTasksRef) dbTasksRef.off(); 
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
         
-        columnIds.forEach(id => columns[id].innerHTML = '');
-        allTasks = {};
-
-        const publicTasksPath = `/artifacts/${appId}/public/data/allPrintJobs`;
-
-        // Admin vê tudo, Usuário vê apenas os seus
-        if (userRole === 'admin') {
-            dbTasksRef = db.ref(publicTasksPath);
-        } else {
-            dbTasksRef = db.ref(publicTasksPath).orderByChild('createdBy').equalTo(userUid);
-        }
-
-        // --- Handlers ---
-        const onChildAdded = (snap) => {
-            const task = snap.val();
-            const taskId = snap.key;
-            if (!task) return;
-            allTasks[taskId] = { id: taskId, ...task };
-            renderAllTasks(); // Re-renderiza e re-ordena
+        // --- 1. CONFIGURAÇÃO DO FIREBASE ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyAe5vcJe5mUUxAX5mXWFjCwL26esbxLvbo",
+          authDomain: "projeto-p-c672e.firebaseapp.com",
+          databaseURL: "https://projeto-p-c672e-default-rtdb.firebaseio.com",
+          projectId: "projeto-p-c672e",
+          storageBucket: "projeto-p-c672e.firebasestorage.app",
+          messagingSenderId: "474078684255",
+          appId: "1:474078684255:web:78313a16cab4e501e0a7ea",
+          measurementId: "G-DX6WX55RB8"
         };
 
-        const onChildChanged = (snap) => {
-            const task = snap.val();
-            const taskId = snap.key;
-            if (!task) return;
-            allTasks[taskId] = { id: taskId, ...task };
-            renderAllTasks(); // Re-renderiza e re-ordena
+        const appId = firebaseConfig.projectId;
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // --- 2. VARIÁVEIS GLOBAIS E ESTADO ---
+        let currentUser = null;
+        let userUid = null;
+        let userRole = 'user'; 
+        let dbTasksRef = null; 
+        let taskToDeleteId = null;
+        let allTasks = {}; 
+        let sortables = []; 
+
+        // --- 3. MAPEAMENTO DE ELEMENTOS DO DOM ---
+        
+        // -- Páginas
+        const loginPage = document.getElementById('login-page');
+        const kanbanPage = document.getElementById('kanban-page');
+
+        // -- Elementos de Login
+        const authForm = document.getElementById('auth-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('error-message');
+        const submitBtn = document.getElementById('submit-btn');
+        const toggleFormLink = document.getElementById('toggle-form-link');
+        const formTitle = document.getElementById('form-title');
+        let isLoginMode = true;
+
+        // -- Elementos do Kanban
+        const authStatus = document.getElementById('auth-status');
+        const logoutBtn = document.getElementById('logout-btn');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const adminControls = document.getElementById('admin-controls');
+        const headerSortSelect = document.getElementById('header-sort-select');
+
+        const columns = {
+            "pendente": document.getElementById('col-pendente'),
+            "andamento": document.getElementById('col-andamento'),
+            "concluido": document.getElementById('col-concluido'),
+            "falha": document.getElementById('col-falha')
+        };
+        const columnIds = Object.keys(columns);
+        const columnCounts = {
+            "pendente": document.getElementById('count-pendente'),
+            "andamento": document.getElementById('count-andamento'),
+            "concluido": document.getElementById('count-concluido'),
+            "falha": document.getElementById('count-falha')
         };
 
-        const onChildRemoved = (snap) => {
-            const taskId = snap.key;
-            delete allTasks[taskId];
-            renderAllTasks(); // Re-renderiza e re-ordena
-        };
-
-        // Registra os listeners
-        dbTasksRef.on('child_added', onChildAdded);
-        dbTasksRef.on('child_changed', onChildChanged);
-        dbTasksRef.on('child_removed', onChildRemoved);
-    }
-    
-    // --- 6. RENDERIZAÇÃO E ORDENAÇÃO ---
-
-    headerSortSelect.addEventListener('change', renderAllTasks);
-
-    function renderAllTasks() {
-        // Limpa colunas
-        columnIds.forEach(id => columns[id].innerHTML = '');
-
-        let tasksArray = Object.values(allTasks);
-
-        // Aplica Ordenação (Admin)
-        const sortValue = headerSortSelect.value;
-        if (userRole === 'admin' && sortValue === 'priority') {
-            // Prioridade 1 (Alta) primeiro, depois 2, depois 3
-            tasksArray.sort((a, b) => (a.adminPrioridade || 2) - (b.adminPrioridade || 2));
-        } else {
-            // Padrão: Data de criação (mais antigo primeiro)
-            tasksArray.sort((a, b) => a.createdAt - b.createdAt);
-        }
-
-        // Renderiza nas colunas
-        tasksArray.forEach(task => {
-            const colId = task.status || 'pendente';
-            if (columns[colId]) {
-                const card = createTaskElement(task);
-                columns[colId].appendChild(card);
-            }
-        });
-
-        updateAllCounts();
-    }
-
-    function updateAllCounts() {
-        columnIds.forEach(colId => {
-            if (columns[colId]) { // Adiciona verificação se a coluna existe
-                const count = columns[colId].children.length;
-                if (columnCounts[colId]) { // Adiciona verificação se o contador existe
-            	    columnCounts[colId].textContent = count;
-                }
-            }
-        });
-    }
-
-
-    // Gerador de Classes de Prioridade (Admin)
-    function getPriorityClasses(priority){
-        priority = String(priority);
-        if (priority === '1') return { border:'border-red-500', text:'Alta', bg:'bg-red-500' };
-        if (priority === '2') return { border:'border-orange-500', text:'Média', bg:'bg-orange-500' };
-        if (priority === '3') return { border:'border-blue-500', text:'Baixa', bg:'bg-blue-500' };
-        return { border:'border-gray-400', text:'N/A', bg:'bg-gray-500' };
-    }
-
-    // Criação do Elemento Card
-    function createTaskElement(task){
-        // Usa a prioridade do admin se existir, senão N/A
-        const p = getPriorityClasses(task.adminPrioridade);
+        // Modais
+        const taskModal = document.getElementById('task-modal');
+        const taskModalContent = document.getElementById('task-modal-content');
+        const taskForm = document.getElementById('task-form');
+        const modalTitle = document.getElementById('modal-title');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelModalBtn = document.getElementById('cancel-modal-btn');
+        const saveTaskBtn = document.getElementById('save-task-btn');
+        const taskIdHidden = document.getElementById('task-id-hidden');
+        const modalErrorMessage = document.getElementById('modal-error-message');
         
-        const card = document.createElement('div');
-        card.className = `task-card bg-white p-4 rounded-lg shadow-md border-l-4 ${p.border} group relative`;
-		card.dataset.taskId = task.id;
+        // Campos do Formulário (Usuário)
+        const solicitanteNome = document.getElementById('solicitante-nome');
+        const solicitanteMatricula = document.getElementById('solicitante-matricula');
+        const solicitanteArea = document.getElementById('solicitante-area');
+        const solicitanteEmail = document.getElementById('solicitante-email');
+        const pecaNome = document.getElementById('peca-nome');
+        const pecaOutra = document.getElementById('peca-outra');
+        const pecaCodigo = document.getElementById('peca-codigo');
+        const pecaEquipamento = document.getElementById('peca-equipamento');
+
+        // Campos do Formulário (Admin)
+        const adminFields = document.getElementById('admin-fields');
+        const adminPrioridade = document.getElementById('admin-prioridade');
+        const adminMaterial = document.getElementById('admin-material');
+        const adminCor = document.getElementById('admin-cor');
+        const adminFicheiro = document.getElementById('admin-ficheiro');
         
-        // Define o cursor: 'move' para admin, 'default' para usuário
-        card.style.cursor = (userRole === 'admin') ? 'move' : 'default';
+        const deleteModal = document.getElementById('delete-modal');
+        const deleteModalContent = document.getElementById('delete-modal-content');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
-        // Sanitização
-        const peca = DOMPurify.sanitize(task.pecaNome === 'Outra' ? task.pecaOutra : task.pecaNome);
-        const area = DOMPurify.sanitize(task.solicitanteArea);
-        const nome = DOMPurify.sanitize(task.solicitanteNome);
-        const data = task.createdAt ? new Date(task.createdAt).toLocaleDateString('pt-BR') : '...'; // Adiciona fallback para data
 
-        card.innerHTML = `
-            <!-- Título: Nome da Peça -->
-            <h4 class="text-base font-semibold text-gray-800 mb-2">${peca || 'Peça sem nome'}</h4> <!-- Adiciona fallback -->
-            
-            <!-- Detalhes -->
-            <p class="text-sm text-gray-600"><span class="font-medium">Solicitante:</span> ${nome || 'N/A'}</p>
-            <p class="text-sm text-gray-600"><span class="font-medium">Área:</span> ${area || 'N/A'}</p>
-            
-            <!-- Rodapé do Card -->
-            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
-                <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${p.bg} text-white">${p.text}</span>
-                <span class="text-xs text-gray-400">${data}</span>
-            </div>
-            
-            <!-- Botão de Apagar (Só para Admin) -->
-            <button class="delete-task-btn ${userRole === 'admin' ? '' : 'hidden'} absolute top-2 right-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Apagar Pedido">✕</button>
-        `;
-        
-        // Admin pode editar (clique no card)
-		if (userRole === 'admin') {
-            card.addEventListener('click', () => openTaskModal('edit', card.dataset.taskId));
-        }
-        
-        // Admin pode apagar (botão X)
-        const deleteBtn = card.querySelector('.delete-task-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', (e)=>{ 
-                e.stopPropagation(); 
-                showDeleteModal(card.dataset.taskId); 
-            });
-        }
-        
-        return card;
-    }
+        // --- 4. LÓGICA DE LOGIN (Movida para cá) ---
 
-    // --- 7. LÓGICA DOS MODAIS ---
-
-    function showModal(modal, content){ 
-        if (!modal || !content) return; // Segurança
-        modal.classList.remove('hidden'); 
-        setTimeout(()=>{ 
-            modal.classList.add('opacity-100'); 
-            content.classList.add('scale-100','opacity-100'); 
-            content.classList.remove('scale-95','opacity-0'); 
-        }, 10);
-    }
-
-    function hideModal(modal, content){ 
-        if (!modal || !content) return; // Segurança
-        content.classList.remove('scale-100','opacity-100'); 
-        content.classList.add('scale-95','opacity-0'); 
-        modal.classList.remove('opacity-100'); 
-        setTimeout(()=> modal.classList.add('hidden'), 200); 
-    }
-    
-    // Controla o campo "Outra Peça"
-    if (pecaNome) {
-        pecaNome.addEventListener('change', () => {
-            if (pecaOutra) {
-                pecaOutra.disabled = (pecaNome.value !== 'Outra');
-                if (!pecaOutra.disabled) pecaOutra.focus();
-            }
-        });
-    }
-
-    // Abertura do Modal de Tarefa
-    async function openTaskModal(mode = 'add', taskId = null){
-        if (!taskForm) return; // Segurança
-        
-        modalErrorMessage.textContent = '';
-        taskForm.reset();
-        
-        if (pecaOutra) pecaOutra.disabled = true;
-        if (saveTaskBtn) {
-            saveTaskBtn.disabled = false;
-            saveTaskBtn.textContent = "Salvar";
-        }
-
-        // CORREÇÃO: Mover a verificação do currentUser para o TOPO
-        if (!currentUser) {
-            modalErrorMessage.textContent = "Erro: Utilizador não autenticado. Por favor, atualize a página.";
-            if (saveTaskBtn) saveTaskBtn.disabled = true;
-            
-            // Mostra o modal mesmo com erro, para o utilizador ver a mensagem
-            showModal(taskModal, taskModalContent); 
-            return; 
-        }
-
-        // Usuário comum NUNCA vê os campos de admin
-        if (adminFields) adminFields.classList.add('hidden');
-        
-        // Preenche campos do usuário (se estiver logado)
-        if (solicitanteEmail) solicitanteEmail.value = currentUser.email; // Esta linha agora é segura
-        
-        if (mode === 'add') {
-            if (modalTitle) modalTitle.textContent = 'Adicionar Pedido';
-            if (taskIdHidden) taskIdHidden.value = '';
-        } 
-        else if (mode === 'edit' && taskId && userRole === 'admin') {
-            if (modalTitle) modalTitle.textContent = 'Editar Pedido';
-            if (taskIdHidden) taskIdHidden.value = taskId; 
-            
-            if (adminFields) adminFields.classList.remove('hidden');
-            
-            const task = allTasks[taskId];
-            if (!task) {
-                modalErrorMessage.textContent = "Erro: Tarefa não encontrada.";
-                return;
-            }
-
-            // Preenche campos do usuário
-            if (solicitanteNome) solicitanteNome.value = task.solicitanteNome || '';
-            if (solicitanteMatricula) solicitanteMatricula.value = task.solicitanteMatricula || '';
-            if (solicitanteArea) solicitanteArea.value = task.solicitanteArea || '';
-            if (solicitanteEmail) solicitanteEmail.value = task.solicitanteEmail || '';
-            if (pecaNome) pecaNome.value = task.pecaNome || '';
-            if (pecaOutra) pecaOutra.value = task.pecaOutra || '';
-            if (pecaNome && pecaOutra && task.pecaNome === 'Outra') pecaOutra.disabled = false;
-            if (pecaCodigo) pecaCodigo.value = task.pecaCodigo || '';
-            if (pecaEquipamento) pecaEquipamento.value = task.pecaEquipamento || '';
-            
-            // Preenche campos de admin
-            if (adminPrioridade) adminPrioridade.value = task.adminPrioridade || '2';
-            if (adminMaterial) adminMaterial.value = task.adminMaterial || 'PETG';
-            if (adminCor) adminCor.value = task.adminCor || '#4F46E5';
-            if (adminFicheiro) adminFicheiro.value = task.adminFicheiro || '';
-        }
-        
-        showModal(taskModal, taskModalContent);
-    }
-
-    function closeTaskModal(){ 
-        hideModal(taskModal, taskModalContent); 
-    }
-
-    function showDeleteModal(id){ 
-        taskToDeleteId = id; 
-        if (confirmDeleteBtn) confirmDeleteBtn.disabled = false;
-        showModal(deleteModal, deleteModalContent); 
-    }
-
-    function hideDeleteModal(){ 
-        hideModal(deleteModal, deleteModalContent); 
-        taskToDeleteId = null; 
-    }
-
-    // Evento de Envio do Formulário (Salvar)
-    if (taskForm) {
-        taskForm.addEventListener('submit', async (e) => {
+        // Mudar entre Login e Criar Conta
+        toggleFormLink.addEventListener('click', (e) => {
             e.preventDefault();
-            if (modalErrorMessage) modalErrorMessage.textContent = '';
-            if (saveTaskBtn) {
-                saveTaskBtn.disabled = true;
-                saveTaskBtn.textContent = "A salvar...";
+            isLoginMode = !isLoginMode;
+            if (isLoginMode) {
+                formTitle.textContent = 'Entrar';
+                submitBtn.textContent = 'Entrar';
+                toggleFormLink.textContent = 'Não tem conta? Criar nova conta';
+            } else {
+                formTitle.textContent = 'Criar Nova Conta';
+                submitBtn.textContent = 'Criar Conta';
+                toggleFormLink.textContent = 'Já tem conta? Entrar';
             }
+            errorMessage.textContent = '';
+        });
 
-            const editingId = taskIdHidden ? taskIdHidden.value : null; 
-            
-            // Recolhe dados do formulário
-            const data = {
-                // Usuário
-                solicitanteNome: solicitanteNome ? solicitanteNome.value : '',
-                solicitanteMatricula: solicitanteMatricula ? solicitanteMatricula.value : '',
-                solicitanteArea: solicitanteArea ? solicitanteArea.value : '',
-                solicitanteEmail: solicitanteEmail ? solicitanteEmail.value : '',
-                pecaNome: pecaNome ? pecaNome.value : '',
-                pecaOutra: pecaOutra ? (pecaOutra.disabled ? '' : pecaOutra.value) : '',
-                pecaCodigo: pecaCodigo ? pecaCodigo.value : '',
-                pecaEquipamento: pecaEquipamento ? pecaEquipamento.value : '',
-            };
+        // Envio do formulário de Login/Criação
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            errorMessage.textContent = '';
+            submitBtn.disabled = true;
 
             try {
-                if (editingId && userRole === 'admin') {
-                    // --- MODO EDIÇÃO (ADMIN) ---
-                    data.adminPrioridade = adminPrioridade ? adminPrioridade.value : '2';
-                    data.adminMaterial = adminMaterial ? adminMaterial.value : 'PETG';
-                    data.adminCor = adminCor ? adminCor.value : '#4F46E5';
-                    data.adminFicheiro = adminFicheiro ? adminFicheiro.value : '';
-                    
-                    await dbTasksRef.child(editingId).update(data);
+                if (isLoginMode) {
+                    // --- Modo Login ---
+                    await auth.signInWithEmailAndPassword(email, password);
+                } else {
+                    // --- Modo Criar Conta ---
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
 
-                } else if (!editingId) {
-                    // --- MODO ADIÇÃO (QUALQUER UM) ---
-                    data.createdBy = userUid;
-                    data.createdAt = firebase.database.ServerValue.TIMESTAMP;
-                    data.status = 'pendente';
-                    
-                    data.adminPrioridade = '2';
-                    data.adminMaterial = 'PETG';
-                    data.adminCor = '#4F46E5';
-                    data.adminFicheiro = '';
-
-                    const newRef = dbTasksRef.push();
-                    await newRef.set(data);
-                }
-                
-                closeTaskModal();
-
-            } catch (err) {
-                 if (modalErrorMessage) modalErrorMessage.textContent = 'Erro ao salvar: ' + err.message;
-                 if (saveTaskBtn) {
-                     saveTaskBtn.disabled = false;
-                     saveTaskBtn.textContent = "Salvar";
-                 }
-            }
-        });
-    }
-
-    // Evento de Exclusão (SÓ ADMIN)
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', async () => {
-            if (taskToDeleteId && userRole === 'admin') {
-                confirmDeleteBtn.disabled = true;
-                try {
-                    await dbTasksRef.child(taskToDeleteId).remove();
-                    hideDeleteModal();
-                } catch (err) {
-                    alert("Erro ao excluir: " + err.message); // 'alert' é melhor aqui
-                    confirmDeleteBtn.disabled = false;
-                }
-            }
-        });
-    }
-
-    // Listeners de fechar modais
-    if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', hideDeleteModal);
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeTaskModal);
-    if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeTaskModal);
-    if (taskModal) taskModal.addEventListener('click', (e) => { if (e.target === taskModal) closeTaskModal(); });
-    if (deleteModal) deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) hideDeleteModal(); });
-    if (addTaskBtn) addTaskBtn.addEventListener('click', () => openTaskModal('add'));
-
-    // --- 8. INICIALIZAÇÃO DO DRAG & DROP (Sortable.js) ---
-
-    function initSortable(){
-        // Destrói instâncias antigas (importante ao trocar de usuário)
-        sortables.forEach(s => s.destroy());
-        sortables = [];
-        
-        columnIds.forEach(colId => {
-            const el = columns[colId];
-            if (!el) return;
-            
-            const s = new Sortable(el, {
-                group: 'kanban',
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                disabled: userRole !== 'admin',
-                
-                onEnd: (evt) => {
-                    if (userRole !== 'admin') return; 
-
-                    const taskId = evt.item.dataset.taskId;
-                    const newCol = evt.to.dataset.columnId;
-                    const oldCol = evt.from.dataset.columnId;
-
-                    if (newCol === oldCol) return; 
-                    
-                    if (!dbTasksRef) return; // Segurança
-                    
-                    dbTasksRef.child(taskId).update({ status: newCol })
-                    .catch(err => {
-                        // 'alert' é bloqueado, vamos usar o console
-                        console.error("Erro ao mover card. Revertendo.", err);
-                        evt.from.appendChild(evt.item);
+                    // *** LÓGICA DE AUTO-ADMIN ***
+                    // Define a 'role' do novo utilizador como 'admin'
+                    const userRoleRef = db.ref(`/artifacts/${appId}/users/${user.uid}`);
+                    await userRoleRef.set({
+                        email: user.email,
+                        role: 'admin' // <-- Auto-admin
                     });
                 }
-            });
-            sortables.push(s); 
+                // Sucesso! O onAuthStateChanged tratará do resto.
+            } catch (error) {
+                errorMessage.textContent = getFirebaseErrorMessage(error.code);
+                submitBtn.disabled = false;
+            }
         });
-    }
 
-});
-</script>
+        function getFirebaseErrorMessage(code) {
+            switch (code) {
+                case 'auth/wrong-password': return 'Password incorreta. Tente novamente.';
+                case 'auth/user-not-found': return 'Nenhum utilizador encontrado com este email.';
+                case 'auth/email-already-in-use': return 'Este email já está a ser utilizado.';
+                case 'auth/weak-password': return 'A password deve ter pelo menos 6 caracteres.';
+                case 'auth/invalid-email': return 'Formato de email inválido.';
+                default: return 'Ocorreu um erro. Tente novamente.';
+            }
+        }
+
+        // --- 5. LÓGICA DE AUTENTICAÇÃO E "ROUTER" ---
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // --- UTILIZADOR AUTENTICADO ---
+                currentUser = user;
+                userUid = user.uid;
+                const userName = user.email ? user.email.split('@')[0] : 'Utilizador';
+                authStatus.textContent = `A verificar permissões...`;
+
+                // Mostra o Kanban, esconde o Login
+                kanbanPage.classList.remove('hidden');
+                loginPage.classList.add('hidden');
+
+                // Verifica a função (role)
+                const userRoleRef = db.ref(`/artifacts/${appId}/users/${user.uid}/role`);
+                userRoleRef.on('value', (snap) => {
+                    if (snap.exists() && snap.val() === 'admin') {
+                        userRole = 'admin';
+                        authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (ADMIN)`;
+                    } else {
+                        userRole = 'user';
+                        authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (Usuário)`;
+                    }
+                    
+                    updateUIForRole();
+                    initRealtimeListener();
+                    initSortable();
+                });
+
+            } else {
+                // --- UTILIZADOR DESLOGADO ---
+                currentUser = null;
+                userUid = null;
+                userRole = 'user'; 
+
+                // Para listeners antigos (se existirem)
+                if (dbTasksRef) dbTasksRef.off(); 
+                allTasks = {};
+                renderAllTasks(); // Limpa o quadro
+
+                // Mostra o Login, esconde o Kanban
+                kanbanPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                
+                // Reseta o formulário de login
+                submitBtn.disabled = false;
+                errorMessage.textContent = '';
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+        
+        function updateUIForRole() {
+            if (userRole === 'admin') {
+                adminControls.classList.remove('hidden');
+            } else {
+                adminControls.classList.add('hidden');
+            }
+            renderAllTasks();
+            initSortable();
+        }
+
+        // --- 6. LÓGICA DO BANCO DE DADOS (RTDB) ---
+        // (O resto do código do print_queue_manager.html)
+
+        function initRealtimeListener() {
+            if (dbTasksRef) dbTasksRef.off(); 
+            columnIds.forEach(id => columns[id].innerHTML = '');
+            allTasks = {};
+            const publicTasksPath = `/artifacts/${appId}/public/data/allPrintJobs`;
+
+            if (userRole === 'admin') {
+                dbTasksRef = db.ref(publicTasksPath);
+            } else {
+                dbTasksRef = db.ref(publicTasksPath).orderByChild('createdBy').equalTo(userUid);
+            }
+
+            const onChildAdded = (snap) => {
+                const task = snap.val(); const taskId = snap.key; if (!task) return;
+                allTasks[taskId] = { id: taskId, ...task };
+                renderAllTasks(); 
+            };
+            const onChildChanged = (snap) => {
+                const task = snap.val(); const taskId = snap.key; if (!task) return;
+                allTasks[taskId] = { id: taskId, ...task };
+                renderAllTasks(); 
+            };
+            const onChildRemoved = (snap) => {
+                const taskId = snap.key; delete allTasks[taskId];
+                renderAllTasks(); 
+            };
+
+            dbTasksRef.on('child_added', onChildAdded);
+            dbTasksRef.on('child_changed', onChildChanged);
+            dbTasksRef.on('child_removed', onChildRemoved);
+        }
+        
+        // --- 7. RENDERIZAÇÃO E ORDENAÇÃO ---
+
+        headerSortSelect.addEventListener('change', renderAllTasks);
+
+        function renderAllTasks() {
+            columnIds.forEach(id => {
+                if(columns[id]) columns[id].innerHTML = '';
+            });
+
+            let tasksArray = Object.values(allTasks);
+
+            const sortValue = headerSortSelect.value;
+            if (userRole === 'admin' && sortValue === 'priority') {
+                tasksArray.sort((a, b) => (a.adminPrioridade || 2) - (b.adminPrioridade || 2));
+            } else {
+                tasksArray.sort((a, b) => a.createdAt - b.createdAt);
+            }
+
+            tasksArray.forEach(task => {
+                const colId = task.status || 'pendente';
+                if (columns[colId]) {
+                    const card = createTaskElement(task);
+                    columns[colId].appendChild(card);
+                }
+            });
+            updateAllCounts();
+        }
+
+        function updateAllCounts() {
+            columnIds.forEach(colId => {
+                if (columns[colId]) { 
+                    const count = columns[colId].children.length;
+                    if (columnCounts[colId]) { 
+                        columnCounts[colId].textContent = count;
+                    }
+                }
+            });
+        }
+
+        function getPriorityClasses(priority){
+            priority = String(priority);
+            if (priority === '1') return { border:'border-red-500', text:'Alta', bg:'bg-red-500' };
+            if (priority === '2') return { border:'border-orange-500', text:'Média', bg:'bg-orange-500' };
+            if (priority === '3') return { border:'border-blue-500', text:'Baixa', bg:'bg-blue-500' };
+            return { border:'border-gray-400', text:'N/A', bg:'bg-gray-500' };
+        }
+
+        function createTaskElement(task){
+            const p = getPriorityClasses(task.adminPrioridade);
+            const card = document.createElement('div');
+            card.className = `task-card bg-white p-4 rounded-lg shadow-md border-l-4 ${p.border} group relative`;
+            card.dataset.taskId = task.id;
+            card.style.cursor = (userRole === 'admin') ? 'move' : 'default';
+
+            const peca = DOMPurify.sanitize(task.pecaNome === 'Outra' ? task.pecaOutra : task.pecaNome);
+            const area = DOMPurify.sanitize(task.solicitanteArea);
+            const nome = DOMPurify.sanitize(task.solicitanteNome);
+            const data = task.createdAt ? new Date(task.createdAt).toLocaleDateString('pt-BR') : '...'; 
+
+            card.innerHTML = `
+                <h4 class="text-base font-semibold text-gray-800 mb-2">${peca || 'Peça sem nome'}</h4>
+                <p class="text-sm text-gray-600"><span class="font-medium">Solicitante:</span> ${nome || 'N/A'}</p>
+                <p class="text-sm text-gray-600"><span class="font-medium">Área:</span> ${area || 'N/A'}</p>
+                <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${p.bg} text-white">${p.text}</span>
+                    <span class="text-xs text-gray-400">${data}</span>
+                </div>
+                <button class="delete-task-btn ${userRole === 'admin' ? '' : 'hidden'} absolute top-2 right-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Apagar Pedido">✕</button>
+            `;
+            
+            if (userRole === 'admin') {
+                card.addEventListener('click', () => openTaskModal('edit', card.dataset.taskId));
+            }
+            
+            const deleteBtn = card.querySelector('.delete-task-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e)=>{ 
+                    e.stopPropagation(); 
+                    showDeleteModal(card.dataset.taskId); 
+                });
+            }
+            return card;
+        }
+
+        // --- 8. LÓGICA DOS MODAIS ---
+
+        function showModal(modal, content){ 
+            if (!modal || !content) return; 
+            modal.classList.remove('hidden'); 
+            setTimeout(()=>{ 
+                modal.classList.add('opacity-100'); 
+                content.classList.add('scale-100','opacity-100'); 
+                content.classList.remove('scale-95','opacity-0'); 
+            }, 10);
+        }
+
+        function hideModal(modal, content){ 
+            if (!modal || !content) return; 
+            content.classList.remove('scale-100','opacity-100'); 
+            content.classList.add('scale-95','opacity-0'); 
+            modal.classList.remove('opacity-100'); 
+            setTimeout(()=> modal.classList.add('hidden'), 200); 
+        }
+        
+        if (pecaNome) {
+            pecaNome.addEventListener('change', () => {
+                if (pecaOutra) {
+                    pecaOutra.disabled = (pecaNome.value !== 'Outra');
+                    if (!pecaOutra.disabled) pecaOutra.focus();
+                }
+            });
+        }
+
+        async function openTaskModal(mode = 'add', taskId = null){
+            if (!taskForm) return; 
+            modalErrorMessage.textContent = '';
+            taskForm.reset();
+            
+            if (pecaOutra) pecaOutra.disabled = true;
+            if (saveTaskBtn) {
+                saveTaskBtn.disabled = false;
+                saveTaskBtn.textContent = "Salvar";
+            }
+
+            // CORREÇÃO: Verificação movida para o topo
+            if (!currentUser) {
+                modalErrorMessage.textContent = "Erro: Utilizador não autenticado. Por favor, atualize a página.";
+                if (saveTaskBtn) saveTaskBtn.disabled = true;
+                showModal(taskModal, taskModalContent); 
+                return; 
+            }
+
+            if (adminFields) adminFields.classList.add('hidden');
+            if (solicitanteEmail) solicitanteEmail.value = currentUser.email; 
+            
+            if (mode === 'add') {
+                if (modalTitle) modalTitle.textContent = 'Adicionar Pedido';
+                if (taskIdHidden) taskIdHidden.value = '';
+            } 
+            else if (mode === 'edit' && taskId && userRole === 'admin') {
+                if (modalTitle) modalTitle.textContent = 'Editar Pedido';
+                if (taskIdHidden) taskIdHidden.value = taskId; 
+                if (adminFields) adminFields.classList.remove('hidden');
+                
+                const task = allTasks[taskId];
+                if (!task) {
+                    modalErrorMessage.textContent = "Erro: Tarefa não encontrada.";
+                    return;
+                }
+
+                if (solicitanteNome) solicitanteNome.value = task.solicitanteNome || '';
+                if (solicitanteMatricula) solicitanteMatricula.value = task.solicitanteMatricula || '';
+                if (solicitanteArea) solicitanteArea.value = task.solicitanteArea || '';
+                if (solicitanteEmail) solicitanteEmail.value = task.solicitanteEmail || '';
+                if (pecaNome) pecaNome.value = task.pecaNome || '';
+                if (pecaOutra) pecaOutra.value = task.pecaOutra || '';
+                if (pecaNome && pecaOutra && task.pecaNome === 'Outra') pecaOutra.disabled = false;
+                if (pecaCodigo) pecaCodigo.value = task.pecaCodigo || '';
+                if (pecaEquipamento) pecaEquipamento.value = task.pecaEquipamento || '';
+                
+                if (adminPrioridade) adminPrioridade.value = task.adminPrioridade || '2';
+                if (adminMaterial) adminMaterial.value = task.adminMaterial || 'PETG';
+                if (adminCor) adminCor.value = task.adminCor || '#4F46E5';
+                if (adminFicheiro) adminFicheiro.value = task.adminFicheiro || '';
+            }
+            
+            showModal(taskModal, taskModalContent);
+        }
+
+        function closeTaskModal(){ 
+            hideModal(taskModal, taskModalContent); 
+        }
+
+        function showDeleteModal(id){ 
+            taskToDeleteId = id; 
+            if (confirmDeleteBtn) confirmDeleteBtn.disabled = false;
+            showModal(deleteModal, deleteModalContent); 
+        }
+
+        function hideDeleteModal(){ 
+            hideModal(deleteModal, deleteModalContent); 
+            taskToDeleteId = null; 
+        }
+
+        if (taskForm) {
+            taskForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (modalErrorMessage) modalErrorMessage.textContent = '';
+                if (saveTaskBtn) {
+                    saveTaskBtn.disabled = true;
+                    saveTaskBtn.textContent = "A salvar...";
+                }
+
+                const editingId = taskIdHidden ? taskIdHidden.value : null; 
+                
+                const data = {
+                    solicitanteNome: solicitanteNome ? solicitanteNome.value : '',
+                    solicitanteMatricula: solicitanteMatricula ? solicitanteMatricula.value : '',
+                    solicitanteArea: solicitanteArea ? solicitanteArea.value : '',
+                    solicitanteEmail: solicitanteEmail ? solicitanteEmail.value : '',
+                    pecaNome: pecaNome ? pecaNome.value : '',
+                    pecaOutra: pecaOutra ? (pecaOutra.disabled ? '' : pecaOutra.value) : '',
+                    pecaCodigo: pecaCodigo ? pecaCodigo.value : '',
+                    pecaEquipamento: pecaEquipamento ? pecaEquipamento.value : '',
+                };
+
+                try {
+                    if (editingId && userRole === 'admin') {
+                        data.adminPrioridade = adminPrioridade ? adminPrioridade.value : '2';
+                        data.adminMaterial = adminMaterial ? adminMaterial.value : 'PETG';
+                        data.adminCor = adminCor ? adminCor.value : '#4F46E5';
+                        data.adminFicheiro = adminFicheiro ? adminFicheiro.value : '';
+                        await dbTasksRef.child(editingId).update(data);
+                    } else if (!editingId) {
+                        data.createdBy = userUid;
+                        data.createdAt = firebase.database.ServerValue.TIMESTAMP;
+                        data.status = 'pendente';
+                        data.adminPrioridade = '2';
+                        data.adminMaterial = 'PETG';
+                        data.adminCor = '#4F46E5';
+                        data.adminFicheiro = '';
+                        const newRef = dbTasksRef.push();
+                        await newRef.set(data);
+                    }
+                    closeTaskModal();
+                } catch (err) {
+                     if (modalErrorMessage) modalErrorMessage.textContent = 'Erro ao salvar: ' + err.message;
+                     if (saveTaskBtn) {
+                         saveTaskBtn.disabled = false;
+                         saveTaskBtn.textContent = "Salvar";
+                     }
+                }
+            });
+        }
+
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', async () => {
+                if (taskToDeleteId && userRole === 'admin') {
+                    confirmDeleteBtn.disabled = true;
+                    try {
+                        await dbTasksRef.child(taskToDeleteId).remove();
+                        hideDeleteModal();
+                    } catch (err) {
+                        alert("Erro ao excluir: " + err.message);
+                        confirmDeleteBtn.disabled = false;
+                    }
+                }
+            });
+        }
+
+        if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+        if (closeModalBtn) closeModalBtn.addEventListener('click', closeTaskModal);
+        if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeTaskModal);
+        if (taskModal) taskModal.addEventListener('click', (e) => { if (e.target === taskModal) closeTaskModal(); });
+        if (deleteModal) deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) hideDeleteModal(); });
+        if (addTaskBtn) addTaskBtn.addEventListener('click', () => openTaskModal('add'));
+
+        // --- 9. INICIALIZAÇÃO DO DRAG & DROP (Sortable.js) ---
+
+        function initSortable(){
+            sortables.forEach(s => s.destroy());
+            sortables = [];
+            
+            columnIds.forEach(colId => {
+                const el = columns[colId];
+                if (!el) return;
+                
+                const s = new Sortable(el, {
+                    group: 'kanban',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    disabled: userRole !== 'admin',
+                    
+                    onEnd: (evt) => {
+                        if (userRole !== 'admin') return; 
+                        const taskId = evt.item.dataset.taskId;
+                        const newCol = evt.to.dataset.columnId;
+                        const oldCol = evt.from.dataset.columnId;
+                        if (newCol === oldCol) return; 
+                        if (!dbTasksRef) return; 
+                        
+                        dbTasksRef.child(taskId).update({ status: newCol })
+                        .catch(err => {
+                            console.error("Erro ao mover card. Revertendo.", err);
+                            evt.from.appendChild(evt.item);
+                        });
+                    }
+                });
+                sortables.push(s); 
+            });
+        }
+
+    });
+    </script>
 </body>
 </html>
+
