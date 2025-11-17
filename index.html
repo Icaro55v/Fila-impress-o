@@ -181,6 +181,9 @@
                                         <option value="Envase">Envase</option>
                                         <option value="Processos">Processos</option>
                                         <option value="Utilidades">Utilidades</option>
+                                        <option value="Utilidades">Manutenção</option>
+                                        <option value="Utilidades">Logística</option>
+                                        <option value="Utilidades">Tpm</option>
                                     </select>
                                 </div>
                                 <div>
@@ -460,6 +463,8 @@
             if (user) {
                 // --- UTILIZADOR AUTENTICADO ---
                 currentUser = user;
+
+
                 userUid = user.uid;
                 const userName = user.email ? user.email.split('@')[0] : 'Utilizador';
                 authStatus.textContent = `A verificar permissões...`;
