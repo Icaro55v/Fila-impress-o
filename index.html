@@ -311,7 +311,7 @@
         let currentUser = null; // Guarda o objeto do utilizador logado
         let userUid = null; // Guarda o ID do utilizador logado
         let userRole = 'user'; // Guarda a função (admin ou user)
-        let dbTasksRef = null; // Referência para o listener do banco de dados
+        let dbTasksRef = null; // Referência para o listener do banco de dados (LEITURA)
         let taskToDeleteId = null; // Guarda o ID da tarefa a ser eliminada
         let allTasks = {}; // Cache local de todas as tarefas
         let sortables = []; // Array para guardar as instâncias do Sortable.js
@@ -526,6 +526,11 @@
 
         // --- 7. LÓGICA DO BANCO DE DADOS (RTDB) ---
 
+        // Caminho no RTDB onde as tarefas estão guardadas
+        const publicTasksPath = `/artifacts/${appId}/public/data/allPrintJobs`;
+        // Crio uma referência APENAS PARA ESCRITA (push, update, remove) que nunca muda.
+        const writeTasksRef = db.ref(publicTasksPath);
+
         // Inicia o listener que ouve o banco de dados em tempo real
         function initRealtimeListener() {
             // Desliga listeners antigos para evitar duplicação
@@ -534,15 +539,12 @@
             columnIds.forEach(id => columns[id].innerHTML = '');
             allTasks = {};
             
-            // Caminho no RTDB onde as tarefas estão guardadas
-            const publicTasksPath = `/artifacts/${appId}/public/data/allPrintJobs`;
-
             // ADMIN: Vê todas as tarefas
             if (userRole === 'admin') {
-                dbTasksRef = db.ref(publicTasksPath);
+                dbTasksRef = db.ref(publicTasksPath); // Lê tudo
             } else {
                 // UTILIZADOR: Vê apenas as tarefas criadas por ele
-                dbTasksRef = db.ref(publicTasksPath).orderByChild('createdBy').equalTo(userUid);
+                dbTasksRef = db.ref(publicTasksPath).orderByChild('createdBy').equalTo(userUid); // Lê filtrado
             }
 
             // --- LISTENERS EM TEMPO REAL ---
@@ -565,7 +567,7 @@
                 renderAllTasks(); // Re-renderiza
             };
 
-            // Anexa os listeners ao Firebase
+            // Anexa os listeners ao Firebase (na referência de LEITURA)
             dbTasksRef.on('child_added', onChildAdded);
             dbTasksRef.on('child_changed', onChildChanged);
             dbTasksRef.on('child_removed', onChildRemoved);
@@ -813,8 +815,8 @@
                         data.adminMaterial = adminMaterial ? adminMaterial.value : 'PETG';
                         data.adminCor = adminCor ? adminCor.value : '#4F46E5';
                         data.adminFicheiro = adminFicheiro ? adminFicheiro.value : '';
-                        // Atualiza no Firebase
-                        await dbTasksRef.child(editingId).update(data);
+                        // Atualiza no Firebase (usando writeTasksRef)
+                        await writeTasksRef.child(editingId).update(data);
                     } 
                     // MODO ADIÇÃO
                     else if (!editingId) {
@@ -827,8 +829,8 @@
                         data.adminMaterial = 'PETG';
                         data.adminCor = '#4F46E5';
                         data.adminFicheiro = '';
-                        // Cria novo registo no Firebase
-                        const newRef = dbTasksRef.push();
+                        // Cria novo registo no Firebase (usando writeTasksRef)
+                        const newRef = writeTasksRef.push();
                         await newRef.set(data);
                     }
                     closeTaskModal(); // Fecha o modal em caso de sucesso
@@ -848,7 +850,8 @@
                 if (taskToDeleteId && userRole === 'admin') {
                     confirmDeleteBtn.disabled = true; // Desabilita para evitar cliques duplos
                     try {
-                        await dbTasksRef.child(taskToDeleteId).remove(); // Remove do Firebase
+                        // Remove do Firebase (usando writeTasksRef)
+                        await writeTasksRef.child(taskToDeleteId).remove(); 
                         hideDeleteModal(); // Fecha o modal
                     } catch (err) {
                         alert("Erro ao excluir: " + err.message);
@@ -894,10 +897,9 @@
                         const oldCol = evt.from.dataset.columnId; // Coluna de origem
                         
                         if (newCol === oldCol) return; // Não faz nada se for a mesma coluna
-                        if (!dbTasksRef) return; // Segurança
                         
-                        // Atualiza o status da tarefa no Firebase
-                        dbTasksRef.child(taskId).update({ status: newCol })
+                        // Atualiza o status da tarefa no Firebase (usando writeTasksRef)
+                        writeTasksRef.child(taskId).update({ status: newCol })
                         .catch(err => {
                             // Se falhar, reverte o movimento visualmente
                             console.error("Erro ao mover card. Revertendo.", err);
