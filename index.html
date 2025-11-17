@@ -431,7 +431,7 @@
                     const userRoleRef = db.ref(`/artifacts/${appId}/users/${user.uid}`);
                     await userRoleRef.set({
                         email: user.email,
-                        role: 'user' // <-- Corrigido (era 'admin' por engano)
+                        role: 'user' // <-- Define novos utilizadores como 'user'
                     });
                 }
                 // Sucesso! O onAuthStateChanged (abaixo) tratará do resto.
@@ -528,7 +528,7 @@
 
         // Caminho no RTDB onde as tarefas estão guardadas
         const publicTasksPath = `/artifacts/${appId}/public/data/allPrintJobs`;
-        // Crio uma referência APENAS PARA ESCRITA (push, update, remove) que nunca muda.
+        // *** CORREÇÃO: Crio uma referência APENAS PARA ESCRITA (push, update, remove) que nunca muda. ***
         const writeTasksRef = db.ref(publicTasksPath);
 
         // Inicia o listener que ouve o banco de dados em tempo real
@@ -815,7 +815,7 @@
                         data.adminMaterial = adminMaterial ? adminMaterial.value : 'PETG';
                         data.adminCor = adminCor ? adminCor.value : '#4F46E5';
                         data.adminFicheiro = adminFicheiro ? adminFicheiro.value : '';
-                        // Atualiza no Firebase (usando writeTasksRef)
+                        // *** CORREÇÃO: Atualiza no Firebase (usando writeTasksRef) ***
                         await writeTasksRef.child(editingId).update(data);
                     } 
                     // MODO ADIÇÃO
@@ -829,7 +829,7 @@
                         data.adminMaterial = 'PETG';
                         data.adminCor = '#4F46E5';
                         data.adminFicheiro = '';
-                        // Cria novo registo no Firebase (usando writeTasksRef)
+                        // *** CORREÇÃO: Cria novo registo no Firebase (usando writeTasksRef) ***
                         const newRef = writeTasksRef.push();
                         await newRef.set(data);
                     }
@@ -850,7 +850,7 @@
                 if (taskToDeleteId && userRole === 'admin') {
                     confirmDeleteBtn.disabled = true; // Desabilita para evitar cliques duplos
                     try {
-                        // Remove do Firebase (usando writeTasksRef)
+                        // *** CORREÇÃO: Remove do Firebase (usando writeTasksRef) ***
                         await writeTasksRef.child(taskToDeleteId).remove(); 
                         hideDeleteModal(); // Fecha o modal
                     } catch (err) {
@@ -898,7 +898,7 @@
                         
                         if (newCol === oldCol) return; // Não faz nada se for a mesma coluna
                         
-                        // Atualiza o status da tarefa no Firebase (usando writeTasksRef)
+                        // *** CORREÇÃO: Atualiza o status da tarefa no Firebase (usando writeTasksRef) ***
                         writeTasksRef.child(taskId).update({ status: newCol })
                         .catch(err => {
                             // Se falhar, reverte o movimento visualmente
