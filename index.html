@@ -13,8 +13,10 @@
     <!-- Fonte -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Seus estilos personalizados agora estão ligados aqui -->
+    <!-- Os seus estilos personalizados estão ligados aqui -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Bloco <style> removido pois o conteúdo já está em style.css -->
 
 </head>
 <body class="antialiased text-gray-900">
@@ -65,43 +67,59 @@
     <div id="kanban-page" class="hidden">
         <!-- Cabeçalho -->
         <header class="bg-green-800 text-white shadow-lg sticky top-0 z-40">
-            <div class="container mx-auto max-w-full px-4 md:px-8 py-4 flex justify-between items-center">
-                <!-- Logo e Título -->
-                <div class="flex items-center space-x-3">
+            <!-- Container principal do cabeçalho (agora responsivo) -->
+            <div class="container mx-auto max-w-full px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between md:items-center">
+                
+                <!-- Logo e Título (ocupa a largura toda no mobile, auto no desktop) -->
+                <div class="flex items-center space-x-3 w-full md:w-auto mb-4 md:mb-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12a7.5 7.5 0 0 0 15 0"/></svg>
                     <div class="flex items-center space-x-3">
                         <div>
-                            <h1 class="text-2xl font-bold">Gestor de Fila de Impressão 3D</h1>
+                            <!-- Título responsivo -->
+                            <h1 class="text-lg sm:text-2xl font-bold">Gestor de Fila de Impressão 3D</h1>
                             <p class="text-sm text-gray-200 font-light">Gestão de Pedidos</p>
                         </div>
                     </div>
                 </div>
-                <!-- Botões de Ação -->
-                <div class="flex items-center space-x-3">
-                    <div id="admin-controls" class="flex items-center space-x-3 hidden">
-                        <div class="flex items-center space-x-2 mr-2">
-                            <label for="header-sort-select" class="text-sm font-medium">Ordenar por:</label>
-                            <select id="header-sort-select" class="px-3 py-2 rounded-lg bg-white text-gray-800 text-sm border border-green-600">
+                
+                <!-- Botões de Ação (ocupa a largura toda no mobile, auto no desktop) -->
+                <!-- Itens alinhados à direita no desktop, e quebram linha no mobile -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3 w-full md:w-auto">
+                    
+                    <!-- Controles do Admin: agora ocupa a largura toda no mobile -->
+                    <div id="admin-controls" class="flex items-center space-x-3 hidden w-full sm:w-auto mb-2 sm:mb-0">
+                        <div class="flex items-center justify-between sm:justify-start space-x-2 w-full sm:w-auto">
+                            <!-- Label com 'flex-shrink: 0' para não quebrar -->
+                            <label for="header-sort-select" class="text-sm font-medium flex-shrink-0">Ordenar por:</label>
+                            <!-- Select ocupa o espaço restante no mobile -->
+                            <select id="header-sort-select" class="px-3 py-2 rounded-lg bg-white text-gray-800 text-sm border border-green-600 w-full sm:w-auto">
                                 <option value="createdAt" selected>Data de Adição</option>
                                 <option value="priority">Prioridade (Admin)</option>
                             </select>
                         </div>
                     </div>
-                    <button id="add-task-btn" class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg font-semibold transition-colors">Adicionar Pedido</button>
-                    <button id="logout-btn" class="bg-green-500 text-white px-3 py-2 rounded-lg border border-green-600 text-sm font-medium hover:bg-red-600 hover:border-red-700 transition-colors">Sair</button>
+
+                    <!-- Botões de Ação Principais -->
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <!-- Botão Adicionar ocupa 50% no mobile, auto no desktop -->
+                        <button id="add-task-btn" class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg font-semibold transition-colors w-1/2 sm:w-auto">Adicionar</button>
+                        <!-- Botão Sair ocupa 50% no mobile, auto no desktop -->
+                        <button id="logout-btn" class="bg-green-500 text-white px-3 py-2 rounded-lg border border-green-600 text-sm font-medium hover:bg-red-600 hover:border-red-700 transition-colors w-1/2 sm:w-auto">Sair</button>
+                    </div>
+
                 </div>
             </div>
         </header>
 
         <!-- Barra de Status da Autenticação -->
-        <div id="auth-status" class="py-2 px-6 bg-green-900 text-green-200 text-sm text-center sticky top-[80px] z-30">A conectar...</div>
+        <div id="auth-status" class="py-2 px-6 bg-green-900 text-green-200 text-sm text-center sticky top-[128px] md:top-[80px] z-30">A conectar...</div>
 
         <!-- Corpo Principal do Kanban -->
         <main id="kanban-board" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
             
             <!-- Coluna 1: Pendente -->
             <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[172px] md:top-[124px] bg-white rounded-t-xl z-10">
                     <div class="flex items-center space-x-3">
                         <span class="w-3 h-3 bg-red-500 rounded-full"></span>
                         <h3 class="font-semibold text-red-600 uppercase text-sm">PENDENTE</h3>
@@ -113,7 +131,7 @@
 
             <!-- Coluna 2: Em Andamento -->
             <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[172px] md:top-[124px] bg-white rounded-t-xl z-10">
                     <div class="flex items-center space-x-3">
                         <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
                         <h3 class="font-semibold text-blue-600 uppercase text-sm">EM ANDAMENTO</h3>
@@ -125,7 +143,7 @@
 
             <!-- Coluna 3: Concluído -->
             <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[172px] md:top-[124px] bg-white rounded-t-xl z-10">
                     <div class="flex items-center space-x-3">
                         <span class="w-3 h-3 bg-green-500 rounded-full"></span>
                         <h3 class="font-semibold text-green-600 uppercase text-sm">CONCLUÍDO</h3>
@@ -137,7 +155,7 @@
 
             <!-- Coluna 4: Falha / Cancelado -->
             <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[124px] bg-white rounded-t-xl z-10">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[172px] md:top-[124px] bg-white rounded-t-xl z-10">
                     <div class="flex items-center space-x-3">
                         <span class="w-3 h-3 bg-gray-500 rounded-full"></span>
                         <h3 class="font-semibold text-gray-600 uppercase text-sm">FALHA / CANCELADO</h3>
@@ -176,9 +194,9 @@
                                         <option value="Envase">Envase</option>
                                         <option value="Processos">Processos</option>
                                         <option value="Utilidades">Utilidades</option>
-                                        <option value="Utilidades">Manutenção</option>
-                                        <option value="Utilidades">Logística</option>
-                                        <option value="Utilidades">Tpm</option>
+                                        <option value="Manutencao">Manutenção</option>
+                                        <option value="Logistica">Logística</option>
+                                        <option value="Tpm">Tpm</option>
                                     </select>
                                 </div>
                                 <div>
@@ -458,8 +476,6 @@
             if (user) {
                 // --- UTILIZADOR AUTENTICADO ---
                 currentUser = user;
-
-
                 userUid = user.uid;
                 const userName = user.email ? user.email.split('@')[0] : 'Utilizador';
                 authStatus.textContent = `A verificar permissões...`;
