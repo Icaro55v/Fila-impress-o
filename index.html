@@ -427,12 +427,11 @@
                     const user = userCredential.user;
 
                     // *** LÓGICA DE AUTO-ADMIN ***
-                    // Define a 'role' do novo utilizador como 'admin'
-                    // Isto é feito para que o primeiro utilizador possa gerir o sistema
+                    // Define a 'role' do novo utilizador como 'user' (utilizador padrão)
                     const userRoleRef = db.ref(`/artifacts/${appId}/users/${user.uid}`);
                     await userRoleRef.set({
                         email: user.email,
-                        role: 'admin' // <-- Auto-admin
+                        role: 'user' // <-- Corrigido (era 'admin' por engano)
                     });
                 }
                 // Sucesso! O onAuthStateChanged (abaixo) tratará do resto.
