@@ -16,14 +16,11 @@
     <!-- Os seus estilos personalizados estão ligados aqui -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- Bloco <style> removido pois o conteúdo já está em style.css -->
-
 </head>
 <body class="antialiased text-gray-900">
 
     <!-- 
       PÁGINA DE LOGIN
-      Agora faz parte do mesmo ficheiro.
     -->
     <div id="login-page" class="flex items-center justify-center min-h-screen">
         <div class="bg-white p-8 md:p-10 rounded-xl shadow-2xl max-w-md w-full">
@@ -67,31 +64,27 @@
     <div id="kanban-page" class="hidden">
         <!-- Cabeçalho -->
         <header class="bg-green-800 text-white shadow-lg sticky top-0 z-40">
-            <!-- Container principal do cabeçalho (agora responsivo) -->
+            <!-- Container principal do cabeçalho -->
             <div class="container mx-auto max-w-full px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between md:items-center">
                 
-                <!-- Logo e Título (ocupa a largura toda no mobile, auto no desktop) -->
+                <!-- Logo e Título -->
                 <div class="flex items-center space-x-3 w-full md:w-auto mb-4 md:mb-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12a7.5 7.5 0 0 0 15 0"/></svg>
                     <div class="flex items-center space-x-3">
                         <div>
-                            <!-- Título responsivo -->
                             <h1 class="text-lg sm:text-2xl font-bold">Gestor de Fila de Impressão 3D</h1>
                             <p class="text-sm text-gray-200 font-light">Gestão de Pedidos</p>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Botões de Ação (ocupa a largura toda no mobile, auto no desktop) -->
-                <!-- Itens alinhados à direita no desktop, e quebram linha no mobile -->
+                <!-- Botões de Ação -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3 w-full md:w-auto">
                     
-                    <!-- Controles do Admin: agora ocupa a largura toda no mobile -->
+                    <!-- Controles do Admin -->
                     <div id="admin-controls" class="flex items-center space-x-3 hidden w-full sm:w-auto mb-2 sm:mb-0">
                         <div class="flex items-center justify-between sm:justify-start space-x-2 w-full sm:w-auto">
-                            <!-- Label com 'flex-shrink: 0' para não quebrar -->
                             <label for="header-sort-select" class="text-sm font-medium flex-shrink-0">Ordenar por:</label>
-                            <!-- Select ocupa o espaço restante no mobile -->
                             <select id="header-sort-select" class="px-3 py-2 rounded-lg bg-white text-gray-800 text-sm border border-green-600 w-full sm:w-auto">
                                 <option value="createdAt" selected>Data de Adição</option>
                                 <option value="priority">Prioridade (Admin)</option>
@@ -101,9 +94,7 @@
 
                     <!-- Botões de Ação Principais -->
                     <div class="flex items-center space-x-3 w-full sm:w-auto">
-                        <!-- Botão Adicionar ocupa 50% no mobile, auto no desktop -->
                         <button id="add-task-btn" class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg font-semibold transition-colors w-1/2 sm:w-auto">Adicionar</button>
-                        <!-- Botão Sair ocupa 50% no mobile, auto no desktop -->
                         <button id="logout-btn" class="bg-green-500 text-white px-3 py-2 rounded-lg border border-green-600 text-sm font-medium hover:bg-red-600 hover:border-red-700 transition-colors w-1/2 sm:w-auto">Sair</button>
                     </div>
 
@@ -209,6 +200,7 @@
                         <fieldset>
                             <legend class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 w-full">Detalhes da Peça</legend>
                              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Campos originais -->
                                 <div>
                                     <label for="peca-nome" class="block text-sm font-medium text-gray-700 mb-1">Selecione a Peça <span class="text-red-500">*</span></label>
                                     <select id="peca-nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
@@ -228,11 +220,38 @@
                                     <label for="peca-outra" class="block text-sm font-medium text-gray-700 mb-1">Se for "Outra", descreva:</label>
                                     <input type="text" id="peca-outra" class="w-full px-4 py-2 border border-gray-300 rounded-lg" disabled>
                                 </div>
+                                
+                                <!-- NOVOS CAMPOS ADICIONADOS -->
+                                <div>
+                                    <label for="peca-quantidade" class="block text-sm font-medium text-gray-700 mb-1">Quantidade <span class="text-red-500">*</span></label>
+                                    <input type="number" id="peca-quantidade" min="1" value="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                </div>
+                                <div>
+                                    <label for="peca-cor-preferencia" class="block text-sm font-medium text-gray-700 mb-1">Cor de Preferência</label>
+                                    <select id="peca-cor-preferencia" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                                        <option value="" disabled selected>Selecione a cor</option>
+                                        <option value="Preto">Preto</option>
+                                        <option value="Branco">Branco</option>
+                                        <option value="Cinza">Cinza</option>
+                                        <option value="Azul">Azul</option>
+                                        <option value="Vermelho">Vermelho</option>
+                                        <option value="Amarelo">Amarelo</option>
+                                        <option value="Verde">Verde</option>
+                                        <option value="Laranja">Laranja</option>
+                                        <option value="Indiferente">Indiferente</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="peca-material-original" class="block text-sm font-medium text-gray-700 mb-1">Material Original da Peça</label>
+                                    <input type="text" id="peca-material-original" placeholder="Ex: Aço, Plástico, Borracha..." class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <!-- FIM NOVOS CAMPOS -->
+
                                 <div>
                                     <label for="peca-codigo" class="block text-sm font-medium text-gray-700 mb-1">Código do Fabricante (Original)</label>
                                     <input type="text" id="peca-codigo" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                                 </div>
-                                <div>
+                                <div class="md:col-span-2">
                                     <label for="peca-equipamento" class="block text-sm font-medium text-gray-700 mb-1">Equipamento onde será usada</label>
                                     <input type="text" id="peca-equipamento" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                                 </div>
@@ -261,7 +280,7 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="admin-cor" class="block text-sm font-medium text-gray-700 mb-1">Cor</label>
+                                    <label for="admin-cor" class="block text-sm font-medium text-gray-700 mb-1">Cor da Impressão</label>
                                     <input type="color" id="admin-cor" value="#4F46E5" class="w-full h-10 p-0 border border-gray-300 rounded-lg cursor-pointer">
                                 </div>
                             </div>
@@ -305,7 +324,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         
         // --- 1. CONFIGURAÇÃO DO FIREBASE ---
-        // (Os seus dados de configuração. Estão corretos)
         const firebaseConfig = {
           apiKey: "AIzaSyAe5vcJe5mUUxAX5mXWFjCwL26esbxLvbo",
           authDomain: "projeto-p-c672e.firebaseapp.com",
@@ -320,20 +338,19 @@
         // --- 2. INICIALIZAÇÃO DO FIREBASE ---
         const appId = firebaseConfig.projectId;
         const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); // Módulo de Autenticação
-        const db = firebase.database(); // Módulo de Realtime Database
+        const auth = firebase.auth();
+        const db = firebase.database();
 
         // --- 3. VARIÁVEIS GLOBAIS E ESTADO ---
-        let currentUser = null; // Guarda o objeto do utilizador logado
-        let userUid = null; // Guarda o ID do utilizador logado
-        let userRole = 'user'; // Guarda a função (admin ou user)
-        let dbTasksRef = null; // Referência para o listener do banco de dados (LEITURA)
-        let taskToDeleteId = null; // Guarda o ID da tarefa a ser eliminada
-        let allTasks = {}; // Cache local de todas as tarefas
-        let sortables = []; // Array para guardar as instâncias do Sortable.js
+        let currentUser = null;
+        let userUid = null;
+        let userRole = 'user';
+        let dbTasksRef = null;
+        let taskToDeleteId = null;
+        let allTasks = {};
+        let sortables = [];
 
         // --- 4. MAPEAMENTO DE ELEMENTOS DO DOM ---
-        // (Mapeia todos os IDs do HTML para variáveis JavaScript)
         
         // -- Páginas
         const loginPage = document.getElementById('login-page');
@@ -347,23 +364,23 @@
         const submitBtn = document.getElementById('submit-btn');
         const toggleFormLink = document.getElementById('toggle-form-link');
         const formTitle = document.getElementById('form-title');
-        let isLoginMode = true; // Controla se o formulário é de login ou registo
+        let isLoginMode = true;
 
-        // -- Elementos do Kanban (Cabeçalho e Controlo)
+        // -- Elementos do Kanban
         const authStatus = document.getElementById('auth-status');
         const logoutBtn = document.getElementById('logout-btn');
         const addTaskBtn = document.getElementById('add-task-btn');
         const adminControls = document.getElementById('admin-controls');
         const headerSortSelect = document.getElementById('header-sort-select');
 
-        // -- Colunas e Contadores do Kanban
+        // -- Colunas
         const columns = {
             "pendente": document.getElementById('col-pendente'),
             "andamento": document.getElementById('col-andamento'),
             "concluido": document.getElementById('col-concluido'),
             "falha": document.getElementById('col-falha')
         };
-        const columnIds = Object.keys(columns); // ["pendente", "andamento", ...]
+        const columnIds = Object.keys(columns);
         const columnCounts = {
             "pendente": document.getElementById('count-pendente'),
             "andamento": document.getElementById('count-andamento'),
@@ -371,7 +388,7 @@
             "falha": document.getElementById('count-falha')
         };
 
-        // -- Elementos dos Modais (Tarefa e Exclusão)
+        // -- Modais
         const taskModal = document.getElementById('task-modal');
         const taskModalContent = document.getElementById('task-modal-content');
         const taskForm = document.getElementById('task-form');
@@ -382,33 +399,38 @@
         const taskIdHidden = document.getElementById('task-id-hidden');
         const modalErrorMessage = document.getElementById('modal-error-message');
         
-        // -- Campos do Formulário de Tarefa (Parte do Utilizador)
+        // -- Campos do Formulário de Tarefa
         const solicitanteNome = document.getElementById('solicitante-nome');
         const solicitanteMatricula = document.getElementById('solicitante-matricula');
         const solicitanteArea = document.getElementById('solicitante-area');
         const solicitanteEmail = document.getElementById('solicitante-email');
         const pecaNome = document.getElementById('peca-nome');
         const pecaOutra = document.getElementById('peca-outra');
+        
+        // NOVOS CAMPOS DO FORMULÁRIO
+        const pecaQuantidade = document.getElementById('peca-quantidade');
+        const pecaCorPreferencia = document.getElementById('peca-cor-preferencia');
+        const pecaMaterialOriginal = document.getElementById('peca-material-original');
+        
         const pecaCodigo = document.getElementById('peca-codigo');
         const pecaEquipamento = document.getElementById('peca-equipamento');
 
-        // -- Campos do Formulário de Tarefa (Parte do Admin)
+        // -- Campos Admin
         const adminFields = document.getElementById('admin-fields');
         const adminPrioridade = document.getElementById('admin-prioridade');
         const adminMaterial = document.getElementById('admin-material');
         const adminCor = document.getElementById('admin-cor');
         const adminFicheiro = document.getElementById('admin-ficheiro');
         
-        // -- Elementos do Modal de Exclusão
+        // -- Modal Exclusão
         const deleteModal = document.getElementById('delete-modal');
         const deleteModalContent = document.getElementById('delete-modal-content');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
 
-        // --- 5. LÓGICA DE LOGIN (Movida do login.html) ---
+        // --- 5. LÓGICA DE LOGIN ---
 
-        // Alterna entre o modo "Entrar" e "Criar Nova Conta"
         toggleFormLink.addEventListener('click', (e) => {
             e.preventDefault();
             isLoginMode = !isLoginMode;
@@ -421,43 +443,35 @@
                 submitBtn.textContent = 'Criar Conta';
                 toggleFormLink.textContent = 'Já tem conta? Entrar';
             }
-            errorMessage.textContent = ''; // Limpa erros
+            errorMessage.textContent = '';
         });
 
-        // Lida com o envio do formulário (Login ou Criação)
         authForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Impede o recarregamento da página
+            e.preventDefault();
             const email = emailInput.value;
             const password = passwordInput.value;
 
             errorMessage.textContent = '';
-            submitBtn.disabled = true; // Desabilita o botão
+            submitBtn.disabled = true;
 
             try {
                 if (isLoginMode) {
-                    // --- Modo Login ---
                     await auth.signInWithEmailAndPassword(email, password);
                 } else {
-                    // --- Modo Criar Conta ---
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     const user = userCredential.user;
-
-                    // *** LÓGICA DE AUTO-ADMIN ***
-                    // Define a 'role' do novo utilizador como 'user' (utilizador padrão)
                     const userRoleRef = db.ref(`/artifacts/${appId}/users/${user.uid}`);
                     await userRoleRef.set({
                         email: user.email,
-                        role: 'user' // <-- Define novos utilizadores como 'user'
+                        role: 'user'
                     });
                 }
-                // Sucesso! O onAuthStateChanged (abaixo) tratará do resto.
             } catch (error) {
                 errorMessage.textContent = getFirebaseErrorMessage(error.code);
-                submitBtn.disabled = false; // Reabilita o botão em caso de erro
+                submitBtn.disabled = false;
             }
         });
 
-        // Converte códigos de erro do Firebase em mensagens amigáveis
         function getFirebaseErrorMessage(code) {
             switch (code) {
                 case 'auth/wrong-password': return 'Password incorreta. Tente novamente.';
@@ -469,22 +483,18 @@
             }
         }
 
-        // --- 6. LÓGICA DE AUTENTICAÇÃO E "ROUTER" ---
-        // (Este é o "porteiro" principal da aplicação)
+        // --- 6. LÓGICA DE AUTENTICAÇÃO ---
 
         auth.onAuthStateChanged(user => {
             if (user) {
-                // --- UTILIZADOR AUTENTICADO ---
                 currentUser = user;
                 userUid = user.uid;
                 const userName = user.email ? user.email.split('@')[0] : 'Utilizador';
                 authStatus.textContent = `A verificar permissões...`;
 
-                // Mostra o Kanban, esconde o Login
                 kanbanPage.classList.remove('hidden');
                 loginPage.classList.add('hidden');
 
-                // Verifica a função (role) do utilizador no Realtime Database
                 const userRoleRef = db.ref(`/artifacts/${appId}/users/${user.uid}/role`);
                 userRoleRef.on('value', (snap) => {
                     if (snap.exists() && snap.val() === 'admin') {
@@ -495,95 +505,73 @@
                         authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (Usuário)`;
                     }
                     
-                    // Atualiza a UI e inicia os listeners com a função correta
                     updateUIForRole();
                     initRealtimeListener();
                     initSortable();
                 });
 
             } else {
-                // --- UTILIZADOR DESLOGADO ---
                 currentUser = null;
                 userUid = null;
-                userRole = 'user'; // Reseta para o padrão
+                userRole = 'user';
 
-                // Para os listeners antigos do RTDB para evitar erros
                 if (dbTasksRef) dbTasksRef.off(); 
-                allTasks = {}; // Limpa o cache de tarefas
-                renderAllTasks(); // Limpa o quadro
+                allTasks = {}; 
+                renderAllTasks(); 
 
-                // Mostra o Login, esconde o Kanban
                 kanbanPage.classList.add('hidden');
                 loginPage.classList.remove('hidden');
                 
-                // Reseta o formulário de login
                 submitBtn.disabled = false;
                 errorMessage.textContent = '';
             }
         });
 
-        // Botão de Sair (Logout)
         logoutBtn.addEventListener('click', () => {
-            auth.signOut(); // Desloga o utilizador
+            auth.signOut();
         });
         
-        // Mostra/oculta controlos de admin com base na função
         function updateUIForRole() {
             if (userRole === 'admin') {
                 adminControls.classList.remove('hidden');
             } else {
                 adminControls.classList.add('hidden');
             }
-            // Re-renderiza tudo para aplicar permissões visuais (ex: botões de apagar)
             renderAllTasks();
-            // Reinicializa o drag-and-drop (desabilita se não for admin)
             initSortable();
         }
 
-        // --- 7. LÓGICA DO BANCO DE DADOS (RTDB) ---
+        // --- 7. LÓGICA DO BANCO DE DADOS ---
 
-        // Caminho no RTDB onde as tarefas estão guardadas
         const publicTasksPath = `/artifacts/${appId}/public/data/allPrintJobs`;
-        // *** CORREÇÃO: Crio uma referência APENAS PARA ESCRITA (push, update, remove) que nunca muda. ***
         const writeTasksRef = db.ref(publicTasksPath);
 
-        // Inicia o listener que ouve o banco de dados em tempo real
         function initRealtimeListener() {
-            // Desliga listeners antigos para evitar duplicação
             if (dbTasksRef) dbTasksRef.off(); 
-            // Limpa o quadro e o cache
             columnIds.forEach(id => columns[id].innerHTML = '');
             allTasks = {};
             
-            // ADMIN: Vê todas as tarefas
             if (userRole === 'admin') {
-                dbTasksRef = db.ref(publicTasksPath); // Lê tudo
+                dbTasksRef = db.ref(publicTasksPath); 
             } else {
-                // UTILIZADOR: Vê apenas as tarefas criadas por ele
-                dbTasksRef = db.ref(publicTasksPath).orderByChild('createdBy').equalTo(userUid); // Lê filtrado
+                dbTasksRef = db.ref(publicTasksPath).orderByChild('createdBy').equalTo(userUid); 
             }
 
-            // --- LISTENERS EM TEMPO REAL ---
-            
-            // Quando um item é ADICIONADO
             const onChildAdded = (snap) => {
                 const task = snap.val(); const taskId = snap.key; if (!task) return;
-                allTasks[taskId] = { id: taskId, ...task }; // Adiciona ao cache
-                renderAllTasks(); // Re-renderiza
+                allTasks[taskId] = { id: taskId, ...task };
+                renderAllTasks();
             };
-            // Quando um item é ALTERADO
             const onChildChanged = (snap) => {
                 const task = snap.val(); const taskId = snap.key; if (!task) return;
-                allTasks[taskId] = { id: taskId, ...task }; // Atualiza no cache
-                renderAllTasks(); // Re-renderiza
+                allTasks[taskId] = { id: taskId, ...task };
+                renderAllTasks();
             };
-            // Quando um item é REMOVIDO
             const onChildRemoved = (snap) => {
-                const taskId = snap.key; delete allTasks[taskId]; // Remove do cache
-                renderAllTasks(); // Re-renderiza
+                const taskId = snap.key; delete allTasks[taskId];
+                renderAllTasks();
             };
 
-            // Anexa os listeners ao Firebase (na referência de LEITURA)
             dbTasksRef.on('child_added', onChildAdded);
             dbTasksRef.on('child_changed', onChildChanged);
             dbTasksRef.on('child_removed', onChildRemoved);
@@ -591,43 +579,33 @@
         
         // --- 8. RENDERIZAÇÃO E ORDENAÇÃO ---
 
-        // Re-renderiza quando a ordenação (admin) muda
         headerSortSelect.addEventListener('change', renderAllTasks);
 
-        // Função principal para desenhar TODOS os cards no ecrã
         function renderAllTasks() {
-            // 1. Limpa todas as colunas
             columnIds.forEach(id => {
                 if(columns[id]) columns[id].innerHTML = '';
             });
 
-            // 2. Converte o objeto de cache num array
             let tasksArray = Object.values(allTasks);
 
-            // 3. Ordena o array
             const sortValue = headerSortSelect.value;
             if (userRole === 'admin' && sortValue === 'priority') {
-                // Ordena por prioridade (1-Alta, 2-Média, 3-Baixa)
                 tasksArray.sort((a, b) => (a.adminPrioridade || 2) - (b.adminPrioridade || 2));
             } else {
-                // Ordenação padrão: data de criação
                 tasksArray.sort((a, b) => a.createdAt - b.createdAt);
             }
 
-            // 4. Cria e adiciona o elemento de card para cada tarefa
             tasksArray.forEach(task => {
-                const colId = task.status || 'pendente'; // Status padrão
+                const colId = task.status || 'pendente'; 
                 if (columns[colId]) {
-                    const card = createTaskElement(task); // Cria o HTML do card
-                    columns[colId].appendChild(card); // Adiciona na coluna certa
+                    const card = createTaskElement(task); 
+                    columns[colId].appendChild(card); 
                 }
             });
             
-            // 5. Atualiza os contadores (ex: "PENDENTE (5)")
             updateAllCounts();
         }
 
-        // Atualiza os números nos cabeçalhos das colunas
         function updateAllCounts() {
             columnIds.forEach(colId => {
                 if (columns[colId]) { 
@@ -639,33 +617,35 @@
             });
         }
 
-        // Retorna classes CSS com base na prioridade (admin)
         function getPriorityClasses(priority){
-            priority = String(priority); // Garante que é string
+            priority = String(priority);
             if (priority === '1') return { border:'border-red-500', text:'Alta', bg:'bg-red-500' };
             if (priority === '2') return { border:'border-orange-500', text:'Média', bg:'bg-orange-500' };
             if (priority === '3') return { border:'border-blue-500', text:'Baixa', bg:'bg-blue-500' };
-            return { border:'border-gray-400', text:'N/A', bg:'bg-gray-500' }; // Padrão
+            return { border:'border-gray-400', text:'N/A', bg:'bg-gray-500' };
         }
 
-        // Cria o elemento HTML (card) para uma tarefa
         function createTaskElement(task){
-            const p = getPriorityClasses(task.adminPrioridade); // Classes de prioridade
+            const p = getPriorityClasses(task.adminPrioridade);
             const card = document.createElement('div');
-            // Permite drag-and-drop (cursor-move) apenas para admin
             card.className = `task-card bg-white p-4 rounded-lg shadow-md border-l-4 ${p.border} group relative`;
-            card.dataset.taskId = task.id; // Guarda o ID no elemento
+            card.dataset.taskId = task.id;
             card.style.cursor = (userRole === 'admin') ? 'move' : 'default';
 
-            // Limpa os dados com DOMPurify antes de os injetar no HTML
             const peca = DOMPurify.sanitize(task.pecaNome === 'Outra' ? task.pecaOutra : task.pecaNome);
             const area = DOMPurify.sanitize(task.solicitanteArea);
             const nome = DOMPurify.sanitize(task.solicitanteNome);
             const data = task.createdAt ? new Date(task.createdAt).toLocaleDateString('pt-BR') : '...'; 
+            
+            // Lógica para mostrar a quantidade apenas se > 1
+            const qtd = parseInt(task.pecaQuantidade) || 1;
+            const qtdBadge = qtd > 1 ? `<span class="inline-flex items-center justify-center bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded ml-2" title="Quantidade">x${qtd}</span>` : '';
 
-            // HTML interno do card
             card.innerHTML = `
-                <h4 class="text-base font-semibold text-gray-800 mb-2">${peca || 'Peça sem nome'}</h4>
+                <div class="flex items-center mb-2">
+                    <h4 class="text-base font-semibold text-gray-800 break-words flex-1">${peca || 'Peça sem nome'}</h4>
+                    ${qtdBadge}
+                </div>
                 <p class="text-sm text-gray-600"><span class="font-medium">Solicitante:</span> ${nome || 'N/A'}</p>
                 <p class="text-sm text-gray-600"><span class="font-medium">Área:</span> ${area || 'N/A'}</p>
                 <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
@@ -675,25 +655,22 @@
                 <button class="delete-task-btn ${userRole === 'admin' ? '' : 'hidden'} absolute top-2 right-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Apagar Pedido">✕</button>
             `;
             
-            // Apenas admins podem clicar para editar
             if (userRole === 'admin') {
                 card.addEventListener('click', () => openTaskModal('edit', card.dataset.taskId));
             }
             
-            // Lógica do botão de apagar (X)
             const deleteBtn = card.querySelector('.delete-task-btn');
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', (e)=>{ 
-                    e.stopPropagation(); // Impede que o clique no "X" abra a edição
+                    e.stopPropagation(); 
                     showDeleteModal(card.dataset.taskId); 
                 });
             }
             return card;
         }
 
-        // --- 9. LÓGICA DOS MODAIS (Abertura, Fecho, Submissão) ---
+        // --- 9. LÓGICA DOS MODAIS ---
 
-        // Funções genéricas para mostrar/ocultar modais com animação
         function showModal(modal, content){ 
             if (!modal || !content) return; 
             modal.classList.remove('hidden'); 
@@ -711,7 +688,6 @@
             setTimeout(()=> modal.classList.add('hidden'), 200); 
         }
         
-        // Habilita/desabilita o campo "Outra"
         if (pecaNome) {
             pecaNome.addEventListener('change', () => {
                 if (pecaOutra) {
@@ -721,11 +697,10 @@
             });
         }
 
-        // Abre o modal de Adicionar ou Editar
         async function openTaskModal(mode = 'add', taskId = null){
             if (!taskForm) return; 
             modalErrorMessage.textContent = '';
-            taskForm.reset(); // Limpa o formulário
+            taskForm.reset(); 
             
             if (pecaOutra) pecaOutra.disabled = true;
             if (saveTaskBtn) {
@@ -733,7 +708,6 @@
                 saveTaskBtn.textContent = "Salvar";
             }
 
-            // Verifica se o utilizador está autenticado
             if (!currentUser) {
                 modalErrorMessage.textContent = "Erro: Utilizador não autenticado. Por favor, atualize a página.";
                 if (saveTaskBtn) saveTaskBtn.disabled = true;
@@ -741,27 +715,27 @@
                 return; 
             }
 
-            // Esconde campos de admin por padrão
             if (adminFields) adminFields.classList.add('hidden');
-            // Preenche o email do utilizador logado
             if (solicitanteEmail) solicitanteEmail.value = currentUser.email; 
+            
+            // RESETAR NOVOS CAMPOS PARA PADRÃO NO 'ADD'
+            if (pecaQuantidade) pecaQuantidade.value = '1';
             
             if (mode === 'add') {
                 if (modalTitle) modalTitle.textContent = 'Adicionar Pedido';
-                if (taskIdHidden) taskIdHidden.value = ''; // Limpa o ID
+                if (taskIdHidden) taskIdHidden.value = ''; 
             } 
             else if (mode === 'edit' && taskId && userRole === 'admin') {
                 if (modalTitle) modalTitle.textContent = 'Editar Pedido';
-                if (taskIdHidden) taskIdHidden.value = taskId; // Define o ID a editar
-                if (adminFields) adminFields.classList.remove('hidden'); // Mostra campos admin
+                if (taskIdHidden) taskIdHidden.value = taskId; 
+                if (adminFields) adminFields.classList.remove('hidden'); 
                 
-                const task = allTasks[taskId]; // Pega dados do cache
+                const task = allTasks[taskId]; 
                 if (!task) {
                     modalErrorMessage.textContent = "Erro: Tarefa não encontrada.";
                     return;
                 }
 
-                // Preenche todos os campos do formulário com os dados da tarefa
                 if (solicitanteNome) solicitanteNome.value = task.solicitanteNome || '';
                 if (solicitanteMatricula) solicitanteMatricula.value = task.solicitanteMatricula || '';
                 if (solicitanteArea) solicitanteArea.value = task.solicitanteArea || '';
@@ -769,6 +743,12 @@
                 if (pecaNome) pecaNome.value = task.pecaNome || '';
                 if (pecaOutra) pecaOutra.value = task.pecaOutra || '';
                 if (pecaNome && pecaOutra && task.pecaNome === 'Outra') pecaOutra.disabled = false;
+                
+                // CARREGAR NOVOS CAMPOS
+                if (pecaQuantidade) pecaQuantidade.value = task.pecaQuantidade || '1';
+                if (pecaCorPreferencia) pecaCorPreferencia.value = task.pecaCorPreferencia || '';
+                if (pecaMaterialOriginal) pecaMaterialOriginal.value = task.pecaMaterialOriginal || '';
+
                 if (pecaCodigo) pecaCodigo.value = task.pecaCodigo || '';
                 if (pecaEquipamento) pecaEquipamento.value = task.pecaEquipamento || '';
                 
@@ -778,40 +758,35 @@
                 if (adminFicheiro) adminFicheiro.value = task.adminFicheiro || '';
             }
             
-            showModal(taskModal, taskModalContent); // Mostra o modal
+            showModal(taskModal, taskModalContent); 
         }
 
-        // Fecha o modal de tarefa
         function closeTaskModal(){ 
             hideModal(taskModal, taskModalContent); 
         }
 
-        // Mostra o modal de exclusão
         function showDeleteModal(id){ 
             taskToDeleteId = id; 
             if (confirmDeleteBtn) confirmDeleteBtn.disabled = false;
             showModal(deleteModal, deleteModalContent); 
         }
 
-        // Fecha o modal de exclusão
         function hideDeleteModal(){ 
             hideModal(deleteModal, deleteModalContent); 
             taskToDeleteId = null; 
         }
 
-        // Listener do formulário de tarefa (Salvar)
         if (taskForm) {
             taskForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 if (modalErrorMessage) modalErrorMessage.textContent = '';
-                if (saveTaskBtn) { // Mostra feedback de "a salvar"
+                if (saveTaskBtn) { 
                     saveTaskBtn.disabled = true;
                     saveTaskBtn.textContent = "A salvar...";
                 }
 
                 const editingId = taskIdHidden ? taskIdHidden.value : null; 
                 
-                // Recolhe dados comuns
                 const data = {
                     solicitanteNome: solicitanteNome ? solicitanteNome.value : '',
                     solicitanteMatricula: solicitanteMatricula ? solicitanteMatricula.value : '',
@@ -819,40 +794,39 @@
                     solicitanteEmail: solicitanteEmail ? solicitanteEmail.value : '',
                     pecaNome: pecaNome ? pecaNome.value : '',
                     pecaOutra: pecaOutra ? (pecaOutra.disabled ? '' : pecaOutra.value) : '',
+                    
+                    // SALVAR NOVOS CAMPOS
+                    pecaQuantidade: pecaQuantidade ? pecaQuantidade.value : '1',
+                    pecaCorPreferencia: pecaCorPreferencia ? pecaCorPreferencia.value : '',
+                    pecaMaterialOriginal: pecaMaterialOriginal ? pecaMaterialOriginal.value : '',
+
                     pecaCodigo: pecaCodigo ? pecaCodigo.value : '',
                     pecaEquipamento: pecaEquipamento ? pecaEquipamento.value : '',
                 };
 
                 try {
-                    // MODO EDIÇÃO (só admin)
                     if (editingId && userRole === 'admin') {
-                        // Adiciona dados de admin
                         data.adminPrioridade = adminPrioridade ? adminPrioridade.value : '2';
                         data.adminMaterial = adminMaterial ? adminMaterial.value : 'PETG';
                         data.adminCor = adminCor ? adminCor.value : '#4F46E5';
                         data.adminFicheiro = adminFicheiro ? adminFicheiro.value : '';
-                        // *** CORREÇÃO: Atualiza no Firebase (usando writeTasksRef) ***
                         await writeTasksRef.child(editingId).update(data);
                     } 
-                    // MODO ADIÇÃO
                     else if (!editingId) {
-                        // Adiciona metadados
-                        data.createdBy = userUid; // ID do criador
-                        data.createdAt = firebase.database.ServerValue.TIMESTAMP; // Data atual
-                        data.status = 'pendente'; // Status inicial
-                        // Dados de admin padrão
+                        data.createdBy = userUid; 
+                        data.createdAt = firebase.database.ServerValue.TIMESTAMP; 
+                        data.status = 'pendente'; 
                         data.adminPrioridade = '2';
                         data.adminMaterial = 'PETG';
                         data.adminCor = '#4F46E5';
                         data.adminFicheiro = '';
-                        // *** CORREÇÃO: Cria novo registo no Firebase (usando writeTasksRef) ***
                         const newRef = writeTasksRef.push();
                         await newRef.set(data);
                     }
-                    closeTaskModal(); // Fecha o modal em caso de sucesso
+                    closeTaskModal(); 
                 } catch (err) {
                      if (modalErrorMessage) modalErrorMessage.textContent = 'Erro ao salvar: ' + err.message;
-                     if (saveTaskBtn) { // Reabilita o botão em caso de erro
+                     if (saveTaskBtn) { 
                          saveTaskBtn.disabled = false;
                          saveTaskBtn.textContent = "Salvar";
                      }
@@ -860,15 +834,13 @@
             });
         }
 
-        // Listener do botão de confirmação de exclusão
         if (confirmDeleteBtn) {
             confirmDeleteBtn.addEventListener('click', async () => {
                 if (taskToDeleteId && userRole === 'admin') {
-                    confirmDeleteBtn.disabled = true; // Desabilita para evitar cliques duplos
+                    confirmDeleteBtn.disabled = true; 
                     try {
-                        // *** CORREÇÃO: Remove do Firebase (usando writeTasksRef) ***
                         await writeTasksRef.child(taskToDeleteId).remove(); 
-                        hideDeleteModal(); // Fecha o modal
+                        hideDeleteModal(); 
                     } catch (err) {
                         alert("Erro ao excluir: " + err.message);
                         confirmDeleteBtn.disabled = false;
@@ -877,20 +849,17 @@
             });
         }
 
-        // Listeners para fechar os modais
         if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', hideDeleteModal);
         if (closeModalBtn) closeModalBtn.addEventListener('click', closeTaskModal);
         if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeTaskModal);
-        if (taskModal) taskModal.addEventListener('click', (e) => { if (e.target === taskModal) closeTaskModal(); }); // Clicar fora
-        if (deleteModal) deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) hideDeleteModal(); }); // Clicar fora
+        if (taskModal) taskModal.addEventListener('click', (e) => { if (e.target === taskModal) closeTaskModal(); }); 
+        if (deleteModal) deleteModal.addEventListener('click', (e) => { if (e.target === deleteModal) hideDeleteModal(); }); 
         
-        // Listener do botão "Adicionar Pedido"
         if (addTaskBtn) addTaskBtn.addEventListener('click', () => openTaskModal('add'));
 
-        // --- 10. INICIALIZAÇÃO DO DRAG & DROP (Sortable.js) ---
+        // --- 10. INICIALIZAÇÃO DO DRAG & DROP ---
 
         function initSortable(){
-            // Destrói instâncias antigas do Sortable
             sortables.forEach(s => s.destroy());
             sortables = [];
             
@@ -899,36 +868,30 @@
                 if (!el) return;
                 
                 const s = new Sortable(el, {
-                    group: 'kanban', // Permite arrastar entre colunas
+                    group: 'kanban', 
                     animation: 150,
                     ghostClass: 'sortable-ghost',
                     chosenClass: 'sortable-chosen',
-                    disabled: userRole !== 'admin', // SÓ ADMIN PODE ARRASTAR
+                    disabled: userRole !== 'admin', 
                     
-                    // Chamado quando um card é largado
                     onEnd: (evt) => {
-                        if (userRole !== 'admin') return; // Segurança extra
-                        const taskId = evt.item.dataset.taskId; // ID da tarefa
-                        const newCol = evt.to.dataset.columnId; // Coluna de destino
-                        const oldCol = evt.from.dataset.columnId; // Coluna de origem
+                        if (userRole !== 'admin') return; 
+                        const taskId = evt.item.dataset.taskId; 
+                        const newCol = evt.to.dataset.columnId; 
+                        const oldCol = evt.from.dataset.columnId; 
                         
-                        if (newCol === oldCol) return; // Não faz nada se for a mesma coluna
+                        if (newCol === oldCol) return; 
                         
-                        // *** CORREÇÃO: Atualiza o status da tarefa no Firebase (usando writeTasksRef) ***
                         writeTasksRef.child(taskId).update({ status: newCol })
                         .catch(err => {
-                            // Se falhar, reverte o movimento visualmente
                             console.error("Erro ao mover card. Revertendo.", err);
                             evt.from.appendChild(evt.item);
                         });
                     }
                 });
-                sortables.push(s); // Guarda a instância para destruir depois
+                sortables.push(s); 
             });
         }
-
-        // (A execução inicial acontece dentro do auth.onAuthStateChanged)
-
     });
     </script>
 </body>
