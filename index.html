@@ -13,11 +13,58 @@
     <!-- Fonte -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Os seus estilos personalizados estão ligados aqui -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f3f4f6; 
+        }
+
+        .sortable-ghost { 
+            opacity: 0.3; 
+            background: #dbeafe; 
+            border: 2px dashed #60a5fa; 
+        }
+
+        .sortable-chosen { 
+            cursor: grabbing; 
+            opacity: 0.9; 
+            transform: scale(1.02); 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+        }
+
+        .kanban-column-body { 
+            max-height: 75vh; 
+            overflow-y: auto; 
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+            min-height: 150px; /* Garante área para drop mesmo vazio */
+        }
+
+        .kanban-column-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .kanban-column-body::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        /* Estilo para o seletor de cor */
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 0.375rem; }
+
+        /* Animação para Toast Notifications */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-enter { animation: slideIn 0.3s ease-out forwards; }
+    </style>
 
 </head>
 <body class="antialiased text-gray-900">
+
+    <!-- Container para Toasts (Notificações) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
     <!-- 
       PÁGINA DE LOGIN
@@ -65,37 +112,50 @@
         <!-- Cabeçalho -->
         <header class="bg-green-800 text-white shadow-lg sticky top-0 z-40">
             <!-- Container principal do cabeçalho -->
-            <div class="container mx-auto max-w-full px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between md:items-center">
+            <div class="container mx-auto max-w-full px-4 md:px-8 py-4 flex flex-col gap-4">
                 
-                <!-- Logo e Título -->
-                <div class="flex items-center space-x-3 w-full md:w-auto mb-4 md:mb-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12a7.5 7.5 0 0 0 15 0"/></svg>
+                <!-- Linha Superior: Logo, Título e Logout -->
+                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <!-- Logo e Título -->
                     <div class="flex items-center space-x-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 12a7.5 7.5 0 0 0 15 0"/></svg>
                         <div>
-                            <h1 class="text-lg sm:text-2xl font-bold">Gestor de Fila de Impressão 3D</h1>
-                            <p class="text-sm text-gray-200 font-light">Gestão de Pedidos</p>
+                            <h1 class="text-lg sm:text-2xl font-bold">Gestor de Fila 3D</h1>
+                            <p class="text-sm text-gray-200 font-light hidden sm:block">Controlo de Produção</p>
                         </div>
+                    </div>
+                    
+                    <!-- Botões Principais -->
+                    <div class="flex items-center space-x-3 w-full md:w-auto">
+                        <button id="add-task-btn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold transition-colors flex-1 md:flex-none flex items-center justify-center gap-2">
+                            <span>+</span> Adicionar
+                        </button>
+                        <button id="logout-btn" class="bg-green-700 border border-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-600 hover:border-red-700 transition-colors">
+                            Sair
+                        </button>
                     </div>
                 </div>
-                
-                <!-- Botões de Ação -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3 w-full md:w-auto">
+
+                <!-- Linha Inferior: Filtros e Pesquisa -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-3 bg-green-900/30 p-2 rounded-lg">
                     
-                    <!-- Controles do Admin -->
-                    <div id="admin-controls" class="flex items-center space-x-3 hidden w-full sm:w-auto mb-2 sm:mb-0">
-                        <div class="flex items-center justify-between sm:justify-start space-x-2 w-full sm:w-auto">
-                            <label for="header-sort-select" class="text-sm font-medium flex-shrink-0">Ordenar por:</label>
-                            <select id="header-sort-select" class="px-3 py-2 rounded-lg bg-white text-gray-800 text-sm border border-green-600 w-full sm:w-auto">
-                                <option value="createdAt" selected>Data de Adição</option>
-                                <option value="priority">Prioridade (Admin)</option>
-                            </select>
+                    <!-- Barra de Pesquisa (Nova Melhoria) -->
+                    <div class="relative w-full md:w-64">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
+                        <input type="text" id="search-input" placeholder="Pesquisar pedido..." 
+                               class="w-full pl-10 pr-4 py-1.5 rounded-md bg-green-700/50 border border-green-600 text-white placeholder-green-200/70 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm">
                     </div>
 
-                    <!-- Botões de Ação Principais -->
-                    <div class="flex items-center space-x-3 w-full sm:w-auto">
-                        <button id="add-task-btn" class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg font-semibold transition-colors w-1/2 sm:w-auto">Adicionar</button>
-                        <button id="logout-btn" class="bg-green-500 text-white px-3 py-2 rounded-lg border border-green-600 text-sm font-medium hover:bg-red-600 hover:border-red-700 transition-colors w-1/2 sm:w-auto">Sair</button>
+                    <!-- Controles do Admin -->
+                    <div id="admin-controls" class="flex items-center gap-2 hidden w-full md:w-auto overflow-x-auto">
+                        <label for="header-sort-select" class="text-xs text-green-200 whitespace-nowrap">Ordenar:</label>
+                        <select id="header-sort-select" class="px-2 py-1.5 rounded-md bg-white text-gray-800 text-xs border border-green-600 focus:outline-none">
+                            <option value="manual" selected>Manual (Nº)</option>
+                            <option value="createdAt">Data</option>
+                            <option value="priority">Prioridade</option>
+                        </select>
                     </div>
 
                 </div>
@@ -103,85 +163,87 @@
         </header>
 
         <!-- Barra de Status da Autenticação -->
-        <div id="auth-status" class="py-2 px-6 bg-green-900 text-green-200 text-sm text-center sticky top-[128px] md:top-[80px] z-30">A conectar...</div>
+        <div id="auth-status" class="py-1 px-6 bg-green-900 text-green-200 text-xs text-center sticky top-[136px] md:top-[120px] z-30">A conectar...</div>
 
         <!-- Corpo Principal do Kanban -->
-        <main id="kanban-board" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+        <main id="kanban-board" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4 md:p-6">
             
             <!-- Coluna 1: Pendente -->
-            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[172px] md:top-[124px] bg-white rounded-t-xl z-10">
-                    <div class="flex items-center space-x-3">
-                        <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-                        <h3 class="font-semibold text-red-600 uppercase text-sm">PENDENTE</h3>
+            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col border border-gray-100">
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl sticky top-[160px] md:top-[144px] z-20">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
+                        <h3 class="font-bold text-gray-700 text-sm tracking-wide">PENDENTE</h3>
                     </div>
-                    <span id="count-pendente" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+                    <span id="count-pendente" class="px-2 py-0.5 bg-gray-200 text-gray-600 rounded-md font-bold text-xs">0</span>
                 </div>
-                <div id="col-pendente" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="pendente"></div>
+                <div id="col-pendente" class="p-3 space-y-3 kanban-column-body flex-grow" data-column-id="pendente"></div>
             </div>
 
             <!-- Coluna 2: Em Andamento -->
-            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[172px] md:top-[124px] bg-white rounded-t-xl z-10">
-                    <div class="flex items-center space-x-3">
-                        <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
-                        <h3 class="font-semibold text-blue-600 uppercase text-sm">EM ANDAMENTO</h3>
+            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col border border-gray-100">
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl sticky top-[160px] md:top-[144px] z-20">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
+                        <h3 class="font-bold text-gray-700 text-sm tracking-wide">EM ANDAMENTO</h3>
                     </div>
-                    <span id="count-andamento" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+                    <span id="count-andamento" class="px-2 py-0.5 bg-gray-200 text-gray-600 rounded-md font-bold text-xs">0</span>
                 </div>
-                <div id="col-andamento" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="andamento"></div>
+                <div id="col-andamento" class="p-3 space-y-3 kanban-column-body flex-grow" data-column-id="andamento"></div>
             </div>
 
             <!-- Coluna 3: Concluído -->
-            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[172px] md:top-[124px] bg-white rounded-t-xl z-10">
-                    <div class="flex items-center space-x-3">
-                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                        <h3 class="font-semibold text-green-600 uppercase text-sm">CONCLUÍDO</h3>
+            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col border border-gray-100">
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl sticky top-[160px] md:top-[144px] z-20">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                        <h3 class="font-bold text-gray-700 text-sm tracking-wide">CONCLUÍDO</h3>
                     </div>
-                    <span id="count-concluido" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+                    <span id="count-concluido" class="px-2 py-0.5 bg-gray-200 text-gray-600 rounded-md font-bold text-xs">0</span>
                 </div>
-                <div id="col-concluido" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="concluido"></div>
+                <div id="col-concluido" class="p-3 space-y-3 kanban-column-body flex-grow" data-column-id="concluido"></div>
             </div>
 
             <!-- Coluna 4: Falha / Cancelado -->
-            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center sticky top-[172px] md:top-[124px] bg-white rounded-t-xl z-10">
-                    <div class="flex items-center space-x-3">
-                        <span class="w-3 h-3 bg-gray-500 rounded-full"></span>
-                        <h3 class="font-semibold text-gray-600 uppercase text-sm">FALHA / CANCELADO</h3>
+            <div class="kanban-column bg-white rounded-xl shadow-lg flex flex-col border border-gray-100">
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl sticky top-[160px] md:top-[144px] z-20">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-gray-500 rounded-full"></div>
+                        <h3 class="font-bold text-gray-600 text-sm tracking-wide">FALHA / CANC.</h3>
                     </div>
-                    <span id="count-falha" class="px-2.5 py-0.5 bg-gray-200 text-gray-700 rounded-full font-semibold text-xs">0</span>
+                    <span id="count-falha" class="px-2 py-0.5 bg-gray-200 text-gray-600 rounded-md font-bold text-xs">0</span>
                 </div>
-                <div id="col-falha" class="p-4 space-y-4 kanban-column-body flex-grow min-h-[200px]" data-column-id="falha"></div>
+                <div id="col-falha" class="p-3 space-y-3 kanban-column-body flex-grow" data-column-id="falha"></div>
             </div>
         </main>
 
         <!-- Modal de Adicionar/Editar Tarefa -->
-        <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden">
-            <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full transform scale-95 opacity-0 overflow-hidden" id="task-modal-content">
+        <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden backdrop-blur-sm transition-all duration-300">
+            <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full transform scale-95 opacity-0 overflow-hidden transition-all duration-300" id="task-modal-content">
                 <form id="task-form">
-                    <div class="flex justify-between items-center p-5 border-b border-gray-200">
-                        <h4 id="modal-title" class="text-2xl font-semibold text-gray-800">Adicionar Pedido</h4>
-                        <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-600">✕</button>
+                    <div class="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50">
+                        <h4 id="modal-title" class="text-xl font-bold text-gray-800">Adicionar Pedido</h4>
+                        <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full p-1 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
                     </div>
                     
-                    <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
-                        <fieldset>
-                            <legend class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 w-full">Detalhes do Solicitante</legend>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                        <fieldset class="border border-gray-200 rounded-lg p-4">
+                            <legend class="text-sm font-semibold text-green-700 px-2">Detalhes do Solicitante</legend>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                                 <div>
-                                    <label for="solicitante-nome" class="block text-sm font-medium text-gray-700 mb-1">Nome <span class="text-red-500">*</span></label>
-                                    <input type="text" id="solicitante-nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nome <span class="text-red-500">*</span></label>
+                                    <input type="text" id="solicitante-nome" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all" required>
                                 </div>
                                 <div>
-                                    <label for="solicitante-matricula" class="block text-sm font-medium text-gray-700 mb-1">Matrícula <span class="text-red-500">*</span></label>
-                                    <input type="text" id="solicitante-matricula" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Matrícula <span class="text-red-500">*</span></label>
+                                    <input type="text" id="solicitante-matricula" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all" required>
                                 </div>
                                 <div>
-                                    <label for="solicitante-area" class="block text-sm font-medium text-gray-700 mb-1">Área <span class="text-red-500">*</span></label>
-                                    <select id="solicitante-area" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
-                                        <option value="" disabled selected>Selecione uma área</option>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Área <span class="text-red-500">*</span></label>
+                                    <select id="solicitante-area" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all" required>
+                                        <option value="" disabled selected>Selecione...</option>
                                         <option value="Envase">Envase</option>
                                         <option value="Processos">Processos</option>
                                         <option value="Utilidades">Utilidades</option>
@@ -191,20 +253,19 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="solicitante-email" class="block text-sm font-medium text-gray-700 mb-1">Email de Contato <span class="text-red-500">*</span></label>
-                                    <input type="email" id="solicitante-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Email <span class="text-red-500">*</span></label>
+                                    <input type="email" id="solicitante-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all" required>
                                 </div>
                             </div>
                         </fieldset>
 
-                        <fieldset>
-                            <legend class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4 w-full">Detalhes da Peça</legend>
-                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Campos originais -->
-                                <div>
-                                    <label for="peca-nome" class="block text-sm font-medium text-gray-700 mb-1">Selecione a Peça <span class="text-red-500">*</span></label>
-                                    <select id="peca-nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white" required>
-                                        <option value="" disabled selected>Selecione uma peça</option>
+                        <fieldset class="border border-gray-200 rounded-lg p-4">
+                            <legend class="text-sm font-semibold text-blue-700 px-2">Detalhes da Peça</legend>
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Peça <span class="text-red-500">*</span></label>
+                                    <select id="peca-nome" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" required>
+                                        <option value="" disabled selected>Selecione a peça...</option>
                                         <option value="Faca para Etiquetadora">Faca para Etiquetadora</option>
                                         <option value="Sapata">Sapata</option>
                                         <option value="Tampão">Tampão</option>
@@ -216,20 +277,19 @@
                                         <option value="Outra">Outra</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label for="peca-outra" class="block text-sm font-medium text-gray-700 mb-1">Se for "Outra", descreva:</label>
-                                    <input type="text" id="peca-outra" class="w-full px-4 py-2 border border-gray-300 rounded-lg" disabled>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Descrição (se "Outra")</label>
+                                    <input type="text" id="peca-outra" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400" disabled>
                                 </div>
                                 
-                                <!-- NOVOS CAMPOS ADICIONADOS -->
                                 <div>
-                                    <label for="peca-quantidade" class="block text-sm font-medium text-gray-700 mb-1">Quantidade <span class="text-red-500">*</span></label>
-                                    <input type="number" id="peca-quantidade" min="1" value="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Quantidade <span class="text-red-500">*</span></label>
+                                    <input type="number" id="peca-quantidade" min="1" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
                                 </div>
                                 <div>
-                                    <label for="peca-cor-preferencia" class="block text-sm font-medium text-gray-700 mb-1">Cor de Preferência</label>
-                                    <select id="peca-cor-preferencia" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
-                                        <option value="" disabled selected>Selecione a cor</option>
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Cor Preferida</label>
+                                    <select id="peca-cor-preferencia" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500">
+                                        <option value="" disabled selected>Selecione...</option>
                                         <option value="Preto">Preto</option>
                                         <option value="Branco">Branco</option>
                                         <option value="Cinza">Cinza</option>
@@ -242,36 +302,41 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="peca-material-original" class="block text-sm font-medium text-gray-700 mb-1">Material Original da Peça</label>
-                                    <input type="text" id="peca-material-original" placeholder="Ex: Aço, Plástico, Borracha..." class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Material Original</label>
+                                    <input type="text" id="peca-material-original" placeholder="Ex: Aço" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
-                                <!-- FIM NOVOS CAMPOS -->
 
                                 <div>
-                                    <label for="peca-codigo" class="block text-sm font-medium text-gray-700 mb-1">Código do Fabricante (Original)</label>
-                                    <input type="text" id="peca-codigo" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Código Fabr.</label>
+                                    <input type="text" id="peca-codigo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label for="peca-equipamento" class="block text-sm font-medium text-gray-700 mb-1">Equipamento onde será usada</label>
-                                    <input type="text" id="peca-equipamento" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Equipamento</label>
+                                    <input type="text" id="peca-equipamento" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                             </div>
                         </fieldset>
 
-                        <fieldset id="admin-fields" class="hidden">
-                            <legend class="text-lg font-semibold text-indigo-700 border-b border-indigo-200 pb-2 mb-4 w-full">Controlo de Impressão (Admin)</legend>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <fieldset id="admin-fields" class="hidden border border-indigo-200 rounded-lg p-4 bg-indigo-50/50">
+                            <legend class="text-sm font-semibold text-indigo-700 px-2">Área Técnica (Admin)</legend>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+                                
+                                <div class="bg-white p-2 rounded border border-indigo-100">
+                                    <label for="admin-order" class="block text-xs font-semibold text-indigo-800 uppercase mb-1">Ordem #</label>
+                                    <input type="number" id="admin-order" class="w-full px-3 py-1.5 border border-indigo-200 rounded text-sm" placeholder="Auto">
+                                </div>
+                                
                                 <div>
-                                    <label for="admin-prioridade" class="block text-sm font-medium text-gray-700 mb-1">Prioridade</label>
-                                    <select id="admin-prioridade" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Prioridade</label>
+                                    <select id="admin-prioridade" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white">
                                         <option value="3">Baixa</option>
                                         <option value="2" selected>Média</option>
                                         <option value="1">Alta</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="admin-material" class="block text-sm font-medium text-gray-700 mb-1">Material</label>
-                                    <select id="admin-material" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Material</label>
+                                    <select id="admin-material" class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white">
                                         <option value="PLA">PLA</option>
                                         <option value="PETG" selected>PETG</option>
                                         <option value="ABS">ABS</option>
@@ -280,36 +345,42 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="admin-cor" class="block text-sm font-medium text-gray-700 mb-1">Cor da Impressão</label>
-                                    <input type="color" id="admin-cor" value="#4F46E5" class="w-full h-10 p-0 border border-gray-300 rounded-lg cursor-pointer">
+                                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Cor Impressão</label>
+                                    <div class="flex items-center h-10 w-full border border-gray-300 rounded-lg overflow-hidden bg-white px-1">
+                                         <input type="color" id="admin-cor" value="#4F46E5" class="w-8 h-8 cursor-pointer border-none p-0 bg-transparent">
+                                         <span class="text-xs text-gray-500 ml-2">Escolher</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <label for="admin-ficheiro" class="block text-sm font-medium text-gray-700 mb-1">Nome do Ficheiro (.stl, .3mf)</label>
-                                <input type="text" id="admin-ficheiro" placeholder="ex: peca_final_v2.stl" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nome do Ficheiro (.stl)</label>
+                                <input type="text" id="admin-ficheiro" placeholder="ex: peca_final_v2.stl" class="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm">
                             </div>
                         </fieldset>
 
                         <input type="hidden" id="task-id-hidden">
-                        <p id="modal-error-message" class="text-red-500 text-sm h-5"></p>
+                        <p id="modal-error-message" class="text-red-500 text-sm h-5 font-medium"></p>
                     </div>
                     
-                    <div class="flex justify-end items-center space-x-4 p-5 bg-gray-50 rounded-b-lg">
-                        <button type="button" id="cancel-modal-btn" class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-colors">Cancelar</button>
-                        <button type="submit" id="save-task-btn" class="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors">Salvar</button>
+                    <div class="flex justify-end items-center space-x-3 p-5 bg-gray-50 border-t border-gray-100 rounded-b-xl">
+                        <button type="button" id="cancel-modal-btn" class="px-5 py-2.5 rounded-lg text-gray-600 hover:bg-gray-200 transition-colors font-medium text-sm">Cancelar</button>
+                        <button type="submit" id="save-task-btn" class="px-6 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg transition-all font-medium text-sm">Salvar Pedido</button>
                     </div>
                 </form>
             </div>
         </div>
 
         <!-- Modal de Confirmação de Exclusão -->
-        <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden">
-            <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full transform scale-95 opacity-0" id="delete-modal-content">
-                <h4 class="text-xl font-semibold mb-4">Confirmar exclusão</h4>
-                <p class="text-gray-600 mb-6">Tem certeza de que deseja excluir este item?</p>
-                <div class="flex justify-end space-x-3">
-                    <button id="cancel-delete-btn" class="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition-colors">Cancelar</button>
-                    <button id="confirm-delete-btn" class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Excluir</button>
+        <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden backdrop-blur-sm">
+            <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full transform scale-95 opacity-0 transition-all duration-300" id="delete-modal-content">
+                <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-4 mx-auto">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </div>
+                <h4 class="text-xl font-bold text-center text-gray-800 mb-2">Excluir Pedido?</h4>
+                <p class="text-gray-500 text-center mb-6 text-sm">Esta ação é irreversível e removerá o pedido permanentemente da fila.</p>
+                <div class="flex justify-center space-x-3">
+                    <button id="cancel-delete-btn" class="px-5 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-medium">Cancelar</button>
+                    <button id="confirm-delete-btn" class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-md transition-colors font-medium">Sim, Excluir</button>
                 </div>
             </div>
         </div>
@@ -349,6 +420,7 @@
         let taskToDeleteId = null;
         let allTasks = {};
         let sortables = [];
+        let currentSearchTerm = ''; // Estado da pesquisa
 
         // --- 4. MAPEAMENTO DE ELEMENTOS DO DOM ---
         
@@ -372,6 +444,7 @@
         const addTaskBtn = document.getElementById('add-task-btn');
         const adminControls = document.getElementById('admin-controls');
         const headerSortSelect = document.getElementById('header-sort-select');
+        const searchInput = document.getElementById('search-input'); // Novo
 
         // -- Colunas
         const columns = {
@@ -399,19 +472,16 @@
         const taskIdHidden = document.getElementById('task-id-hidden');
         const modalErrorMessage = document.getElementById('modal-error-message');
         
-        // -- Campos do Formulário de Tarefa
+        // -- Campos do Formulário
         const solicitanteNome = document.getElementById('solicitante-nome');
         const solicitanteMatricula = document.getElementById('solicitante-matricula');
         const solicitanteArea = document.getElementById('solicitante-area');
         const solicitanteEmail = document.getElementById('solicitante-email');
         const pecaNome = document.getElementById('peca-nome');
         const pecaOutra = document.getElementById('peca-outra');
-        
-        // NOVOS CAMPOS DO FORMULÁRIO
         const pecaQuantidade = document.getElementById('peca-quantidade');
         const pecaCorPreferencia = document.getElementById('peca-cor-preferencia');
         const pecaMaterialOriginal = document.getElementById('peca-material-original');
-        
         const pecaCodigo = document.getElementById('peca-codigo');
         const pecaEquipamento = document.getElementById('peca-equipamento');
 
@@ -421,6 +491,7 @@
         const adminMaterial = document.getElementById('admin-material');
         const adminCor = document.getElementById('admin-cor');
         const adminFicheiro = document.getElementById('admin-ficheiro');
+        const adminOrder = document.getElementById('admin-order');
         
         // -- Modal Exclusão
         const deleteModal = document.getElementById('delete-modal');
@@ -428,6 +499,28 @@
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
+        // --- SISTEMA DE TOAST NOTIFICATIONS (Melhoria 2) ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            // Cores baseadas no tipo
+            let bgClass = type === 'success' ? 'bg-green-600' : (type === 'error' ? 'bg-red-600' : 'bg-blue-600');
+            
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 toast-enter transform transition-all duration-300 min-w-[300px]`;
+            toast.innerHTML = `
+                <span class="text-xl">${type === 'success' ? '✓' : (type === 'error' ? '✕' : 'ℹ')}</span>
+                <p class="font-medium text-sm">${message}</p>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
         // --- 5. LÓGICA DE LOGIN ---
 
@@ -453,6 +546,7 @@
 
             errorMessage.textContent = '';
             submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="animate-pulse">Processando...</span>';
 
             try {
                 if (isLoginMode) {
@@ -469,17 +563,18 @@
             } catch (error) {
                 errorMessage.textContent = getFirebaseErrorMessage(error.code);
                 submitBtn.disabled = false;
+                submitBtn.textContent = isLoginMode ? 'Entrar' : 'Criar Conta';
             }
         });
 
         function getFirebaseErrorMessage(code) {
             switch (code) {
-                case 'auth/wrong-password': return 'Password incorreta. Tente novamente.';
-                case 'auth/user-not-found': return 'Nenhum utilizador encontrado com este email.';
-                case 'auth/email-already-in-use': return 'Este email já está a ser utilizado.';
-                case 'auth/weak-password': return 'A password deve ter pelo menos 6 caracteres.';
-                case 'auth/invalid-email': return 'Formato de email inválido.';
-                default: return 'Ocorreu um erro. Tente novamente.';
+                case 'auth/wrong-password': return 'Password incorreta.';
+                case 'auth/user-not-found': return 'Nenhum utilizador encontrado.';
+                case 'auth/email-already-in-use': return 'Este email já está em uso.';
+                case 'auth/weak-password': return 'Password muito fraca.';
+                case 'auth/invalid-email': return 'Email inválido.';
+                default: return 'Erro de autenticação.';
             }
         }
 
@@ -499,10 +594,10 @@
                 userRoleRef.on('value', (snap) => {
                     if (snap.exists() && snap.val() === 'admin') {
                         userRole = 'admin';
-                        authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (ADMIN)`;
+                        authStatus.innerHTML = `<span class="inline-block w-2 h-2 bg-green-400 rounded-full mr-2"></span>${userName} (ADMIN)`;
                     } else {
                         userRole = 'user';
-                        authStatus.textContent = `Conectado como: ${userName.charAt(0).toUpperCase() + userName.slice(1)} (Usuário)`;
+                        authStatus.innerHTML = `<span class="inline-block w-2 h-2 bg-green-400 rounded-full mr-2"></span>${userName}`;
                     }
                     
                     updateUIForRole();
@@ -523,6 +618,7 @@
                 loginPage.classList.remove('hidden');
                 
                 submitBtn.disabled = false;
+                submitBtn.textContent = 'Entrar';
                 errorMessage.textContent = '';
             }
         });
@@ -577,19 +673,44 @@
             dbTasksRef.on('child_removed', onChildRemoved);
         }
         
-        // --- 8. RENDERIZAÇÃO E ORDENAÇÃO ---
+        // --- 8. RENDERIZAÇÃO, PESQUISA E ORDENAÇÃO ---
 
         headerSortSelect.addEventListener('change', renderAllTasks);
+        
+        // Listener de Pesquisa (Melhoria 1)
+        searchInput.addEventListener('input', (e) => {
+            currentSearchTerm = e.target.value.toLowerCase().trim();
+            renderAllTasks();
+        });
 
         function renderAllTasks() {
+            // Limpa colunas
             columnIds.forEach(id => {
                 if(columns[id]) columns[id].innerHTML = '';
             });
 
             let tasksArray = Object.values(allTasks);
 
+            // FILTRAGEM (Pesquisa)
+            if (currentSearchTerm) {
+                tasksArray = tasksArray.filter(task => {
+                    return (task.pecaNome && task.pecaNome.toLowerCase().includes(currentSearchTerm)) ||
+                           (task.solicitanteNome && task.solicitanteNome.toLowerCase().includes(currentSearchTerm)) ||
+                           (task.solicitanteMatricula && task.solicitanteMatricula.includes(currentSearchTerm));
+                });
+            }
+
             const sortValue = headerSortSelect.value;
-            if (userRole === 'admin' && sortValue === 'priority') {
+            
+            if (userRole === 'admin' && sortValue === 'manual') {
+                // Ordenação Manual
+                tasksArray.sort((a, b) => {
+                    const orderA = a.order !== undefined ? parseInt(a.order) : 999999;
+                    const orderB = b.order !== undefined ? parseInt(b.order) : 999999;
+                    if (orderA !== orderB) return orderA - orderB;
+                    return (a.createdAt || 0) - (b.createdAt || 0);
+                });
+            } else if (userRole === 'admin' && sortValue === 'priority') {
                 tasksArray.sort((a, b) => (a.adminPrioridade || 2) - (b.adminPrioridade || 2));
             } else {
                 tasksArray.sort((a, b) => a.createdAt - b.createdAt);
@@ -598,61 +719,111 @@
             tasksArray.forEach(task => {
                 const colId = task.status || 'pendente'; 
                 if (columns[colId]) {
-                    const card = createTaskElement(task); 
+                    let displayOrder = task.order !== undefined ? task.order : '#';
+                    const card = createTaskElement(task, displayOrder); 
                     columns[colId].appendChild(card); 
                 }
             });
             
-            updateAllCounts();
+            // ESTADO VAZIO (Melhoria 3)
+            columnIds.forEach(colId => {
+                const col = columns[colId];
+                if (col.children.length === 0) {
+                    col.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-8 text-gray-400 opacity-60">
+                            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <span class="text-xs font-medium">Sem pedidos</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            updateAllCounts(tasksArray);
         }
 
-        function updateAllCounts() {
+        function updateAllCounts(filteredTasks) {
+            const counts = { "pendente": 0, "andamento": 0, "concluido": 0, "falha": 0 };
+            
+            // Recalcula contagem baseado nos filtrados, não apenas DOM
+            filteredTasks.forEach(t => {
+                if(counts[t.status || 'pendente'] !== undefined) counts[t.status || 'pendente']++;
+            });
+
             columnIds.forEach(colId => {
-                if (columns[colId]) { 
-                    const count = columns[colId].children.length;
-                    if (columnCounts[colId]) { 
-                        columnCounts[colId].textContent = count;
-                    }
+                if (columnCounts[colId]) { 
+                    columnCounts[colId].textContent = counts[colId];
                 }
             });
         }
 
         function getPriorityClasses(priority){
             priority = String(priority);
-            if (priority === '1') return { border:'border-red-500', text:'Alta', bg:'bg-red-500' };
-            if (priority === '2') return { border:'border-orange-500', text:'Média', bg:'bg-orange-500' };
-            if (priority === '3') return { border:'border-blue-500', text:'Baixa', bg:'bg-blue-500' };
-            return { border:'border-gray-400', text:'N/A', bg:'bg-gray-500' };
+            if (priority === '1') return { border:'border-red-500', text:'Alta', bg:'bg-red-500', lightBg: 'bg-red-50' };
+            if (priority === '2') return { border:'border-orange-500', text:'Média', bg:'bg-orange-500', lightBg: 'bg-orange-50' };
+            if (priority === '3') return { border:'border-blue-500', text:'Baixa', bg:'bg-blue-500', lightBg: 'bg-blue-50' };
+            return { border:'border-gray-400', text:'N/A', bg:'bg-gray-500', lightBg: 'bg-gray-50' };
         }
 
-        function createTaskElement(task){
+        function createTaskElement(task, displayOrder){
             const p = getPriorityClasses(task.adminPrioridade);
             const card = document.createElement('div');
-            card.className = `task-card bg-white p-4 rounded-lg shadow-md border-l-4 ${p.border} group relative`;
+            // Design mais clean com hover suave
+            card.className = `task-card bg-white p-3.5 rounded-lg shadow-sm border border-gray-100 border-l-4 ${p.border} group relative hover:shadow-md transition-all duration-200`;
             card.dataset.taskId = task.id;
-            card.style.cursor = (userRole === 'admin') ? 'move' : 'default';
+            
+            const isManualMode = (headerSortSelect.value === 'manual');
+            card.style.cursor = (userRole === 'admin' && isManualMode) ? 'grab' : 'default';
 
             const peca = DOMPurify.sanitize(task.pecaNome === 'Outra' ? task.pecaOutra : task.pecaNome);
-            const area = DOMPurify.sanitize(task.solicitanteArea);
             const nome = DOMPurify.sanitize(task.solicitanteNome);
-            const data = task.createdAt ? new Date(task.createdAt).toLocaleDateString('pt-BR') : '...'; 
+            const matricula = DOMPurify.sanitize(task.solicitanteMatricula);
             
-            // Lógica para mostrar a quantidade apenas se > 1
+            // Melhoria 4: Formatação de Data com Hora
+            const createdDate = task.createdAt ? new Date(task.createdAt) : new Date();
+            const dateStr = createdDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            const timeStr = createdDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            // Melhoria 5: Indicador de "Novo" (últimas 24h)
+            const isNew = (Date.now() - createdDate.getTime()) < (24 * 60 * 60 * 1000);
+            const newBadge = (isNew && task.status === 'pendente') ? 
+                `<span class="absolute -top-1 -right-1 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>` : '';
+            
             const qtd = parseInt(task.pecaQuantidade) || 1;
-            const qtdBadge = qtd > 1 ? `<span class="inline-flex items-center justify-center bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded ml-2" title="Quantidade">x${qtd}</span>` : '';
+            const qtdBadge = qtd > 1 ? `<span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-1.5 py-0.5 rounded border border-indigo-200" title="Quantidade">x${qtd}</span>` : '';
+
+            let orderBadge = '';
+            if (userRole === 'admin' || displayOrder !== '#') {
+                 orderBadge = `<span class="font-mono text-gray-500 text-xs font-bold mr-1.5">#${displayOrder}</span>`;
+            }
 
             card.innerHTML = `
-                <div class="flex items-center mb-2">
-                    <h4 class="text-base font-semibold text-gray-800 break-words flex-1">${peca || 'Peça sem nome'}</h4>
-                    ${qtdBadge}
+                ${newBadge}
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center gap-1 overflow-hidden">
+                        ${orderBadge}
+                        <h4 class="text-sm font-bold text-gray-800 truncate" title="${peca}">${peca || 'Sem nome'}</h4>
+                        ${qtdBadge}
+                    </div>
                 </div>
-                <p class="text-sm text-gray-600"><span class="font-medium">Solicitante:</span> ${nome || 'N/A'}</p>
-                <p class="text-sm text-gray-600"><span class="font-medium">Área:</span> ${area || 'N/A'}</p>
-                <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${p.bg} text-white">${p.text}</span>
-                    <span class="text-xs text-gray-400">${data}</span>
+                
+                <div class="space-y-1 mb-3">
+                    <div class="flex items-center text-xs text-gray-500">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span class="truncate">${nome} (${matricula})</span>
+                    </div>
                 </div>
-                <button class="delete-task-btn ${userRole === 'admin' ? '' : 'hidden'} absolute top-2 right-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Apagar Pedido">✕</button>
+
+                <div class="flex justify-between items-center pt-2 border-t border-gray-50">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${p.bg} text-white">${p.text}</span>
+                    <div class="flex flex-col items-end">
+                        <span class="text-[10px] text-gray-400 font-medium">${dateStr}</span>
+                        <span class="text-[9px] text-gray-300">${timeStr}</span>
+                    </div>
+                </div>
+                
+                <button class="delete-task-btn ${userRole === 'admin' ? '' : 'hidden'} absolute top-2 right-2 p-1 bg-white/90 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all" title="Excluir">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
             `;
             
             if (userRole === 'admin') {
@@ -674,18 +845,19 @@
         function showModal(modal, content){ 
             if (!modal || !content) return; 
             modal.classList.remove('hidden'); 
+            // Pequeno delay para permitir a transição CSS
             setTimeout(()=>{ 
-                modal.classList.add('opacity-100'); 
-                content.classList.add('scale-100','opacity-100'); 
+                modal.classList.remove('opacity-0'); 
                 content.classList.remove('scale-95','opacity-0'); 
+                content.classList.add('scale-100','opacity-100'); 
             }, 10);
         }
         function hideModal(modal, content){ 
             if (!modal || !content) return; 
             content.classList.remove('scale-100','opacity-100'); 
             content.classList.add('scale-95','opacity-0'); 
-            modal.classList.remove('opacity-100'); 
-            setTimeout(()=> modal.classList.add('hidden'), 200); 
+            modal.classList.add('opacity-0'); 
+            setTimeout(()=> modal.classList.add('hidden'), 300); 
         }
         
         if (pecaNome) {
@@ -705,25 +877,25 @@
             if (pecaOutra) pecaOutra.disabled = true;
             if (saveTaskBtn) {
                 saveTaskBtn.disabled = false;
-                saveTaskBtn.textContent = "Salvar";
+                saveTaskBtn.textContent = "Salvar Pedido";
             }
 
             if (!currentUser) {
-                modalErrorMessage.textContent = "Erro: Utilizador não autenticado. Por favor, atualize a página.";
-                if (saveTaskBtn) saveTaskBtn.disabled = true;
-                showModal(taskModal, taskModalContent); 
+                showToast("Sessão expirada. Faça login novamente.", "error");
                 return; 
             }
 
             if (adminFields) adminFields.classList.add('hidden');
             if (solicitanteEmail) solicitanteEmail.value = currentUser.email; 
             
-            // RESETAR NOVOS CAMPOS PARA PADRÃO NO 'ADD'
             if (pecaQuantidade) pecaQuantidade.value = '1';
             
             if (mode === 'add') {
                 if (modalTitle) modalTitle.textContent = 'Adicionar Pedido';
                 if (taskIdHidden) taskIdHidden.value = ''; 
+                if (userRole === 'admin') {
+                    if (adminFields) adminFields.classList.remove('hidden');
+                }
             } 
             else if (mode === 'edit' && taskId && userRole === 'admin') {
                 if (modalTitle) modalTitle.textContent = 'Editar Pedido';
@@ -732,7 +904,7 @@
                 
                 const task = allTasks[taskId]; 
                 if (!task) {
-                    modalErrorMessage.textContent = "Erro: Tarefa não encontrada.";
+                    showToast("Erro: Tarefa não encontrada.", "error");
                     return;
                 }
 
@@ -744,7 +916,6 @@
                 if (pecaOutra) pecaOutra.value = task.pecaOutra || '';
                 if (pecaNome && pecaOutra && task.pecaNome === 'Outra') pecaOutra.disabled = false;
                 
-                // CARREGAR NOVOS CAMPOS
                 if (pecaQuantidade) pecaQuantidade.value = task.pecaQuantidade || '1';
                 if (pecaCorPreferencia) pecaCorPreferencia.value = task.pecaCorPreferencia || '';
                 if (pecaMaterialOriginal) pecaMaterialOriginal.value = task.pecaMaterialOriginal || '';
@@ -756,6 +927,8 @@
                 if (adminMaterial) adminMaterial.value = task.adminMaterial || 'PETG';
                 if (adminCor) adminCor.value = task.adminCor || '#4F46E5';
                 if (adminFicheiro) adminFicheiro.value = task.adminFicheiro || '';
+                
+                if (adminOrder) adminOrder.value = task.order !== undefined ? task.order : '';
             }
             
             showModal(taskModal, taskModalContent); 
@@ -795,7 +968,6 @@
                     pecaNome: pecaNome ? pecaNome.value : '',
                     pecaOutra: pecaOutra ? (pecaOutra.disabled ? '' : pecaOutra.value) : '',
                     
-                    // SALVAR NOVOS CAMPOS
                     pecaQuantidade: pecaQuantidade ? pecaQuantidade.value : '1',
                     pecaCorPreferencia: pecaCorPreferencia ? pecaCorPreferencia.value : '',
                     pecaMaterialOriginal: pecaMaterialOriginal ? pecaMaterialOriginal.value : '',
@@ -810,7 +982,13 @@
                         data.adminMaterial = adminMaterial ? adminMaterial.value : 'PETG';
                         data.adminCor = adminCor ? adminCor.value : '#4F46E5';
                         data.adminFicheiro = adminFicheiro ? adminFicheiro.value : '';
+                        
+                        if (adminOrder && adminOrder.value !== '') {
+                             data.order = parseInt(adminOrder.value);
+                        }
+                        
                         await writeTasksRef.child(editingId).update(data);
+                        showToast("Pedido atualizado com sucesso!", "success");
                     } 
                     else if (!editingId) {
                         data.createdBy = userUid; 
@@ -820,15 +998,24 @@
                         data.adminMaterial = 'PETG';
                         data.adminCor = '#4F46E5';
                         data.adminFicheiro = '';
+                        
+                        if (userRole === 'admin' && adminOrder && adminOrder.value !== '') {
+                            data.order = parseInt(adminOrder.value);
+                        } else {
+                            data.order = Date.now(); 
+                        }
+                        
                         const newRef = writeTasksRef.push();
                         await newRef.set(data);
+                        showToast("Pedido criado com sucesso!", "success");
                     }
                     closeTaskModal(); 
                 } catch (err) {
-                     if (modalErrorMessage) modalErrorMessage.textContent = 'Erro ao salvar: ' + err.message;
+                     if (modalErrorMessage) modalErrorMessage.textContent = 'Erro: ' + err.message;
+                     showToast("Erro ao salvar.", "error");
                      if (saveTaskBtn) { 
                          saveTaskBtn.disabled = false;
-                         saveTaskBtn.textContent = "Salvar";
+                         saveTaskBtn.textContent = "Salvar Pedido";
                      }
                 }
             });
@@ -840,9 +1027,10 @@
                     confirmDeleteBtn.disabled = true; 
                     try {
                         await writeTasksRef.child(taskToDeleteId).remove(); 
+                        showToast("Pedido excluído.", "success");
                         hideDeleteModal(); 
                     } catch (err) {
-                        alert("Erro ao excluir: " + err.message);
+                        showToast("Erro ao excluir: " + err.message, "error");
                         confirmDeleteBtn.disabled = false;
                     }
                 }
@@ -869,24 +1057,46 @@
                 
                 const s = new Sortable(el, {
                     group: 'kanban', 
-                    animation: 150,
+                    animation: 200,
+                    delay: 100, // Evita drags acidentais em mobile
+                    delayOnTouchOnly: true,
                     ghostClass: 'sortable-ghost',
                     chosenClass: 'sortable-chosen',
-                    disabled: userRole !== 'admin', 
+                    disabled: !(userRole === 'admin' && headerSortSelect.value === 'manual'), 
                     
-                    onEnd: (evt) => {
+                    onEnd: async (evt) => {
                         if (userRole !== 'admin') return; 
+
                         const taskId = evt.item.dataset.taskId; 
-                        const newCol = evt.to.dataset.columnId; 
-                        const oldCol = evt.from.dataset.columnId; 
+                        const newStatus = evt.to.dataset.columnId; 
+                        const oldStatus = evt.from.dataset.columnId; 
                         
-                        if (newCol === oldCol) return; 
-                        
-                        writeTasksRef.child(taskId).update({ status: newCol })
-                        .catch(err => {
-                            console.error("Erro ao mover card. Revertendo.", err);
-                            evt.from.appendChild(evt.item);
-                        });
+                        // 1. Atualizar status
+                        if (newStatus !== oldStatus) {
+                            try {
+                                await writeTasksRef.child(taskId).update({ status: newStatus });
+                                showToast("Status atualizado.", "info");
+                            } catch (err) {
+                                showToast("Erro ao mover.", "error");
+                                evt.from.appendChild(evt.item); 
+                                return;
+                            }
+                        }
+
+                        // 2. Renumerar se estiver no modo manual
+                        if (headerSortSelect.value === 'manual') {
+                            const cards = evt.to.querySelectorAll('.task-card');
+                            const updates = {};
+                            
+                            cards.forEach((card, index) => {
+                                const cId = card.dataset.taskId;
+                                updates[`${cId}/order`] = index + 1; 
+                            });
+
+                            if (Object.keys(updates).length > 0) {
+                               await writeTasksRef.update(updates);
+                            }
+                        }
                     }
                 });
                 sortables.push(s); 
