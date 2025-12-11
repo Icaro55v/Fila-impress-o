@@ -53,6 +53,12 @@
         .modal-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .modal-scroll::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
         .modal-scroll::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+        /* Ajustes para Impressão/PDF para evitar cortes */
+        @media print {
+            tr, td, th { page-break-inside: avoid !important; }
+            .avoid-break { page-break-inside: avoid !important; }
+        }
     </style>
 
 </head>
@@ -250,7 +256,7 @@
             <div class="p-8 bg-gray-50 space-y-8" id="report-printable-area">
                 
                 <!-- Cabeçalho Interno para PDF (inicialmente oculto) -->
-                <div id="print-header" class="hidden mb-6 pb-4 border-b-2 border-green-700">
+                <div id="print-header" class="hidden mb-6 pb-4 border-b-2 border-green-700 avoid-break">
                     <div class="flex items-center gap-4 mb-2">
                         <!-- Estrela (usando texto ou svg inline simples para garantir render) -->
                         <h1 class="text-3xl font-black text-gray-900 uppercase">HEINEKEN <span class="text-sm font-normal text-gray-500 normal-case ml-2">Relatório de Impressão 3D</span></h1>
@@ -259,7 +265,7 @@
                 </div>
 
                 <!-- 1. Estatísticas Gerais -->
-                <div>
+                <div class="avoid-break">
                     <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-l-4 border-green-600 pl-3">Métricas Gerais</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-white p-4 rounded border border-gray-200">
@@ -282,7 +288,7 @@
                 </div>
 
                 <!-- 2. Levantamento por Área -->
-                <div>
+                <div class="avoid-break">
                     <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-l-4 border-blue-600 pl-3">Produção por Área</h3>
                     <div class="bg-white p-6 rounded border border-gray-200" id="area-stats-container">
                         <!-- Barras JS -->
@@ -426,12 +432,19 @@
                     <!-- Admin Panel -->
                     <fieldset id="admin-fields" class="hidden border border-indigo-100 rounded-lg p-4 bg-indigo-50/30 mt-4">
                         <legend class="text-xs font-bold text-indigo-600 px-2 uppercase tracking-wider">Controlo de Produção</legend>
+                        
+                        <!-- NOVO CAMPO DE STATUS E DADOS EXISTENTES -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                            <div>
-                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Ordem #</label>
-                                <input type="number" id="admin-order" class="w-full px-2 py-1.5 border border-indigo-200 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Auto">
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Status Atual</label>
+                                <select id="admin-status" class="w-full px-2 py-1.5 border border-indigo-300 rounded bg-white text-sm font-bold text-indigo-700">
+                                    <option value="pendente">Pendente</option>
+                                    <option value="andamento">Em Andamento</option>
+                                    <option value="concluido">Concluído</option>
+                                    <option value="falha">Falha / Canc.</option>
+                                </select>
                             </div>
-                            
+
                             <div>
                                 <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Prioridade</label>
                                 <select id="admin-prioridade" class="w-full px-2 py-1.5 border border-gray-300 rounded bg-white text-sm">
@@ -457,9 +470,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-3">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Arquivo (.stl/.3mf)</label>
-                            <input type="text" id="admin-ficheiro" placeholder="nome_do_arquivo_v3.stl" class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm font-mono text-gray-600">
+                        
+                        <div class="grid grid-cols-2 gap-3 mt-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Ordem #</label>
+                                <input type="number" id="admin-order" class="w-full px-2 py-1.5 border border-indigo-200 rounded text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Auto">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Arquivo (.stl/.3mf)</label>
+                                <input type="text" id="admin-ficheiro" placeholder="nome_do_arquivo.stl" class="w-full px-3 py-1.5 border border-gray-300 rounded text-sm font-mono text-gray-600">
+                            </div>
                         </div>
                     </fieldset>
 
@@ -724,26 +744,33 @@
             const date = task.createdAt ? new Date(task.createdAt).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}) : '--';
             const orderDisplay = (userRole === 'admin' || task.order) ? `#${task.order||'-'}` : '';
 
+            // Lógica para exibir o nome correto da peça
+            const displayNome = (task.pecaNome === 'Outra' && task.pecaOutra) ? task.pecaOutra : task.pecaNome;
+
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-1">
                     <span class="text-[10px] font-bold text-gray-400">${orderDisplay}</span>
                     <span class="text-[10px] text-gray-400">${date}</span>
                 </div>
-                <h4 class="font-bold text-gray-800 text-sm mb-1">${DOMPurify.sanitize(task.pecaNome)}</h4>
+                <h4 class="font-bold text-gray-800 text-sm mb-1">${DOMPurify.sanitize(displayNome)}</h4>
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-gray-500">${DOMPurify.sanitize(task.solicitanteNome)}</span>
                     ${parseInt(task.pecaQuantidade) > 1 ? `<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1 rounded">x${task.pecaQuantidade}</span>` : ''}
                 </div>
-                <button class="delete-task-btn hidden group-hover:block absolute bottom-2 right-2 text-gray-300 hover:text-red-500" ${userRole !== 'admin' ? 'style="display:none"' : ''}>✕</button>
+                <button class="delete-task-btn hidden group-hover:block absolute bottom-2 right-2 text-gray-300 hover:text-red-500 bg-white rounded-full p-1 shadow-sm border border-gray-100" ${userRole !== 'admin' ? 'style="display:none"' : ''}>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
             `;
 
             card.addEventListener('click', (e) => {
-                if(!e.target.classList.contains('delete-task-btn')) openTaskModal(userRole === 'admin' ? 'edit' : 'view', task.id);
+                // Impede que clique no botão de delete abra o modal
+                if(e.target.closest('.delete-task-btn')) return;
+                openTaskModal(userRole === 'admin' ? 'edit' : 'view', task.id);
             });
 
             const delBtn = card.querySelector('.delete-task-btn');
             if(delBtn) delBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Garante que não propague
                 taskToDeleteId = task.id;
                 deleteModalContent.classList.remove('scale-95', 'opacity-0');
                 deleteModalContent.classList.add('scale-100', 'opacity-100');
@@ -784,11 +811,14 @@
                 const statusColors = {'pendente':'bg-yellow-100','andamento':'bg-blue-100','concluido':'bg-green-100','falha':'bg-red-100'};
                 const sequentialNum = index + 1; 
                 
+                // Lógica de exibição no relatório também
+                const displayNome = (t.pecaNome === 'Outra' && t.pecaOutra) ? t.pecaOutra : t.pecaNome;
+
                 reportTableBody.innerHTML += `
                     <tr class="border-b border-gray-100">
                         <td class="px-3 py-2 font-mono text-xs font-bold">#${sequentialNum}</td>
                         <td class="px-3 py-2">${new Date(t.createdAt).toLocaleDateString()}</td>
-                        <td class="px-3 py-2 font-medium">${t.pecaNome}</td>
+                        <td class="px-3 py-2 font-medium">${displayNome}</td>
                         <td class="px-3 py-2 text-center">${t.pecaQuantidade||1}</td>
                         <td class="px-3 py-2">${t.solicitanteArea}</td>
                         <td class="px-3 py-2 text-xs">${t.solicitanteNome}</td>
@@ -813,12 +843,19 @@
             // Mostrar header temporariamente para o PDF
             header.classList.remove('hidden');
             
+            // Configurações otimizadas para evitar cortes
             const opt = {
-              margin:       0.5,
+              margin:       [0.5, 0.5, 0.5, 0.5], // Margens uniformes (topo, esq, baixo, dir)
               filename:     `Relatorio_Heineken_${new Date().toISOString().split('T')[0]}.pdf`,
               image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2 },
-              jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+              html2canvas:  { 
+                  scale: 2, // Melhora resolução
+                  scrollY: 0, // Ajuda a capturar conteúdo longo
+                  useCORS: true 
+              },
+              jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' },
+              // Esta é a chave para evitar cortes bruscos:
+              pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } 
             };
 
             html2pdf().set(opt).from(element).save().then(() => {
@@ -870,11 +907,15 @@
                 if(t.pecaNome === 'Outra') pecaOutra.disabled = false;
 
                 if(userRole === 'admin') {
+                    // Preencher campos Admin
                     document.getElementById('admin-prioridade').value = t.adminPrioridade || '2';
                     document.getElementById('admin-material').value = t.adminMaterial || 'PETG';
                     document.getElementById('admin-cor').value = t.adminCor || '#4F46E5';
                     document.getElementById('admin-ficheiro').value = t.adminFicheiro || '';
                     document.getElementById('admin-order').value = t.order || '';
+                    
+                    // Preencher o Status no Modal
+                    document.getElementById('admin-status').value = t.status || 'pendente';
                 }
 
                 if(mode === 'view') {
@@ -917,6 +958,9 @@
                 data.adminFicheiro = document.getElementById('admin-ficheiro').value;
                 const ord = document.getElementById('admin-order').value;
                 if(ord) data.order = parseInt(ord);
+                
+                // Salvar o status escolhido no dropdown admin
+                data.status = document.getElementById('admin-status').value;
             }
 
             try {
@@ -926,7 +970,8 @@
                 } else {
                     data.createdAt = firebase.database.ServerValue.TIMESTAMP;
                     data.createdBy = userUid;
-                    data.status = 'pendente';
+                    // Se não for admin criando, status padrão é pendente
+                    if(!data.status) data.status = 'pendente'; 
                     if(!data.order) data.order = Date.now();
                     if(!data.adminPrioridade) data.adminPrioridade = '2';
                     await db.ref(`/artifacts/${appId}/public/data/allPrintJobs`).push(data);
@@ -940,6 +985,25 @@
 
         closeModalBtn.addEventListener('click', () => taskModal.classList.add('hidden'));
         cancelModalBtn.addEventListener('click', () => taskModal.classList.add('hidden'));
+
+        // --- EXCLUSÃO DE PEDIDO (CORRIGIDO) ---
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if(taskToDeleteId) {
+                try {
+                    await db.ref(`/artifacts/${appId}/public/data/allPrintJobs/${taskToDeleteId}`).remove();
+                    showToast("Pedido excluído com sucesso.");
+                    deleteModal.classList.add('hidden');
+                    taskToDeleteId = null;
+                } catch (error) {
+                    showToast("Erro ao excluir: " + error.message, 'error');
+                }
+            }
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+            taskToDeleteId = null;
+        });
 
         // --- SORTABLE ---
         function initSortable() {
