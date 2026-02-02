@@ -344,6 +344,7 @@
         let allTasks = {};
         let currentSearchTerm = '';
         let showArchived = false;
+        let isLoginMode = true; // Flag para controlar modo login/cadastro
 
         const loginPage = document.getElementById('login-page');
         const kanbanPage = document.getElementById('kanban-page');
@@ -352,6 +353,10 @@
         const showArchivedToggle = document.getElementById('show-archived-toggle');
         const searchInput = document.getElementById('search-input');
         const headerSortSelect = document.getElementById('header-sort-select');
+        const toggleFormLink = document.getElementById('toggle-form-link');
+        const formTitle = document.getElementById('form-title');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorMessage = document.getElementById('error-message');
 
         function showToast(msg, type='success') {
             const container = document.getElementById('toast-container');
@@ -362,14 +367,37 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // Lógica para alternar entre Login e Cadastro
+        toggleFormLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            formTitle.textContent = isLoginMode ? 'Acesso ao Sistema' : 'Criar Nova Conta';
+            submitBtn.textContent = isLoginMode ? 'Entrar' : 'Cadastrar';
+            toggleFormLink.textContent = isLoginMode ? 'Não tem conta? Criar nova conta' : 'Já tem conta? Entrar';
+            errorMessage.textContent = '';
+        });
+
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            errorMessage.textContent = '';
+            
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                if (isLoginMode) {
+                    await auth.signInWithEmailAndPassword(email, password);
+                } else {
+                    // Lógica de Cadastro
+                    const cred = await auth.createUserWithEmailAndPassword(email, password);
+                    // Inicializa o papel do usuário como 'user' no banco de dados
+                    await db.ref(`/artifacts/${appId}/users/${cred.user.uid}`).set({
+                        email: email,
+                        role: 'user'
+                    });
+                    showToast("Conta criada com sucesso!");
+                }
             } catch (err) {
-                document.getElementById('error-message').textContent = err.message;
+                errorMessage.textContent = err.message;
             }
         });
 
@@ -386,6 +414,9 @@
                     if(userRole === 'admin') {
                         adminControls.classList.remove('hidden');
                         document.getElementById('open-report-btn').classList.remove('hidden');
+                    } else {
+                        adminControls.classList.add('hidden');
+                        document.getElementById('open-report-btn').classList.add('hidden');
                     }
                     initRealtimeListener();
                 });
