@@ -55,13 +55,14 @@
             .avoid-break { page-break-inside: avoid !important; }
         }
 
-        /* Animação e Estilo do Carcará */
+        /* Animação e Estilo do Carcará (Ajustado para ficar fixo durante o scroll) */
         .carcara-bg {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 80%;
+            max-width: 400px;
             opacity: 0.04;
             pointer-events: none;
             z-index: 0;
@@ -80,93 +81,97 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
-    <!-- ECRÃ DE INÍCIO DE SESSÃO -->
-    <div id="login-page" class="relative flex flex-col items-center justify-center min-h-screen px-4 bg-gradient-to-br from-[#004d2c] to-[#008248] overflow-hidden">
+    <!-- ECRÃ DE INÍCIO DE SESSÃO COM SCROLL E ENQUADRAMENTO RESPONSIVO -->
+    <div id="login-page" class="fixed inset-0 z-[100] flex flex-col px-4 py-8 sm:py-12 bg-gradient-to-br from-[#004d2c] to-[#008248] overflow-y-auto">
         
         <!-- Marca d'água do Carcará ao fundo -->
-        <div class="carcara-bg opacity-10">
+        <div class="carcara-bg">
             <svg viewBox="0 0 24 24" fill="#ffffff">
                 <path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2M12,15.5V11L14,13.5L12,15.5Z" />
                 <path d="M12,2C10,2 8,4 8,7C8,9 9,10 11,11C9,12 8,13 8,15C8,18 10,21 12,21C14,21 16,18 16,15C16,13 15,12 14,11C15,10 16,9 16,7C16,4 14,2 12,2M12,4C13.1,4 14,4.9 14,6C14,7.1 13.1,8 12,8C10.9,8 10,7.1 10,6C10,4.9 10.9,4 12,4M12,19C11.17,19 10.5,18.33 10.5,17.5C10.5,16.67 11.17,16 12,16C12.83,16 13.5,16.67 13.5,17.5C13.5,18.33 12.83,19 12,19Z" opacity="0.5"/>
             </svg>
         </div>
 
-        <div class="bg-white p-8 md:p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] max-w-md w-full mb-6 relative z-10">
-            <div class="flex flex-col items-center justify-center mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E32219" class="w-16 h-16 mb-4 drop-shadow-lg animate-star">
-                    <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
-                </svg>
-                <h2 class="text-2xl font-black text-gray-800 tracking-tighter uppercase text-center leading-none">IMPRESSÃO 3D<br><span class="text-green-600">HEINEKEN</span></h2>
+        <!-- Contentor dinâmico: usa m-auto para centrar quando há espaço, mas previne cortes quando o ecrã é pequeno -->
+        <div class="m-auto w-full max-w-md flex flex-col items-center relative z-10">
+            
+            <div class="bg-white p-6 sm:p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] w-full mb-6">
+                <div class="flex flex-col items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E32219" class="w-16 h-16 mb-4 drop-shadow-lg animate-star">
+                        <path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" />
+                    </svg>
+                    <h2 class="text-2xl font-black text-gray-800 tracking-tighter uppercase text-center leading-none">IMPRESSÃO 3D<br><span class="text-green-600">HEINEKEN</span></h2>
+                </div>
+                
+                <h3 id="form-title" class="text-xs font-bold text-center text-gray-400 uppercase tracking-[0.2em] mb-6">Acesso ao Sistema</h3>
+                
+                <form id="auth-form" class="space-y-4">
+                    <div id="register-fields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Nome Completo</label>
+                            <input type="text" id="reg-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-600 focus:bg-white outline-none transition-all text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Unidade</label>
+                            <select id="login-unit" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-600 focus:bg-white outline-none transition-all text-sm">
+                                <option value="" disabled selected>Selecione a fábrica...</option>
+                                <optgroup label="Nordeste">
+                                    <option value="alagoinhas">Alagoinhas (BA) - Matriz</option>
+                                    <option value="igarassu">Igarassu (PE)</option>
+                                </optgroup>
+                                <optgroup label="Sudeste">
+                                    <option value="araraquara">Araraquara (SP)</option>
+                                    <option value="jacarei">Jacareí (SP)</option>
+                                    <option value="itu">Itu (SP)</option>
+                                    <option value="passos">Passos (MG)</option>
+                                </optgroup>
+                                <optgroup label="Sul">
+                                    <option value="ponta-grossa">Ponta Grossa (PR)</option>
+                                    <option value="igrejinha">Igrejinha (RS)</option>
+                                    <option value="blumenau">Blumenau (SC)</option>
+                                </optgroup>
+                                <optgroup label="Norte/Centro-Oeste">
+                                    <option value="manaus">Manaus (AM)</option>
+                                    <option value="alexania">Alexânia (GO)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Email Corporativo</label>
+                        <input type="email" id="email" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-600 focus:bg-white outline-none transition-all text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Palavra-passe</label>
+                        <input type="password" id="password" required minlength="6" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-600 focus:bg-white outline-none transition-all text-sm">
+                    </div>
+                    
+                    <p id="error-message" class="text-red-500 text-xs h-4 font-bold text-center"></p>
+                    
+                    <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-green-700 to-green-600 text-white py-3.5 rounded-xl font-black hover:from-green-800 hover:to-green-700 transition-all shadow-lg shadow-green-600/30 uppercase tracking-widest mt-2">Entrar</button>
+                </form>
+                
+                <p class="text-center text-[11px] text-gray-600 mt-6">
+                    <a href="#" id="toggle-form-link" class="text-green-700 hover:text-green-800 hover:underline font-bold uppercase tracking-wider">Não tem conta? Criar conta</a>
+                </p>
             </div>
-            
-            <h3 id="form-title" class="text-xs font-bold text-center text-gray-400 uppercase tracking-[0.2em] mb-6">Acesso ao Sistema</h3>
-            
-            <form id="auth-form" class="space-y-4">
-                <div id="register-fields" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Nome Completo</label>
-                        <input type="text" id="reg-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-600 focus:bg-white outline-none transition-all text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Unidade</label>
-                        <select id="login-unit" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-600 focus:bg-white outline-none transition-all text-sm">
-                            <option value="" disabled selected>Selecione a fábrica...</option>
-                            <optgroup label="Nordeste">
-                                <option value="alagoinhas">Alagoinhas (BA) - Matriz</option>
-                                <option value="igarassu">Igarassu (PE)</option>
-                            </optgroup>
-                            <optgroup label="Sudeste">
-                                <option value="araraquara">Araraquara (SP)</option>
-                                <option value="jacarei">Jacareí (SP)</option>
-                                <option value="itu">Itu (SP)</option>
-                                <option value="passos">Passos (MG)</option>
-                            </optgroup>
-                            <optgroup label="Sul">
-                                <option value="ponta-grossa">Ponta Grossa (PR)</option>
-                                <option value="igrejinha">Igrejinha (RS)</option>
-                                <option value="blumenau">Blumenau (SC)</option>
-                            </optgroup>
-                            <optgroup label="Norte/Centro-Oeste">
-                                <option value="manaus">Manaus (AM)</option>
-                                <option value="alexania">Alexânia (GO)</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
 
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Email Corporativo</label>
-                    <input type="email" id="email" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-600 focus:bg-white outline-none transition-all text-sm">
+            <!-- Créditos dos Desenvolvedores -->
+            <div class="text-center w-full">
+                <p class="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mb-3">Desenvolvimento & Suporte</p>
+                <div class="flex flex-wrap justify-center items-center gap-4 text-xs text-white bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-lg">
+                    <a href="https://www.linkedin.com/in/7icaaro" target="_blank" class="hover:text-green-300 hover:scale-105 transition-all flex items-center gap-1.5 font-bold">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        Ícaro <span class="text-[9px] font-bold text-white/70 uppercase tracking-wider">(Admin)</span>
+                    </a>
+                    <span class="text-white/30 hidden sm:inline">|</span>
+                    <a href="https://www.linkedin.com/in/radija-jorge-a0b731272/" target="_blank" class="hover:text-green-300 hover:scale-105 transition-all flex items-center gap-1.5 font-bold">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        Radija <span class="text-[9px] font-bold text-white/70 uppercase tracking-wider">(Suporte)</span>
+                    </a>
                 </div>
-
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Palavra-passe</label>
-                    <input type="password" id="password" required minlength="6" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-600 focus:bg-white outline-none transition-all text-sm">
-                </div>
-                
-                <p id="error-message" class="text-red-500 text-xs h-4 font-bold text-center"></p>
-                
-                <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-green-700 to-green-600 text-white py-3.5 rounded-xl font-black hover:from-green-800 hover:to-green-700 transition-all shadow-lg shadow-green-600/30 uppercase tracking-widest mt-2">Entrar</button>
-            </form>
-            
-            <p class="text-center text-[11px] text-gray-600 mt-6">
-                <a href="#" id="toggle-form-link" class="text-green-700 hover:text-green-800 hover:underline font-bold uppercase tracking-wider">Não tem conta? Criar conta</a>
-            </p>
-        </div>
-
-        <!-- Créditos dos Desenvolvedores -->
-        <div class="text-center relative z-10">
-            <p class="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mb-3">Desenvolvimento & Suporte</p>
-            <div class="flex justify-center items-center gap-4 text-xs text-white bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-lg">
-                <a href="https://www.linkedin.com/in/7icaaro" target="_blank" class="hover:text-green-300 hover:scale-105 transition-all flex items-center gap-1.5 font-bold">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                    Ícaro <span class="text-[9px] font-bold text-white/70 uppercase tracking-wider">(Admin)</span>
-                </a>
-                <span class="text-white/30">|</span>
-                <a href="https://www.linkedin.com/in/radija-jorge-a0b731272/" target="_blank" class="hover:text-green-300 hover:scale-105 transition-all flex items-center gap-1.5 font-bold">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                    Radija <span class="text-[9px] font-bold text-white/70 uppercase tracking-wider">(Suporte)</span>
-                </a>
             </div>
         </div>
     </div>
@@ -293,10 +298,26 @@
     <!-- MODAL RELATÓRIO -->
     <div id="report-modal" class="fixed inset-0 bg-gray-900/50 z-[100] backdrop-blur-sm overflow-y-auto hidden">
         <div class="min-h-screen md:my-10 max-w-6xl mx-auto bg-white shadow-2xl md:rounded-xl overflow-hidden flex flex-col">
-            <div class="bg-green-800 text-white p-6 flex justify-between items-start">
+            <div class="bg-green-800 text-white p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 class="text-2xl font-bold uppercase tracking-wide">Levantamento de Produção</h2>
-                    <p class="text-green-200 text-sm mt-1" id="report-date-generated">--</p>
+                    <div class="flex flex-col gap-1 mt-1">
+                        <p class="text-green-200 text-sm" id="report-date-generated">--</p>
+                        <select id="report-scope-select" class="hidden bg-green-700 text-white text-xs px-2 py-1 rounded border border-green-600 outline-none w-max font-bold mt-2 cursor-pointer">
+                            <option value="global">Visão Global (Todas as Unidades)</option>
+                            <option value="alagoinhas">Alagoinhas (BA) - Matriz</option>
+                            <option value="igarassu">Igarassu (PE)</option>
+                            <option value="araraquara">Araraquara (SP)</option>
+                            <option value="jacarei">Jacareí (SP)</option>
+                            <option value="itu">Itu (SP)</option>
+                            <option value="passos">Passos (MG)</option>
+                            <option value="ponta-grossa">Ponta Grossa (PR)</option>
+                            <option value="igrejinha">Igrejinha (RS)</option>
+                            <option value="blumenau">Blumenau (SC)</option>
+                            <option value="manaus">Manaus (AM)</option>
+                            <option value="alexania">Alexânia (GO)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="flex gap-2">
                     <button id="download-pdf-btn" class="flex items-center gap-2 px-4 py-2 bg-white text-green-800 rounded-lg text-sm font-bold shadow-md hover:bg-green-50 uppercase tracking-tight">Baixar PDF</button>
@@ -327,11 +348,19 @@
                     </div>
                 </div>
 
-                <!-- Gráfico por Área -->
-                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Distribuição por Área</h3>
-                    <div id="area-stats-container" class="space-y-3">
-                        <!-- Gerado via JS -->
+                <!-- Gráficos por Área / Fábrica -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="report-charts-grid">
+                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm w-full">
+                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Distribuição por Área</h3>
+                        <div id="area-stats-container" class="space-y-3">
+                            <!-- Gerado via JS -->
+                        </div>
+                    </div>
+                    <div id="factory-stats-wrapper" class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hidden w-full">
+                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Distribuição por Fábrica</h3>
+                        <div id="factory-stats-container" class="space-y-3">
+                            <!-- Gerado via JS -->
+                        </div>
                     </div>
                 </div>
 
@@ -341,8 +370,9 @@
                         <table class="min-w-full divide-y divide-gray-100 text-sm">
                             <thead class="bg-gray-50 font-black text-gray-400 uppercase text-[10px]">
                                 <tr>
-                                    <th class="px-4 py-3 text-left">Pedido</th>
+                                    <th class="px-4 py-3 text-left">Nº</th>
                                     <th class="px-4 py-3 text-left">Data</th>
+                                    <th class="px-4 py-3 text-left" id="th-unidade">Unidade</th>
                                     <th class="px-4 py-3 text-left">Peça</th>
                                     <th class="px-4 py-3 text-center">Qtd</th>
                                     <th class="px-4 py-3 text-left">Área</th>
@@ -392,13 +422,13 @@
 
     <!-- MODAL TAREFA -->
     <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden backdrop-blur-sm">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh] overflow-hidden" id="task-modal-content">
-            <form id="task-form" class="flex flex-col h-full">
-                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50 flex-shrink-0">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[85vh] overflow-hidden relative" id="task-modal-content">
+            <form id="task-form" class="flex flex-col h-full min-h-0">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
                     <h4 id="modal-title" class="text-lg font-bold text-gray-800 uppercase tracking-tight">Pedido de Impressão</h4>
                     <button type="button" id="close-modal-btn" class="text-gray-400 hover:text-gray-600">✕</button>
                 </div>
-                <div class="p-6 space-y-6 overflow-y-auto flex-1 modal-scroll">
+                <div class="p-6 space-y-6 overflow-y-auto flex-1 min-h-0 modal-scroll">
                     <div id="readonly-banner" class="hidden bg-blue-50 text-blue-700 px-4 py-3 rounded-lg text-sm border border-blue-100 font-bold">Modo visualização. Apenas acompanhamento.</div>
                     
                     <div>
@@ -656,6 +686,7 @@
         });
 
         function getDbPath() {
+            // Garante a recuperação dos dados de Alagoinhas que estavam no caminho antigo (allPrintJobs)
             if (currentUnit === 'alagoinhas') {
                 return `/artifacts/${appId}/public/data/allPrintJobs`;
             }
@@ -693,7 +724,10 @@
             }
 
             const queueList = tasksArray.filter(t => !t.archived && (t.status === 'pendente' || t.status === 'andamento'));
+            
+            // Variáveis de contagem e indexação numérica por coluna (para numeração de ordem)
             const counts = { pendente: 0, andamento: 0, concluido: 0, falha: 0 };
+            const columnIndexes = { pendente: 1, andamento: 1, concluido: 1, falha: 1 };
 
             tasksArray.forEach(task => {
                 const status = task.status || 'pendente';
@@ -706,7 +740,8 @@
                 if (visible) {
                     counts[status]++;
                     const position = isMine ? calculateQueuePosition(task, queueList) : null;
-                    document.getElementById(`col-${status}`).appendChild(createCard(task, position));
+                    const orderNumber = columnIndexes[status]++;
+                    document.getElementById(`col-${status}`).appendChild(createCard(task, position, orderNumber));
                 }
             });
 
@@ -725,7 +760,8 @@
             return aheadCount;
         }
 
-        function createCard(task, position) {
+        // Adicionado: listIndex = número ordenado para exibir no topo do cartão
+        function createCard(task, position, listIndex) {
             const card = document.createElement('div');
             const pColors = { '1': 'border-red-500', '2': 'border-orange-400', '3': 'border-blue-400' };
             card.className = `p-4 rounded-xl bg-white shadow-sm border-l-4 ${pColors[task.adminPrioridade] || 'border-gray-200'} mb-3 cursor-pointer relative group transition-all hover:shadow-md task-card shrink-0`;
@@ -742,13 +778,21 @@
             }
 
             const canManage = userRole === 'admin' || userRole === 'operator';
+            const isAndamento = task.status === 'andamento';
+            const starIcon = isAndamento ? `<svg class="w-4 h-4 text-blue-500 animate-spin flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" /></svg>` : '';
 
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
-                    <span class="text-[10px] font-black text-gray-300 uppercase tracking-widest">#${task.id.slice(-4)}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-black text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded uppercase tracking-widest" title="Ordem na Fila">Nº ${listIndex}</span>
+                        <span class="text-[9px] font-bold text-gray-300 uppercase tracking-widest" title="ID do Sistema">#${task.id.slice(-4)}</span>
+                    </div>
                     <span class="text-[10px] font-bold text-gray-400">${dateStr}</span>
                 </div>
-                <h4 class="font-black text-sm text-gray-800 leading-tight mb-1 truncate">${DOMPurify.sanitize(displayNome)}</h4>
+                <h4 class="font-black text-sm text-gray-800 leading-tight mb-1 flex items-center gap-1.5 overflow-hidden">
+                    <span class="truncate">${DOMPurify.sanitize(displayNome)}</span>
+                    ${starIcon}
+                </h4>
                 <p class="text-[10px] font-bold text-gray-500 uppercase">${DOMPurify.sanitize(task.solicitanteNome)} <span class="text-green-600 mx-1">•</span> ${task.solicitanteArea || 'Unidade'}</p>
                 <div class="mt-3 flex items-center justify-between border-t border-gray-50 pt-2">
                     <div class="flex items-center gap-2">
@@ -819,32 +863,115 @@
             });
         }
 
-        // LÓGICA DO RELATÓRIO
+        // LÓGICA DO RELATÓRIO (Atualizado para Admin filtrar ou ver Geral)
+        const reportScopeSelect = document.getElementById('report-scope-select');
+        let currentReportScope = 'global';
+
+        reportScopeSelect.addEventListener('change', (e) => {
+            currentReportScope = e.target.value;
+            generateReport(currentReportScope);
+        });
+
         openReportBtn.addEventListener('click', () => {
-            const tasks = Object.values(allTasks).filter(t => t !== null && typeof t === 'object'); 
+            if (userRole === 'admin') {
+                reportScopeSelect.classList.remove('hidden');
+                reportScopeSelect.value = 'global';
+                currentReportScope = 'global';
+                generateReport('global');
+            } else {
+                reportScopeSelect.classList.add('hidden');
+                currentReportScope = currentUnit;
+                generateReport(currentUnit);
+            }
+            reportModal.classList.remove('hidden');
+        });
+
+        async function generateReport(scope) {
+            let tasksForReport = [];
+            const isGlobal = scope === 'global';
+            
+            document.getElementById('report-date-generated').textContent = "A carregar dados...";
+            
+            try {
+                if (isGlobal) {
+                    // Admin: Vai à raiz procurar em todas as bases de dados
+                    const snap = await db.ref(`/artifacts/${appId}/public/data`).once('value');
+                    const allData = snap.val() || {};
+                    
+                    // 1. Matriz Alagoinhas (caminho antigo/legacy recuperado)
+                    if (allData.allPrintJobs) {
+                        Object.entries(allData.allPrintJobs).forEach(([id, t]) => {
+                            if (t && typeof t === 'object') tasksForReport.push({ id, _unitName: 'alagoinhas', ...t });
+                        });
+                    }
+                    
+                    // 2. Outras Unidades
+                    if (allData.units) {
+                        Object.entries(allData.units).forEach(([unitName, unitData]) => {
+                            if (unitData.jobs) {
+                                Object.entries(unitData.jobs).forEach(([id, t]) => {
+                                    if (t && typeof t === 'object') tasksForReport.push({ id, _unitName: unitName, ...t });
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    // Ver unidade específica (pode ser o Admin filtrando, ou um Operador)
+                    let path = scope === 'alagoinhas' ? `/artifacts/${appId}/public/data/allPrintJobs` : `/artifacts/${appId}/public/data/units/${scope}/jobs`;
+                    const snap = await db.ref(path).once('value');
+                    const unitData = snap.val() || {};
+                    Object.entries(unitData).forEach(([id, t]) => {
+                        if (t && typeof t === 'object') tasksForReport.push({ id, _unitName: scope, ...t });
+                    });
+                }
+            } catch(e) {
+                showToast("Erro ao agrupar os dados.", "error");
+                return;
+            }
+
+            // Exibir ou Esconder a nova secção de Distribuição por Fábrica e a Coluna Unidade
+            const factoryWrapper = document.getElementById('factory-stats-wrapper');
+            const thUnidade = document.getElementById('th-unidade');
+            if (isGlobal) {
+                factoryWrapper.classList.remove('hidden');
+                thUnidade.classList.remove('hidden');
+                document.getElementById('report-charts-grid').classList.replace('grid-cols-1', 'md:grid-cols-2');
+            } else {
+                factoryWrapper.classList.add('hidden');
+                thUnidade.classList.add('hidden');
+                document.getElementById('report-charts-grid').classList.replace('md:grid-cols-2', 'grid-cols-1');
+            }
+
             const tableBody = document.getElementById('report-table-body');
             const areaContainer = document.getElementById('area-stats-container');
-            const totalJobs = tasks.length;
-            const totalParts = tasks.reduce((acc, t) => acc + (parseInt(t.pecaQuantidade) || 1), 0);
-            const doneCount = tasks.filter(t => t.status === 'concluido').length;
-            const pendingCount = tasks.filter(t => t.status === 'pendente' || t.status === 'andamento').length;
+            const factoryContainer = document.getElementById('factory-stats-container');
+            
+            const totalJobs = tasksForReport.length;
+            const totalParts = tasksForReport.reduce((acc, t) => acc + (parseInt(t.pecaQuantidade) || 1), 0);
+            const doneCount = tasksForReport.filter(t => t.status === 'concluido').length;
+            const pendingCount = tasksForReport.filter(t => t.status === 'pendente' || t.status === 'andamento').length;
 
             document.getElementById('stat-total-jobs').textContent = totalJobs;
             document.getElementById('stat-total-parts').textContent = totalParts;
             document.getElementById('stat-done').textContent = doneCount;
             document.getElementById('stat-pending').textContent = pendingCount;
-            document.getElementById('report-date-generated').textContent = `Gerado a: ${new Date().toLocaleString('pt-PT')} - Unidade: ${currentUnit.toUpperCase()}`;
+            document.getElementById('report-date-generated').textContent = `Gerado a: ${new Date().toLocaleString('pt-PT')} - Abrangência: ${isGlobal ? 'GLOBAL (Todas as Unidades)' : scope.toUpperCase()}`;
 
-            // Áreas
+            // Agrupamentos e Contagens para Gráficos
             const areas = {};
-            tasks.forEach(t => {
+            const factories = {};
+            tasksForReport.forEach(t => {
                 const a = t.solicitanteArea || 'Outros';
+                const f = t._unitName || 'Desconhecida';
                 areas[a] = (areas[a] || 0) + (parseInt(t.pecaQuantidade) || 1);
+                factories[f] = (factories[f] || 0) + (parseInt(t.pecaQuantidade) || 1);
             });
-            const maxVal = Math.max(...Object.values(areas), 1);
+
+            // Renderizar Gráfico de Áreas
+            const maxValArea = Math.max(...Object.values(areas), 1);
             areaContainer.innerHTML = '';
             Object.entries(areas).sort((a,b) => b[1] - a[1]).forEach(([area, count]) => {
-                const pct = (count / maxVal) * 100;
+                const pct = (count / maxValArea) * 100;
                 areaContainer.innerHTML += `
                     <div>
                         <div class="flex justify-between text-[10px] font-bold uppercase mb-1">
@@ -857,9 +984,28 @@
                 `;
             });
 
-            // Tabela
+            // Renderizar Gráfico de Fábricas (Só para Global)
+            if (isGlobal) {
+                const maxValFactory = Math.max(...Object.values(factories), 1);
+                factoryContainer.innerHTML = '';
+                Object.entries(factories).sort((a,b) => b[1] - a[1]).forEach(([factory, count]) => {
+                    const pct = (count / maxValFactory) * 100;
+                    factoryContainer.innerHTML += `
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold uppercase mb-1 text-indigo-700">
+                                <span>${factory}</span><span>${count} peças</span>
+                            </div>
+                            <div class="w-full bg-indigo-50 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Renderizar Tabela
             tableBody.innerHTML = '';
-            tasks.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).forEach((t, i) => {
+            tasksForReport.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).forEach((t, i) => {
                 const statusColor = {
                     'concluido': 'bg-green-100 text-green-700',
                     'andamento': 'bg-blue-100 text-blue-700',
@@ -867,11 +1013,13 @@
                     'falha': 'bg-red-100 text-red-700'
                 };
                 const displayNome = t.pecaNome === 'Outra' ? t.pecaOutra : t.pecaNome;
+                
                 tableBody.innerHTML += `
-                    <tr>
-                        <td class="px-4 py-3 font-mono text-[10px]">#${t.id ? t.id.slice(-4) : i}</td>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 font-mono text-[10px] font-bold text-gray-500">Nº ${(i+1)}</td>
                         <td class="px-4 py-3">${new Date(t.createdAt).toLocaleDateString('pt-PT')}</td>
-                        <td class="px-4 py-3 font-bold">${displayNome}</td>
+                        ${isGlobal ? `<td class="px-4 py-3 uppercase text-[10px] font-black text-indigo-700 tracking-wider">${t._unitName}</td>` : ''}
+                        <td class="px-4 py-3 font-bold text-gray-800">${displayNome}</td>
                         <td class="px-4 py-3 text-center">${t.pecaQuantidade || 1}</td>
                         <td class="px-4 py-3">${t.solicitanteArea || '-'}</td>
                         <td class="px-4 py-3">${t.solicitanteNome || '-'}</td>
@@ -881,20 +1029,19 @@
                     </tr>
                 `;
             });
-
-            reportModal.classList.remove('hidden');
-        });
+        }
 
         closeReportBtn.addEventListener('click', () => reportModal.classList.add('hidden'));
 
         downloadPdfBtn.addEventListener('click', () => {
             const element = document.getElementById('report-printable-area');
+            const isGlobal = currentReportScope === 'global';
             const opt = {
                 margin: 10,
-                filename: `Relatorio_Impressao3D_Heineken_${currentUnit}_${new Date().toISOString().split('T')[0]}.pdf`,
+                filename: `Relatorio_Impressao3D_Heineken_${isGlobal ? 'GLOBAL' : currentReportScope}_${new Date().toISOString().split('T')[0]}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } // Alterado para landscape para caber a nova coluna
             };
             html2pdf().set(opt).from(element).save();
         });
