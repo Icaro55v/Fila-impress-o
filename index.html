@@ -19,13 +19,20 @@
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #f3f4f6; 
-            overflow: hidden; /* Previne duplo scroll no body principal */
+            overflow: hidden;
         }
 
         .sortable-ghost { 
             opacity: 0.3; 
             background: #dbeafe; 
             border: 2px dashed #60a5fa; 
+        }
+
+        .sortable-chosen { 
+            cursor: grabbing; 
+            opacity: 0.9; 
+            transform: scale(1.02); 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
         }
 
         /* Barra de rolagem personalizada */
@@ -55,7 +62,6 @@
             .avoid-break { page-break-inside: avoid !important; }
         }
 
-        /* Animação e Estilo do Carcará (Ajustado para ficar fixo durante o scroll) */
         .carcara-bg {
             position: fixed;
             top: 50%;
@@ -81,10 +87,8 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
 
-    <!-- ECRÃ DE INÍCIO DE SESSÃO COM SCROLL E ENQUADRAMENTO RESPONSIVO -->
+    <!-- ECRÃ DE INÍCIO DE SESSÃO -->
     <div id="login-page" class="fixed inset-0 z-[100] flex flex-col px-4 py-8 sm:py-12 bg-gradient-to-br from-[#004d2c] to-[#008248] overflow-y-auto">
-        
-        <!-- Marca d'água do Carcará ao fundo -->
         <div class="carcara-bg">
             <svg viewBox="0 0 24 24" fill="#ffffff">
                 <path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2M12,15.5V11L14,13.5L12,15.5Z" />
@@ -92,9 +96,7 @@
             </svg>
         </div>
 
-        <!-- Contentor dinâmico: usa m-auto para centrar quando há espaço, mas previne cortes quando o ecrã é pequeno -->
         <div class="m-auto w-full max-w-md flex flex-col items-center relative z-10">
-            
             <div class="bg-white p-6 sm:p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] w-full mb-6">
                 <div class="flex flex-col items-center justify-center mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E32219" class="w-16 h-16 mb-4 drop-shadow-lg animate-star">
@@ -158,17 +160,15 @@
                 </p>
             </div>
 
-            <!-- Créditos dos Desenvolvedores -->
+            <!-- Créditos -->
             <div class="text-center w-full">
                 <p class="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mb-3">Desenvolvimento & Suporte</p>
                 <div class="flex flex-wrap justify-center items-center gap-4 text-xs text-white bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-lg">
                     <a href="https://www.linkedin.com/in/7icaaro" target="_blank" class="hover:text-green-300 hover:scale-105 transition-all flex items-center gap-1.5 font-bold">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                         Ícaro <span class="text-[9px] font-bold text-white/70 uppercase tracking-wider">(Admin)</span>
                     </a>
                     <span class="text-white/30 hidden sm:inline">|</span>
                     <a href="https://www.linkedin.com/in/radija-jorge-a0b731272/" target="_blank" class="hover:text-green-300 hover:scale-105 transition-all flex items-center gap-1.5 font-bold">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                         Radija <span class="text-[9px] font-bold text-white/70 uppercase tracking-wider">(Suporte)</span>
                     </a>
                 </div>
@@ -188,7 +188,6 @@
                         <div>
                             <h1 class="text-lg sm:text-2xl font-black uppercase tracking-tight">Impressão 3D <span class="text-green-200">HEINEKEN</span></h1>
                             <p id="header-unit-display" class="text-xs text-white font-bold tracking-widest uppercase">Unidade: --</p>
-                            <!-- Alternador de unidade exclusivo para o Admin -->
                             <div id="admin-unit-container" class="hidden mt-1 flex items-center gap-2">
                                 <span class="text-[8px] font-black text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded uppercase tracking-widest border border-indigo-200">Modo Admin</span>
                                 <select id="admin-unit-switcher" class="text-[10px] font-bold text-gray-800 bg-white rounded px-2 py-0.5 outline-none cursor-pointer uppercase tracking-widest shadow-sm">
@@ -210,14 +209,10 @@
                     
                     <div class="flex items-center space-x-3 w-full md:w-auto overflow-x-auto pb-1">
                         <div class="relative group min-w-[200px] flex-1 md:flex-none">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-4 w-4 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            </div>
-                            <input type="text" id="search-input" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 rounded-lg bg-green-600 border border-green-500 text-white placeholder-green-200 focus:outline-none focus:ring-2 focus:ring-white text-sm">
+                            <input type="text" id="search-input" placeholder="Pesquisar..." class="w-full px-4 py-2 rounded-lg bg-green-600 border border-green-500 text-white placeholder-green-200 focus:outline-none focus:ring-2 focus:ring-white text-sm">
                         </div>
 
                         <button id="open-admin-panel-btn" class="hidden flex items-center gap-2 px-3 py-2 bg-white text-indigo-800 text-xs font-bold rounded-lg hover:bg-indigo-50 transition-all shadow-sm whitespace-nowrap uppercase">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                             Acessos
                         </button>
 
@@ -252,11 +247,11 @@
 
         <div id="auth-status" class="py-1.5 px-6 bg-green-900 text-green-200 text-xs text-center sticky top-0 z-30 flex-shrink-0 font-bold uppercase tracking-widest">...</div>
 
-        <!-- Scroll constraints adicionadas no kanban-board e kanban-column -->
+        <!-- Kanban Board -->
         <main id="kanban-board" class="flex-1 overflow-x-hidden overflow-y-auto md:overflow-x-auto bg-gray-50 p-4 md:p-6 pb-20">
             <div class="flex flex-col md:flex-row gap-6 w-full md:min-w-[1000px] items-start">
                 
-                <!-- Coluna Pendente -->
+                <!-- Colunas do Kanban -->
                 <div class="kanban-column flex-1 flex flex-col w-full md:min-w-[280px] bg-white rounded-xl shadow-lg border border-gray-100 h-[60vh] md:h-[calc(100vh-160px)]">
                     <div class="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl shrink-0">
                         <div class="flex items-center gap-2"><span class="w-3 h-3 bg-yellow-500 rounded-full"></span><h3 class="font-bold text-gray-700 text-sm">PENDENTE</h3></div>
@@ -265,7 +260,6 @@
                     <div id="col-pendente" class="p-3 space-y-3 flex-1 overflow-y-auto kanban-column-body" data-column-id="pendente"></div>
                 </div>
 
-                <!-- Coluna Em Andamento -->
                 <div class="kanban-column flex-1 flex flex-col w-full md:min-w-[280px] bg-white rounded-xl shadow-lg border border-gray-100 h-[60vh] md:h-[calc(100vh-160px)]">
                     <div class="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl shrink-0">
                         <div class="flex items-center gap-2"><span class="w-3 h-3 bg-blue-500 rounded-full"></span><h3 class="font-bold text-blue-600 text-sm">EM ANDAMENTO</h3></div>
@@ -274,7 +268,6 @@
                     <div id="col-andamento" class="p-3 space-y-3 flex-1 overflow-y-auto kanban-column-body" data-column-id="andamento"></div>
                 </div>
 
-                <!-- Coluna Concluído -->
                 <div class="kanban-column flex-1 flex flex-col w-full md:min-w-[280px] bg-white rounded-xl shadow-lg border border-gray-100 h-[60vh] md:h-[calc(100vh-160px)]">
                     <div class="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl shrink-0">
                         <div class="flex items-center gap-2"><span class="w-3 h-3 bg-green-500 rounded-full"></span><h3 class="font-bold text-green-600 text-sm">CONCLUÍDO</h3></div>
@@ -283,7 +276,6 @@
                     <div id="col-concluido" class="p-3 space-y-3 flex-1 overflow-y-auto kanban-column-body" data-column-id="concluido"></div>
                 </div>
 
-                <!-- Coluna Falha/Cancelado -->
                 <div class="kanban-column flex-1 flex flex-col w-full md:min-w-[280px] bg-white rounded-xl shadow-lg border border-gray-100 h-[60vh] md:h-[calc(100vh-160px)]">
                     <div class="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl shrink-0">
                         <div class="flex items-center gap-2"><span class="w-3 h-3 bg-red-600 rounded-full"></span><h3 class="font-bold text-red-600 text-sm">FALHA / CANC.</h3></div>
@@ -308,14 +300,7 @@
                             <option value="alagoinhas">Alagoinhas (BA) - Matriz</option>
                             <option value="igarassu">Igarassu (PE)</option>
                             <option value="araraquara">Araraquara (SP)</option>
-                            <option value="jacarei">Jacareí (SP)</option>
-                            <option value="itu">Itu (SP)</option>
-                            <option value="passos">Passos (MG)</option>
-                            <option value="ponta-grossa">Ponta Grossa (PR)</option>
-                            <option value="igrejinha">Igrejinha (RS)</option>
-                            <option value="blumenau">Blumenau (SC)</option>
-                            <option value="manaus">Manaus (AM)</option>
-                            <option value="alexania">Alexânia (GO)</option>
+                            <!-- ... demais opções mantidas dinâmicas pelo JS ... -->
                         </select>
                     </div>
                 </div>
@@ -329,7 +314,7 @@
             <div class="p-8 bg-gray-50 space-y-8" id="report-printable-area">
                 
                 <!-- Estatísticas Rápidas -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
                         <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Total Pedidos</p>
                         <p id="stat-total-jobs" class="text-2xl font-black text-gray-800">0</p>
@@ -337,6 +322,10 @@
                     <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
                         <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Total Peças</p>
                         <p id="stat-total-parts" class="text-2xl font-black text-green-600">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Material (Kg)</p>
+                        <p id="stat-total-weight" class="text-2xl font-black text-purple-600">0.0</p>
                     </div>
                     <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
                         <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Concluídos</p>
@@ -348,23 +337,18 @@
                     </div>
                 </div>
 
-                <!-- Gráficos por Área / Fábrica -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="report-charts-grid">
                     <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm w-full">
                         <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Distribuição por Área</h3>
-                        <div id="area-stats-container" class="space-y-3">
-                            <!-- Gerado via JS -->
-                        </div>
+                        <div id="area-stats-container" class="space-y-3"></div>
                     </div>
                     <div id="factory-stats-wrapper" class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hidden w-full">
                         <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Distribuição por Fábrica</h3>
-                        <div id="factory-stats-container" class="space-y-3">
-                            <!-- Gerado via JS -->
-                        </div>
+                        <div id="factory-stats-container" class="space-y-3"></div>
                     </div>
                 </div>
 
-                <!-- Tabela Detalhada -->
+                <!-- Tabela -->
                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-100 text-sm">
@@ -375,8 +359,9 @@
                                     <th class="px-4 py-3 text-left" id="th-unidade">Unidade</th>
                                     <th class="px-4 py-3 text-left">Peça</th>
                                     <th class="px-4 py-3 text-center">Qtd</th>
+                                    <th class="px-4 py-3 text-center">Material</th>
+                                    <th class="px-4 py-3 text-center">Peso</th>
                                     <th class="px-4 py-3 text-left">Área</th>
-                                    <th class="px-4 py-3 text-left">Solicitante</th>
                                     <th class="px-4 py-3 text-center">Estado</th>
                                 </tr>
                             </thead>
@@ -390,7 +375,7 @@
         </div>
     </div>
 
-    <!-- MODAL ADMIN (Gestão de Utilizadores) -->
+    <!-- MODAL ADMIN -->
     <div id="admin-modal" class="fixed inset-0 bg-gray-900/50 z-[100] backdrop-blur-sm flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
             <div class="bg-indigo-800 text-white p-6 flex justify-between items-center flex-shrink-0">
@@ -401,28 +386,24 @@
                 <button id="close-admin-btn" class="text-white/60 hover:text-white text-2xl">✕</button>
             </div>
             <div class="p-6 overflow-y-auto flex-1 bg-gray-50">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-100 font-bold text-gray-500 uppercase text-[10px] tracking-wider">
-                            <tr>
-                                <th class="px-6 py-4 text-left">Nome do Utilizador</th>
-                                <th class="px-6 py-4 text-left">Email Corporativo</th>
-                                <th class="px-6 py-4 text-left">Unidade</th>
-                                <th class="px-6 py-4 text-left">Nível de Acesso</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-users-tbody" class="divide-y divide-gray-100 text-gray-700">
-                            <!-- Utilizadores carregados via JS -->
-                        </tbody>
-                    </table>
-                </div>
+                <table class="min-w-full divide-y divide-gray-200 text-sm bg-white border">
+                    <thead class="bg-gray-100 font-bold text-gray-500 uppercase text-[10px] tracking-wider">
+                        <tr>
+                            <th class="px-6 py-4 text-left">Nome do Utilizador</th>
+                            <th class="px-6 py-4 text-left">Email Corporativo</th>
+                            <th class="px-6 py-4 text-left">Unidade</th>
+                            <th class="px-6 py-4 text-left">Nível de Acesso</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-tbody" class="divide-y divide-gray-100 text-gray-700"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <!-- MODAL TAREFA -->
     <div id="task-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 hidden backdrop-blur-sm">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[85vh] overflow-hidden relative" id="task-modal-content">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[85vh] overflow-hidden relative">
             <form id="task-form" class="flex flex-col h-full min-h-0">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
                     <h4 id="modal-title" class="text-lg font-bold text-gray-800 uppercase tracking-tight">Pedido de Impressão</h4>
@@ -474,12 +455,40 @@
                         </div>
                     </div>
 
+                    <!-- NOVOS CAMPOS TÉCNICOS (Apenas Admin/Operador) -->
                     <fieldset id="admin-fields" class="hidden border border-green-200 rounded-lg p-4 bg-green-50/50">
                         <legend class="text-xs font-bold text-green-700 px-2 uppercase tracking-widest">Controlo de Produção</legend>
-                        <div class="grid grid-cols-2 gap-3 mt-2">
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2 mb-4">
+                            <div>
+                                <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Material</label>
+                                <select id="admin-material" class="w-full px-2 py-1.5 border rounded text-sm">
+                                    <option value="">Não definido</option>
+                                    <option value="PLA">PLA</option>
+                                    <option value="PETG">PETG</option>
+                                    <option value="ABS">ABS</option>
+                                    <option value="TPU">TPU (Flex)</option>
+                                    <option value="Resina">Resina</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Peso (g)</label>
+                                <input type="number" id="admin-peso" class="w-full px-2 py-1.5 border rounded text-sm" placeholder="Ex: 150">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Tempo Estim.</label>
+                                <input type="text" id="admin-tempo" class="w-full px-2 py-1.5 border rounded text-sm" placeholder="Ex: 4h30m">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Impressora</label>
+                                <input type="text" id="admin-impressora" class="w-full px-2 py-1.5 border rounded text-sm" placeholder="Ex: Ender 3">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 border-t border-green-200 pt-3">
                             <div>
                                 <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Fase / Estado</label>
-                                <select id="admin-status" class="w-full px-2 py-1.5 border rounded text-sm font-bold">
+                                <select id="admin-status" class="w-full px-2 py-1.5 border rounded text-sm font-bold bg-white">
                                     <option value="pendente">Pendente</option>
                                     <option value="andamento">Em Andamento</option>
                                     <option value="concluido">Concluído</option>
@@ -488,7 +497,7 @@
                             </div>
                             <div>
                                 <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Prioridade</label>
-                                <select id="admin-prioridade" class="w-full px-2 py-1.5 border rounded text-sm font-bold">
+                                <select id="admin-prioridade" class="w-full px-2 py-1.5 border rounded text-sm font-bold bg-white">
                                     <option value="3">Baixa</option>
                                     <option value="2" selected>Média</option>
                                     <option value="1">Alta</option>
@@ -496,6 +505,21 @@
                             </div>
                         </div>
                     </fieldset>
+
+                    <!-- SECÇÃO DE CHAT AO VIVO -->
+                    <div id="chat-section" class="hidden flex-col border border-gray-200 rounded-xl overflow-hidden bg-white mt-4">
+                        <div class="bg-gray-50 px-4 py-2.5 border-b border-gray-200">
+                            <h5 class="text-xs font-black text-gray-700 uppercase tracking-wider">Chat</h5>
+                        </div>
+                        <div id="chat-messages" class="p-4 h-48 overflow-y-auto space-y-3 bg-white flex flex-col kanban-column-body">
+                            <!-- As mensagens irão aparecer aqui -->
+                        </div>
+                        <div class="p-3 border-t border-gray-200 bg-gray-50 flex gap-2 items-center">
+                            <input type="text" id="chat-input" placeholder="Escrever..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#5850ec] transition-shadow">
+                            <button type="button" id="send-chat-btn" class="bg-[#5850ec] hover:bg-[#4338ca] text-white px-5 py-2 rounded-lg font-bold text-sm uppercase transition-colors shadow-sm tracking-wider">Enviar</button>
+                        </div>
+                    </div>
+
                     <input type="hidden" id="task-id-hidden">
                 </div>
                 <div class="flex justify-end gap-3 p-4 bg-gray-50 border-t flex-shrink-0">
@@ -506,14 +530,14 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (Compat Version - mantém o seu código compatível) -->
+    <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // NOVAS CREDENCIAIS DO FIREBASE ATUALIZADAS E COMPLETAS
+        // Firebase Auth e Configuração Original Mantida
         const firebaseConfig = {
           apiKey: "AIzaSyDOQ0ey-myMKjEx7w1HnS9kg9abW22FzYw",
           authDomain: "gerenciadordeimpress.firebaseapp.com",
@@ -539,33 +563,20 @@
         let currentSearchTerm = '';
         let showArchived = false;
         let isLoginMode = true;
+        
+        // Variáveis do Chat
+        let currentUserName = 'Utilizador';
+        let currentOpenTaskId = null;
+        let currentChatRef = null;
 
+        // Elementos DOM
         const loginPage = document.getElementById('login-page');
         const kanbanPage = document.getElementById('kanban-page');
         const authForm = document.getElementById('auth-form');
-        const adminControls = document.getElementById('admin-controls');
-        const showArchivedToggle = document.getElementById('show-archived-toggle');
-        const searchInput = document.getElementById('search-input');
-        const headerSortSelect = document.getElementById('header-sort-select');
         const toggleFormLink = document.getElementById('toggle-form-link');
-        const formTitle = document.getElementById('form-title');
         const submitBtn = document.getElementById('submit-btn');
         const errorMessage = document.getElementById('error-message');
         const registerFields = document.getElementById('register-fields');
-        const loginUnitSelect = document.getElementById('login-unit');
-        const headerUnitDisplay = document.getElementById('header-unit-display');
-        const adminUnitSwitcher = document.getElementById('admin-unit-switcher');
-        const adminUnitContainer = document.getElementById('admin-unit-container');
-
-        const openAdminPanelBtn = document.getElementById('open-admin-panel-btn');
-        const adminModal = document.getElementById('admin-modal');
-        const closeAdminBtn = document.getElementById('close-admin-btn');
-        const adminUsersTbody = document.getElementById('admin-users-tbody');
-
-        const reportModal = document.getElementById('report-modal');
-        const openReportBtn = document.getElementById('open-report-btn');
-        const closeReportBtn = document.getElementById('close-report-btn');
-        const downloadPdfBtn = document.getElementById('download-pdf-btn');
 
         function showToast(msg, type='success') {
             const container = document.getElementById('toast-container');
@@ -580,8 +591,8 @@
             e.preventDefault();
             isLoginMode = !isLoginMode;
             registerFields.classList.toggle('hidden', isLoginMode);
-            loginUnitSelect.required = !isLoginMode; 
-            formTitle.textContent = isLoginMode ? 'Acesso ao Sistema' : 'Criar Nova Conta';
+            document.getElementById('login-unit').required = !isLoginMode; 
+            document.getElementById('form-title').textContent = isLoginMode ? 'Acesso ao Sistema' : 'Criar Nova Conta';
             submitBtn.textContent = isLoginMode ? 'Entrar' : 'Registar Unidade';
             toggleFormLink.textContent = isLoginMode ? 'Não tem conta? Criar nova conta' : 'Já tem conta? Entrar';
             errorMessage.textContent = '';
@@ -591,7 +602,7 @@
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const unit = loginUnitSelect.value || 'alagoinhas'; 
+            const unit = document.getElementById('login-unit').value || 'alagoinhas'; 
             const name = document.getElementById('reg-name').value;
             errorMessage.textContent = '';
             
@@ -600,15 +611,8 @@
                     await auth.signInWithEmailAndPassword(email, password);
                 } else {
                     const cred = await auth.createUserWithEmailAndPassword(email, password);
-                    let role = 'user';
-                    if (email.toLowerCase().includes('icaro')) role = 'admin';
-
-                    await db.ref(`/artifacts/${appId}/users/${cred.user.uid}`).set({
-                        email: email,
-                        name: name,
-                        unit: unit,
-                        role: role
-                    });
+                    let role = email.toLowerCase().includes('icaro') ? 'admin' : 'user';
+                    await db.ref(`/artifacts/${appId}/users/${cred.user.uid}`).set({ email, name, unit, role });
                     showToast("Conta criada com sucesso!");
                 }
             } catch (err) {
@@ -621,83 +625,61 @@
                 currentUser = user;
                 userUid = user.uid;
                 
-                const userRef = db.ref(`/artifacts/${appId}/users/${userUid}`);
-                
-                userRef.on('value', async snap => {
+                db.ref(`/artifacts/${appId}/users/${userUid}`).on('value', async snap => {
                     let data = snap.val();
-                    
                     if (!data) {
-                        const isIcaro = user.email && user.email.toLowerCase().includes('icaro');
-                        data = {
-                            email: user.email,
-                            name: user.displayName || user.email.split('@')[0],
-                            unit: 'alagoinhas',
-                            role: isIcaro ? 'admin' : 'user'
-                        };
-                        await userRef.set(data);
+                        data = { email: user.email, name: user.email.split('@')[0], unit: 'alagoinhas', role: user.email.includes('icaro') ? 'admin' : 'user' };
+                        await db.ref(`/artifacts/${appId}/users/${userUid}`).set(data);
                         return;
                     }
-
-                    userRole = data.role === 'admin' ? 'admin' : (data.role === 'operator' ? 'operator' : 'user');
+                    userRole = data.role;
                     currentUnit = data.unit || 'alagoinhas';
+                    currentUserName = data.name || user.email.split('@')[0];
                     
                     loginPage.classList.add('hidden');
                     kanbanPage.classList.remove('hidden');
 
-                    const rolesText = { 'admin': 'Admin Principal', 'operator': 'Operador', 'user': 'Utilizador' };
-                    document.getElementById('auth-status').textContent = `Sessão: ${user.email} (${rolesText[userRole]})`;
+                    document.getElementById('auth-status').textContent = `Sessão: ${user.email} (${userRole.toUpperCase()})`;
                     
                     if (userRole === 'admin') {
-                        headerUnitDisplay.classList.add('hidden');
-                        adminUnitContainer.classList.remove('hidden');
-                        adminUnitSwitcher.value = currentUnit;
-                        openAdminPanelBtn.classList.remove('hidden');
+                        document.getElementById('header-unit-display').classList.add('hidden');
+                        document.getElementById('admin-unit-container').classList.remove('hidden');
+                        document.getElementById('admin-unit-switcher').value = currentUnit;
+                        document.getElementById('open-admin-panel-btn').classList.remove('hidden');
                     } else {
-                        adminUnitContainer.classList.add('hidden');
-                        headerUnitDisplay.classList.remove('hidden');
-                        headerUnitDisplay.textContent = `Unidade: ${currentUnit.toUpperCase()}`;
-                        openAdminPanelBtn.classList.add('hidden');
+                        document.getElementById('admin-unit-container').classList.add('hidden');
+                        document.getElementById('header-unit-display').classList.remove('hidden');
+                        document.getElementById('header-unit-display').textContent = `Unidade: ${currentUnit.toUpperCase()}`;
                     }
 
                     if(userRole === 'admin' || userRole === 'operator') {
-                        adminControls.classList.remove('hidden');
-                        openReportBtn.classList.remove('hidden');
-                    } else {
-                        adminControls.classList.add('hidden');
-                        openReportBtn.classList.add('hidden');
+                        document.getElementById('admin-controls').classList.remove('hidden');
+                        document.getElementById('open-report-btn').classList.remove('hidden');
                     }
+
                     initRealtimeListener();
                 });
             } else {
                 loginPage.classList.remove('hidden');
                 kanbanPage.classList.add('hidden');
-                if(currentUser && userUid) {
-                    db.ref(`/artifacts/${appId}/users/${userUid}`).off();
-                }
+                if(userUid) db.ref(`/artifacts/${appId}/users/${userUid}`).off();
             }
         });
 
         document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
 
-        adminUnitSwitcher.addEventListener('change', (e) => {
+        document.getElementById('admin-unit-switcher').addEventListener('change', (e) => {
             currentUnit = e.target.value;
             initRealtimeListener();
-            showToast(`A exibir dados da fábrica: ${e.target.options[e.target.selectedIndex].text}`);
         });
 
         function getDbPath() {
-            // Garante a recuperação dos dados de Alagoinhas que estavam no caminho antigo (allPrintJobs)
-            if (currentUnit === 'alagoinhas') {
-                return `/artifacts/${appId}/public/data/allPrintJobs`;
-            }
-            return `/artifacts/${appId}/public/data/units/${currentUnit}/jobs`;
+            return currentUnit === 'alagoinhas' ? `/artifacts/${appId}/public/data/allPrintJobs` : `/artifacts/${appId}/public/data/units/${currentUnit}/jobs`;
         }
 
         function initRealtimeListener() {
             if (dbTasksRef) dbTasksRef.off();
-            allTasks = {};
-            const path = getDbPath();
-            dbTasksRef = db.ref(path);
+            dbTasksRef = db.ref(getDbPath());
             dbTasksRef.on('value', snap => {
                 allTasks = snap.val() || {};
                 renderKanban();
@@ -706,17 +688,13 @@
 
         function renderKanban() {
             ['pendente', 'andamento', 'concluido', 'falha'].forEach(c => document.getElementById(`col-${c}`).innerHTML = '');
-            let tasksArray = Object.entries(allTasks)
-                .filter(([id, data]) => data !== null && typeof data === 'object')
-                .map(([id, data]) => ({ id, ...data }));
             
-            if(headerSortSelect.value === 'manual') {
-                tasksArray.sort((a,b) => (a.order || 0) - (b.order || 0));
-            } else if(headerSortSelect.value === 'priority') {
-                tasksArray.sort((a,b) => (a.adminPrioridade || 2) - (b.adminPrioridade || 2));
-            } else {
-                tasksArray.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
-            }
+            let tasksArray = Object.entries(allTasks).filter(([id, data]) => data && typeof data === 'object').map(([id, data]) => ({ id, ...data }));
+            
+            const sortMode = document.getElementById('header-sort-select').value;
+            if(sortMode === 'manual') tasksArray.sort((a,b) => (a.order || 0) - (b.order || 0));
+            else if(sortMode === 'priority') tasksArray.sort((a,b) => (a.adminPrioridade || 2) - (b.adminPrioridade || 2));
+            else tasksArray.sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
 
             if(currentSearchTerm) {
                 const term = currentSearchTerm.toLowerCase();
@@ -724,8 +702,6 @@
             }
 
             const queueList = tasksArray.filter(t => !t.archived && (t.status === 'pendente' || t.status === 'andamento'));
-            
-            // Variáveis de contagem e indexação numérica por coluna (para numeração de ordem)
             const counts = { pendente: 0, andamento: 0, concluido: 0, falha: 0 };
             const columnIndexes = { pendente: 1, andamento: 1, concluido: 1, falha: 1 };
 
@@ -733,439 +709,187 @@
                 const status = task.status || 'pendente';
                 const isMine = task.createdBy === userUid;
                 const canManage = userRole === 'admin' || userRole === 'operator';
-                const isArchived = !!task.archived;
-
-                let visible = canManage ? (showArchived ? isArchived : !isArchived) : (isMine && !isArchived);
-
-                if (visible) {
+                
+                if (canManage ? (showArchived ? task.archived : !task.archived) : (isMine && !task.archived)) {
                     counts[status]++;
-                    const position = isMine ? calculateQueuePosition(task, queueList) : null;
-                    const orderNumber = columnIndexes[status]++;
-                    document.getElementById(`col-${status}`).appendChild(createCard(task, position, orderNumber));
+                    let position = null;
+                    if (isMine) {
+                        if (status === 'andamento') position = 0;
+                        else if (status === 'pendente') position = queueList.findIndex(t => t.id === task.id);
+                    }
+                    document.getElementById(`col-${status}`).appendChild(createCard(task, position, columnIndexes[status]++));
                 }
             });
 
             Object.keys(counts).forEach(k => document.getElementById(`count-${k}`).textContent = counts[k]);
-            initSortable();
+            if(userRole === 'admin' || userRole === 'operator') initSortable();
         }
 
-        function calculateQueuePosition(task, queue) {
-            if (task.status === 'andamento') return 0;
-            if (task.status !== 'pendente') return null;
-            let aheadCount = 0;
-            for (let t of queue) {
-                if (t.id === task.id) break;
-                aheadCount++;
-            }
-            return aheadCount;
-        }
-
-        // Adicionado: listIndex = número ordenado para exibir no topo do cartão
         function createCard(task, position, listIndex) {
             const card = document.createElement('div');
             const pColors = { '1': 'border-red-500', '2': 'border-orange-400', '3': 'border-blue-400' };
-            card.className = `p-4 rounded-xl bg-white shadow-sm border-l-4 ${pColors[task.adminPrioridade] || 'border-gray-200'} mb-3 cursor-pointer relative group transition-all hover:shadow-md task-card shrink-0`;
+            card.className = `p-4 rounded-xl bg-white shadow-sm border-l-4 ${pColors[task.adminPrioridade] || 'border-gray-200'} mb-3 cursor-pointer group hover:shadow-md task-card relative`;
             card.dataset.taskId = task.id;
 
-            const displayNome = task.pecaNome === 'Outra' ? task.pecaOutra : task.pecaNome;
-            const dateStr = new Date(task.createdAt).toLocaleDateString('pt-PT');
-
-            let queueBadge = '';
-            if (position !== null) {
-                queueBadge = position === 0 
-                    ? `<span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded uppercase tracking-tighter">Na Impressora</span>`
-                    : `<span class="text-[9px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded uppercase">${position} pedido(s) à frente</span>`;
+            const canManage = userRole === 'admin' || userRole === 'operator';
+            
+            // Badges Técnicos
+            let techBadges = '';
+            if (task.adminMaterial || task.adminPeso || task.adminTempo) {
+                techBadges = `<div class="flex flex-wrap gap-1 mt-2">
+                    ${task.adminMaterial ? `<span class="text-[9px] bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded font-bold">${DOMPurify.sanitize(task.adminMaterial)}</span>` : ''}
+                    ${task.adminPeso ? `<span class="text-[9px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-bold">${DOMPurify.sanitize(task.adminPeso)}g</span>` : ''}
+                    ${task.adminTempo ? `<span class="text-[9px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-bold">⏱ ${DOMPurify.sanitize(task.adminTempo)}</span>` : ''}
+                </div>`;
             }
 
-            const canManage = userRole === 'admin' || userRole === 'operator';
-            const isAndamento = task.status === 'andamento';
-            const starIcon = isAndamento ? `<svg class="w-4 h-4 text-blue-500 animate-spin flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z" /></svg>` : '';
+            let queueBadge = position !== null ? (position === 0 ? `<span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Na Impressora</span>` : `<span class="text-[9px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded">${position} à frente</span>`) : '';
 
             card.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-black text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded uppercase tracking-widest" title="Ordem na Fila">Nº ${listIndex}</span>
-                        <span class="text-[9px] font-bold text-gray-300 uppercase tracking-widest" title="ID do Sistema">#${task.id.slice(-4)}</span>
-                    </div>
-                    <span class="text-[10px] font-bold text-gray-400">${dateStr}</span>
+                <div class="flex justify-between items-start mb-1">
+                    <span class="text-[10px] font-black text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded">Nº ${listIndex}</span>
+                    <span class="text-[9px] font-bold text-gray-400">${new Date(task.createdAt).toLocaleDateString('pt-PT')}</span>
                 </div>
-                <h4 class="font-black text-sm text-gray-800 leading-tight mb-1 flex items-center gap-1.5 overflow-hidden">
-                    <span class="truncate">${DOMPurify.sanitize(displayNome)}</span>
-                    ${starIcon}
-                </h4>
-                <p class="text-[10px] font-bold text-gray-500 uppercase">${DOMPurify.sanitize(task.solicitanteNome)} <span class="text-green-600 mx-1">•</span> ${task.solicitanteArea || 'Unidade'}</p>
-                <div class="mt-3 flex items-center justify-between border-t border-gray-50 pt-2">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] px-2 py-0.5 bg-gray-100 rounded-lg font-bold text-gray-500">Qtd: ${task.pecaQuantidade || 1}</span>
+                <h4 class="font-black text-sm text-gray-800 truncate">${DOMPurify.sanitize(task.pecaNome === 'Outra' ? task.pecaOutra : task.pecaNome)}</h4>
+                <p class="text-[10px] font-bold text-gray-500 uppercase">${DOMPurify.sanitize(task.solicitanteNome)} • ${task.solicitanteArea || '-'}</p>
+                
+                ${techBadges}
+
+                <div class="mt-3 flex justify-between items-center border-t border-gray-50 pt-2">
+                    <div class="flex gap-2 items-center">
+                        <span class="text-[10px] px-2 py-0.5 bg-gray-100 rounded-lg font-bold">Qtd: ${task.pecaQuantidade || 1}</span>
                         ${queueBadge}
                     </div>
                     ${canManage ? `
                         <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                             <button class="archive-btn p-1 bg-gray-50 rounded hover:bg-indigo-100 text-indigo-600 transition-colors" title="Arquivar">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
-                             </button>
-                             <button class="delete-btn p-1 bg-gray-50 rounded hover:bg-red-100 text-red-600 transition-colors" title="Excluir">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                             </button>
+                             <button class="archive-btn p-1 text-indigo-600 hover:bg-indigo-100 rounded" title="Arquivar">📦</button>
+                             <button class="delete-btn p-1 text-red-600 hover:bg-red-100 rounded" title="Excluir">🗑️</button>
                         </div>
                     ` : ''}
                 </div>
-                ${task.archived ? '<div class="absolute top-0 right-0 bg-gray-200 text-[8px] px-1.5 py-0.5 font-bold text-gray-500 rounded-bl-lg uppercase tracking-widest">ARQUIVADO</div>' : ''}
+                ${task.archived ? '<div class="absolute top-0 right-0 bg-gray-200 text-[8px] px-1.5 py-0.5 font-bold text-gray-500 rounded-bl-lg">ARQUIVADO</div>' : ''}
             `;
 
             card.addEventListener('click', (e) => {
-                if (e.target.closest('button')) return;
-                openTaskModal(canManage ? 'edit' : 'view', task.id);
+                if (!e.target.closest('button')) openTaskModal(canManage ? 'edit' : 'view', task.id);
             });
 
             if(canManage) {
                 card.querySelector('.archive-btn').addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    const newState = !task.archived;
-                    const path = getDbPath();
-                    await db.ref(`${path}/${task.id}`).update({ archived: newState });
-                    showToast(newState ? "Pedido arquivado!" : "Pedido restaurado!");
+                    await db.ref(`${getDbPath()}/${task.id}`).update({ archived: !task.archived });
                 });
                 card.querySelector('.delete-btn').addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    if(confirm("Excluir permanentemente?")) {
-                        const path = getDbPath();
-                        await db.ref(`${path}/${task.id}`).remove();
-                        showToast("Removido.");
-                    }
+                    if(confirm("Excluir permanentemente?")) await db.ref(`${getDbPath()}/${task.id}`).remove();
                 });
             }
             return card;
         }
 
         function initSortable() {
-            if(userRole === 'user' || showArchived) return;
             ['pendente', 'andamento', 'concluido', 'falha'].forEach(c => {
-                const el = document.getElementById(`col-${c}`);
-                new Sortable(el, {
-                    group: 'kanban',
-                    animation: 150,
-                    disabled: headerSortSelect.value !== 'manual',
+                new Sortable(document.getElementById(`col-${c}`), {
+                    group: 'kanban', animation: 150,
+                    disabled: document.getElementById('header-sort-select').value !== 'manual',
                     onEnd: async (evt) => {
                         const taskId = evt.item.dataset.taskId;
                         const newStatus = evt.to.dataset.columnId;
                         const updates = {};
                         if(newStatus !== evt.from.dataset.columnId) updates[`${taskId}/status`] = newStatus;
-                        evt.to.querySelectorAll('.task-card').forEach((card, idx) => {
-                            updates[`${card.dataset.taskId}/order`] = idx + 1;
-                        });
-                        if(Object.keys(updates).length) {
-                            const path = getDbPath();
-                            await db.ref(path).update(updates);
-                        }
+                        evt.to.querySelectorAll('.task-card').forEach((card, idx) => updates[`${card.dataset.taskId}/order`] = idx + 1);
+                        if(Object.keys(updates).length) await db.ref(getDbPath()).update(updates);
                     }
                 });
             });
         }
 
-        // LÓGICA DO RELATÓRIO (Atualizado para Admin filtrar ou ver Geral)
-        const reportScopeSelect = document.getElementById('report-scope-select');
-        let currentReportScope = 'global';
-
-        reportScopeSelect.addEventListener('change', (e) => {
-            currentReportScope = e.target.value;
-            generateReport(currentReportScope);
-        });
-
-        openReportBtn.addEventListener('click', () => {
-            if (userRole === 'admin') {
-                reportScopeSelect.classList.remove('hidden');
-                reportScopeSelect.value = 'global';
-                currentReportScope = 'global';
-                generateReport('global');
-            } else {
-                reportScopeSelect.classList.add('hidden');
-                currentReportScope = currentUnit;
-                generateReport(currentUnit);
-            }
-            reportModal.classList.remove('hidden');
-        });
-
-        async function generateReport(scope) {
-            let tasksForReport = [];
-            const isGlobal = scope === 'global';
-            
-            document.getElementById('report-date-generated').textContent = "A carregar dados...";
-            
-            try {
-                if (isGlobal) {
-                    // Admin: Vai à raiz procurar em todas as bases de dados
-                    const snap = await db.ref(`/artifacts/${appId}/public/data`).once('value');
-                    const allData = snap.val() || {};
-                    
-                    // 1. Matriz Alagoinhas (caminho antigo/legacy recuperado)
-                    if (allData.allPrintJobs) {
-                        Object.entries(allData.allPrintJobs).forEach(([id, t]) => {
-                            if (t && typeof t === 'object') tasksForReport.push({ id, _unitName: 'alagoinhas', ...t });
-                        });
-                    }
-                    
-                    // 2. Outras Unidades
-                    if (allData.units) {
-                        Object.entries(allData.units).forEach(([unitName, unitData]) => {
-                            if (unitData.jobs) {
-                                Object.entries(unitData.jobs).forEach(([id, t]) => {
-                                    if (t && typeof t === 'object') tasksForReport.push({ id, _unitName: unitName, ...t });
-                                });
-                            }
-                        });
-                    }
-                } else {
-                    // Ver unidade específica (pode ser o Admin filtrando, ou um Operador)
-                    let path = scope === 'alagoinhas' ? `/artifacts/${appId}/public/data/allPrintJobs` : `/artifacts/${appId}/public/data/units/${scope}/jobs`;
-                    const snap = await db.ref(path).once('value');
-                    const unitData = snap.val() || {};
-                    Object.entries(unitData).forEach(([id, t]) => {
-                        if (t && typeof t === 'object') tasksForReport.push({ id, _unitName: scope, ...t });
-                    });
-                }
-            } catch(e) {
-                showToast("Erro ao agrupar os dados.", "error");
-                return;
-            }
-
-            // Exibir ou Esconder a nova secção de Distribuição por Fábrica e a Coluna Unidade
-            const factoryWrapper = document.getElementById('factory-stats-wrapper');
-            const thUnidade = document.getElementById('th-unidade');
-            if (isGlobal) {
-                factoryWrapper.classList.remove('hidden');
-                thUnidade.classList.remove('hidden');
-                document.getElementById('report-charts-grid').classList.replace('grid-cols-1', 'md:grid-cols-2');
-            } else {
-                factoryWrapper.classList.add('hidden');
-                thUnidade.classList.add('hidden');
-                document.getElementById('report-charts-grid').classList.replace('md:grid-cols-2', 'grid-cols-1');
-            }
-
-            const tableBody = document.getElementById('report-table-body');
-            const areaContainer = document.getElementById('area-stats-container');
-            const factoryContainer = document.getElementById('factory-stats-container');
-            
-            const totalJobs = tasksForReport.length;
-            const totalParts = tasksForReport.reduce((acc, t) => acc + (parseInt(t.pecaQuantidade) || 1), 0);
-            const doneCount = tasksForReport.filter(t => t.status === 'concluido').length;
-            const pendingCount = tasksForReport.filter(t => t.status === 'pendente' || t.status === 'andamento').length;
-
-            document.getElementById('stat-total-jobs').textContent = totalJobs;
-            document.getElementById('stat-total-parts').textContent = totalParts;
-            document.getElementById('stat-done').textContent = doneCount;
-            document.getElementById('stat-pending').textContent = pendingCount;
-            document.getElementById('report-date-generated').textContent = `Gerado a: ${new Date().toLocaleString('pt-PT')} - Abrangência: ${isGlobal ? 'GLOBAL (Todas as Unidades)' : scope.toUpperCase()}`;
-
-            // Agrupamentos e Contagens para Gráficos
-            const areas = {};
-            const factories = {};
-            tasksForReport.forEach(t => {
-                const a = t.solicitanteArea || 'Outros';
-                const f = t._unitName || 'Desconhecida';
-                areas[a] = (areas[a] || 0) + (parseInt(t.pecaQuantidade) || 1);
-                factories[f] = (factories[f] || 0) + (parseInt(t.pecaQuantidade) || 1);
-            });
-
-            // Renderizar Gráfico de Áreas
-            const maxValArea = Math.max(...Object.values(areas), 1);
-            areaContainer.innerHTML = '';
-            Object.entries(areas).sort((a,b) => b[1] - a[1]).forEach(([area, count]) => {
-                const pct = (count / maxValArea) * 100;
-                areaContainer.innerHTML += `
-                    <div>
-                        <div class="flex justify-between text-[10px] font-bold uppercase mb-1">
-                            <span>${area}</span><span>${count} peças</span>
-                        </div>
-                        <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-green-600 h-full rounded-full" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            // Renderizar Gráfico de Fábricas (Só para Global)
-            if (isGlobal) {
-                const maxValFactory = Math.max(...Object.values(factories), 1);
-                factoryContainer.innerHTML = '';
-                Object.entries(factories).sort((a,b) => b[1] - a[1]).forEach(([factory, count]) => {
-                    const pct = (count / maxValFactory) * 100;
-                    factoryContainer.innerHTML += `
-                        <div>
-                            <div class="flex justify-between text-[10px] font-bold uppercase mb-1 text-indigo-700">
-                                <span>${factory}</span><span>${count} peças</span>
-                            </div>
-                            <div class="w-full bg-indigo-50 rounded-full h-1.5 overflow-hidden">
-                                <div class="bg-indigo-600 h-full rounded-full" style="width: ${pct}%"></div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            // Renderizar Tabela
-            tableBody.innerHTML = '';
-            tasksForReport.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).forEach((t, i) => {
-                const statusColor = {
-                    'concluido': 'bg-green-100 text-green-700',
-                    'andamento': 'bg-blue-100 text-blue-700',
-                    'pendente': 'bg-yellow-100 text-yellow-700',
-                    'falha': 'bg-red-100 text-red-700'
-                };
-                const displayNome = t.pecaNome === 'Outra' ? t.pecaOutra : t.pecaNome;
-                
-                tableBody.innerHTML += `
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 font-mono text-[10px] font-bold text-gray-500">Nº ${(i+1)}</td>
-                        <td class="px-4 py-3">${new Date(t.createdAt).toLocaleDateString('pt-PT')}</td>
-                        ${isGlobal ? `<td class="px-4 py-3 uppercase text-[10px] font-black text-indigo-700 tracking-wider">${t._unitName}</td>` : ''}
-                        <td class="px-4 py-3 font-bold text-gray-800">${displayNome}</td>
-                        <td class="px-4 py-3 text-center">${t.pecaQuantidade || 1}</td>
-                        <td class="px-4 py-3">${t.solicitanteArea || '-'}</td>
-                        <td class="px-4 py-3">${t.solicitanteNome || '-'}</td>
-                        <td class="px-4 py-3 text-center">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusColor[t.status] || 'bg-gray-100'}">${t.status}</span>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        closeReportBtn.addEventListener('click', () => reportModal.classList.add('hidden'));
-
-        downloadPdfBtn.addEventListener('click', () => {
-            const element = document.getElementById('report-printable-area');
-            const isGlobal = currentReportScope === 'global';
-            const opt = {
-                margin: 10,
-                filename: `Relatorio_Impressao3D_Heineken_${isGlobal ? 'GLOBAL' : currentReportScope}_${new Date().toISOString().split('T')[0]}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } // Alterado para landscape para caber a nova coluna
-            };
-            html2pdf().set(opt).from(element).save();
-        });
-
-        // LÓGICA DO PAINEL DE ADMINISTRAÇÃO
-        openAdminPanelBtn.addEventListener('click', () => {
-            adminModal.classList.remove('hidden');
-            loadAdminUsers();
-        });
-
-        closeAdminBtn.addEventListener('click', () => adminModal.classList.add('hidden'));
-
-        function loadAdminUsers() {
-            adminUsersTbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-gray-400 font-bold animate-pulse">A carregar utilizadores do sistema...</td></tr>';
-            
-            db.ref(`/artifacts/${appId}/users`).once('value', snap => {
-                const users = snap.val() || {};
-                adminUsersTbody.innerHTML = '';
-                
-                Object.entries(users).forEach(([uid, data]) => {
-                    const tr = document.createElement('tr');
-                    const roleColors = {
-                        'admin': 'bg-indigo-100 text-indigo-800 border-indigo-200',
-                        'operator': 'bg-green-100 text-green-800 border-green-200',
-                        'user': 'bg-gray-100 text-gray-700 border-gray-200'
-                    };
-                    
-                    tr.className = "hover:bg-gray-50 transition-colors";
-                    tr.innerHTML = `
-                        <td class="px-6 py-4 font-bold text-gray-800 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-500 uppercase">${(data.name || data.email || 'U').charAt(0)}</div>
-                            ${DOMPurify.sanitize(data.name || 'Sem nome')}
-                        </td>
-                        <td class="px-6 py-4 text-xs font-medium">${DOMPurify.sanitize(data.email || '')}</td>
-                        <td class="px-6 py-4 uppercase text-[10px] font-black text-green-700 tracking-wider">${DOMPurify.sanitize(data.unit || 'Alagoinhas')}</td>
-                        <td class="px-6 py-4">
-                            <select class="role-select px-3 py-1.5 border rounded-lg text-xs font-bold w-full max-w-[140px] outline-none cursor-pointer transition-colors ${roleColors[data.role || 'user']}" data-uid="${uid}">
-                                <option value="user" ${data.role === 'user' ? 'selected' : ''}>Utilizador Comum</option>
-                                <option value="operator" ${data.role === 'operator' ? 'selected' : ''}>Operador</option>
-                                <option value="admin" ${data.role === 'admin' ? 'selected' : ''}>Administrador</option>
-                            </select>
-                        </td>
-                    `;
-                    adminUsersTbody.appendChild(tr);
-                });
-
-                document.querySelectorAll('.role-select').forEach(select => {
-                    select.addEventListener('change', async (e) => {
-                        const targetUid = e.target.dataset.uid;
-                        const newRole = e.target.value;
-                        const selectElement = e.target;
-                        
-                        if (targetUid === userUid && newRole !== 'admin') {
-                            if (!confirm("Atenção: Está a remover o seu próprio acesso de administrador geral. Tem a certeza de que deseja prosseguir?")) {
-                                selectElement.value = 'admin'; 
-                                return;
-                            }
-                        }
-                        
-                        try {
-                            await db.ref(`/artifacts/${appId}/users/${targetUid}`).update({ role: newRole });
-                            showToast("Acesso atualizado na base de dados!");
-                            
-                            selectElement.className = `role-select px-3 py-1.5 border rounded-lg text-xs font-bold w-full max-w-[140px] outline-none cursor-pointer transition-colors ${newRole === 'admin' ? 'bg-indigo-100 text-indigo-800 border-indigo-200' : (newRole === 'operator' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200')}`;
-                            
-                        } catch (err) {
-                            showToast("Erro ao atualizar o nível de acesso.", "error");
-                        }
-                    });
-                });
-            });
-        }
-
-        // TAREFA E FORMULÁRIO
+        // TAREFAS (MODAL)
         const taskModal = document.getElementById('task-modal');
         const taskForm = document.getElementById('task-form');
 
         function openTaskModal(mode, id = null) {
             taskForm.reset();
+            currentOpenTaskId = id;
             document.getElementById('task-id-hidden').value = id || '';
-            document.getElementById('solicitante-email').value = currentUser ? currentUser.email : '';
-            const inputs = taskForm.querySelectorAll('input, select, textarea');
+            document.getElementById('solicitante-email').value = currentUser?.email || '';
+            const inputs = taskForm.querySelectorAll('input, select');
             inputs.forEach(i => i.disabled = false);
-            document.getElementById('readonly-banner').classList.add('hidden');
             
             const canManage = userRole === 'admin' || userRole === 'operator';
+            document.getElementById('readonly-banner').classList.add('hidden');
+            document.getElementById('admin-fields').classList.toggle('hidden', !canManage);
 
-            if (mode !== 'add') {
-                const t = allTasks[id]; 
-                
-                if (!t) return; 
+            // Limpar e Configurar Chat
+            const chatSection = document.getElementById('chat-section');
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+            if (currentChatRef) currentChatRef.off();
 
-                if (!canManage && t.status !== 'pendente') {
-                    mode = 'view';
-                }
+            if (id && allTasks[id]) {
+                const t = allTasks[id];
+                if (!canManage && t.status !== 'pendente') mode = 'view';
 
-                document.getElementById('solicitante-nome').value = t.solicitanteNome || '';
-                document.getElementById('solicitante-matricula').value = t.solicitanteMatricula || '';
-                document.getElementById('solicitante-area').value = t.solicitanteArea || '';
-                document.getElementById('peca-nome').value = t.pecaNome || '';
-                document.getElementById('peca-outra').value = t.pecaOutra || '';
-                document.getElementById('peca-quantidade').value = t.pecaQuantidade || 1;
-                document.getElementById('peca-cor-preferencia').value = t.pecaCorPreferencia || 'Indiferente';
-                
+                ['solicitanteNome', 'solicitanteMatricula', 'solicitanteArea', 'pecaNome', 'pecaOutra', 'pecaQuantidade', 'pecaCorPreferencia'].forEach(field => {
+                    const el = document.getElementById(field.replace(/([A-Z])/g, '-$1').toLowerCase());
+                    if (el) el.value = t[field] || el.defaultValue;
+                });
+
                 if (canManage) {
-                    document.getElementById('admin-status').value = t.status || 'pendente';
-                    document.getElementById('admin-prioridade').value = t.adminPrioridade || '2';
+                    ['adminStatus', 'adminPrioridade', 'adminMaterial', 'adminPeso', 'adminTempo', 'adminImpressora'].forEach(field => {
+                        const el = document.getElementById(field.replace(/([A-Z])/g, '-$1').toLowerCase());
+                        if (el) el.value = t[field] || el.defaultValue || '';
+                    });
                 }
                 
                 if (mode === 'view') {
-                    inputs.forEach(i => i.disabled = true);
+                    // Mantém o input de chat ativo mesmo no modo de visualização
+                    inputs.forEach(i => {
+                        if(i.id !== 'chat-input') i.disabled = true;
+                    });
                     document.getElementById('readonly-banner').classList.remove('hidden');
                     document.getElementById('save-task-btn').classList.add('hidden');
                 } else {
                     document.getElementById('save-task-btn').classList.remove('hidden');
                 }
+
+                // Iniciar Chat Listener
+                chatSection.classList.remove('hidden');
+                chatSection.classList.add('flex');
+                currentChatRef = db.ref(`${getDbPath()}/${id}/comments`);
+                currentChatRef.on('child_added', snap => renderChatMessage(snap.val()));
+
             } else {
-                document.getElementById('save-task-btn').classList.remove('hidden');
+                // Modo criação (não mostra chat até ser salvo)
+                chatSection.classList.add('hidden');
+                chatSection.classList.remove('flex');
             }
-            
-            if (canManage) document.getElementById('admin-fields').classList.remove('hidden');
-            else document.getElementById('admin-fields').classList.add('hidden');
-            
             taskModal.classList.remove('hidden');
+        }
+
+        // Função para Renderizar Mensagens do Chat
+        function renderChatMessage(comment) {
+            const container = document.getElementById('chat-messages');
+            const isMe = comment.uid === userUid;
+            
+            const alignClass = isMe ? 'self-end' : 'self-start';
+            const bgClass = isMe ? 'bg-[#e0f8e9] border border-green-200' : 'bg-gray-100 border border-gray-200';
+            const nameColor = isMe ? 'text-green-800' : 'text-gray-600';
+            
+            const date = new Date(comment.timestamp);
+            const dateStr = `${date.toLocaleDateString('pt-PT')} ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`;
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `max-w-[85%] rounded-xl p-3 ${bgClass} ${alignClass} shadow-sm`;
+            msgDiv.innerHTML = `
+                <div class="flex justify-between items-baseline gap-4 mb-1">
+                    <span class="text-[10px] font-black uppercase ${nameColor} tracking-wider">${DOMPurify.sanitize(comment.author)}</span>
+                    <span class="text-[9px] text-gray-400 font-medium">${dateStr}</span>
+                </div>
+                <p class="text-sm text-gray-700 break-words">${DOMPurify.sanitize(comment.text)}</p>
+            `;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
         }
 
         taskForm.addEventListener('submit', async (e) => {
@@ -1173,14 +897,6 @@
             const id = document.getElementById('task-id-hidden').value;
             const canManage = userRole === 'admin' || userRole === 'operator';
             
-            let currentStatus = 'pendente';
-            let currentPriority = '2';
-            
-            if (id && allTasks[id]) {
-                currentStatus = allTasks[id].status || 'pendente';
-                currentPriority = allTasks[id].adminPrioridade || '2';
-            }
-
             const data = {
                 solicitanteNome: document.getElementById('solicitante-nome').value,
                 solicitanteMatricula: document.getElementById('solicitante-matricula').value,
@@ -1190,37 +906,178 @@
                 pecaOutra: document.getElementById('peca-outra').value,
                 pecaQuantidade: document.getElementById('peca-quantidade').value,
                 pecaCorPreferencia: document.getElementById('peca-cor-preferencia').value,
-                status: canManage ? document.getElementById('admin-status').value : currentStatus,
-                adminPrioridade: canManage ? document.getElementById('admin-prioridade').value : currentPriority
+                status: canManage ? document.getElementById('admin-status').value : (allTasks[id]?.status || 'pendente'),
+                adminPrioridade: canManage ? document.getElementById('admin-prioridade').value : (allTasks[id]?.adminPrioridade || '2'),
+                adminMaterial: canManage ? document.getElementById('admin-material').value : (allTasks[id]?.adminMaterial || ''),
+                adminPeso: canManage ? document.getElementById('admin-peso').value : (allTasks[id]?.adminPeso || ''),
+                adminTempo: canManage ? document.getElementById('admin-tempo').value : (allTasks[id]?.adminTempo || ''),
+                adminImpressora: canManage ? document.getElementById('admin-impressora').value : (allTasks[id]?.adminImpressora || '')
             };
-            
-            const path = getDbPath();
             
             try {
                 if(id) {
-                    await db.ref(`${path}/${id}`).update(data);
+                    await db.ref(`${getDbPath()}/${id}`).update(data);
                     showToast("Pedido atualizado com sucesso!");
                 } else {
                     data.createdAt = firebase.database.ServerValue.TIMESTAMP;
                     data.createdBy = userUid;
                     data.order = Date.now();
-                    await db.ref(path).push(data);
-                    showToast("Novo pedido de impressão enviado!");
+                    await db.ref(getDbPath()).push(data);
+                    showToast("Novo pedido enviado!");
                 }
                 taskModal.classList.add('hidden');
-            } catch(error) {
-                showToast("Erro ao comunicar com a base de dados.", "error");
+            } catch(error) { showToast("Erro ao gravar dados.", "error"); }
+        });
+
+        // Eventos Globais
+        document.getElementById('add-task-btn').addEventListener('click', () => openTaskModal('add'));
+        
+        // Fechar Modal (Garante que o listener do chat é desligado)
+        function closeModal() {
+            if (currentChatRef) currentChatRef.off();
+            taskModal.classList.add('hidden');
+        }
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+        document.getElementById('cancel-modal-btn').addEventListener('click', closeModal);
+
+        // Envio de Mensagens do Chat
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+
+        async function sendChatMessage() {
+            const text = chatInput.value.trim();
+            if (!text || !currentOpenTaskId) return;
+
+            chatInput.value = '';
+            chatInput.disabled = true;
+            sendChatBtn.disabled = true;
+
+            try {
+                await db.ref(`${getDbPath()}/${currentOpenTaskId}/comments`).push({
+                    author: currentUserName,
+                    uid: userUid,
+                    text: text,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch (err) {
+                showToast("Erro ao enviar mensagem", "error");
+            } finally {
+                chatInput.disabled = false;
+                sendChatBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        sendChatBtn.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Previne que o formulário da tarefa seja submetido
+                sendChatMessage();
             }
         });
 
-        document.getElementById('add-task-btn').addEventListener('click', () => openTaskModal('add'));
-        document.getElementById('close-modal-btn').addEventListener('click', () => taskModal.classList.add('hidden'));
-        document.getElementById('cancel-modal-btn').addEventListener('click', () => taskModal.classList.add('hidden'));
         document.getElementById('peca-nome').addEventListener('change', (e) => document.getElementById('peca-outra').disabled = e.target.value !== 'Outra');
-        
-        showArchivedToggle.addEventListener('change', (e) => { showArchived = e.target.checked; renderKanban(); });
-        searchInput.addEventListener('input', (e) => { currentSearchTerm = e.target.value; renderKanban(); });
-        headerSortSelect.addEventListener('change', renderKanban);
+        document.getElementById('show-archived-toggle').addEventListener('change', (e) => { showArchived = e.target.checked; renderKanban(); });
+        document.getElementById('search-input').addEventListener('input', (e) => { currentSearchTerm = e.target.value; renderKanban(); });
+        document.getElementById('header-sort-select').addEventListener('change', renderKanban);
+
+        // --- RELATÓRIOS ---
+        document.getElementById('open-report-btn').addEventListener('click', () => {
+            const scopeSelect = document.getElementById('report-scope-select');
+            scopeSelect.classList.toggle('hidden', userRole !== 'admin');
+            generateReport(userRole === 'admin' ? scopeSelect.value : currentUnit);
+            document.getElementById('report-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('close-report-btn').addEventListener('click', () => document.getElementById('report-modal').classList.add('hidden'));
+
+        async function generateReport(scope) {
+            let tasks = [];
+            const isGlobal = scope === 'global';
+            
+            if (isGlobal) {
+                const snap = await db.ref(`/artifacts/${appId}/public/data`).once('value');
+                const data = snap.val() || {};
+                if (data.allPrintJobs) Object.entries(data.allPrintJobs).forEach(([id, t]) => tasks.push({ id, _unitName: 'alagoinhas', ...t }));
+                if (data.units) Object.entries(data.units).forEach(([unit, uData]) => {
+                    if (uData.jobs) Object.entries(uData.jobs).forEach(([id, t]) => tasks.push({ id, _unitName: unit, ...t }));
+                });
+            } else {
+                const path = scope === 'alagoinhas' ? `/artifacts/${appId}/public/data/allPrintJobs` : `/artifacts/${appId}/public/data/units/${scope}/jobs`;
+                const snap = await db.ref(path).once('value');
+                const data = snap.val() || {};
+                Object.entries(data).forEach(([id, t]) => tasks.push({ id, _unitName: scope, ...t }));
+            }
+
+            document.getElementById('factory-stats-wrapper').classList.toggle('hidden', !isGlobal);
+            document.getElementById('th-unidade').classList.toggle('hidden', !isGlobal);
+
+            document.getElementById('stat-total-jobs').textContent = tasks.length;
+            document.getElementById('stat-total-parts').textContent = tasks.reduce((a, t) => a + (parseInt(t.pecaQuantidade)||1), 0);
+            
+            // Nova métrica: Peso Total
+            const totalGrams = tasks.reduce((a, t) => a + (parseFloat(t.adminPeso)||0), 0);
+            document.getElementById('stat-total-weight').textContent = (totalGrams / 1000).toFixed(2); // Convertendo para Kg
+            
+            document.getElementById('stat-done').textContent = tasks.filter(t => t.status === 'concluido').length;
+            document.getElementById('stat-pending').textContent = tasks.filter(t => t.status === 'pendente' || t.status === 'andamento').length;
+
+            const tbody = document.getElementById('report-table-body');
+            tbody.innerHTML = '';
+            tasks.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).forEach((t, i) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 font-mono text-[10px] text-gray-500">Nº ${(i+1)}</td>
+                        <td class="px-4 py-3">${new Date(t.createdAt).toLocaleDateString('pt-PT')}</td>
+                        ${isGlobal ? `<td class="px-4 py-3 uppercase text-[10px] font-black text-indigo-700">${t._unitName}</td>` : ''}
+                        <td class="px-4 py-3 font-bold">${t.pecaNome === 'Outra' ? t.pecaOutra : t.pecaNome}</td>
+                        <td class="px-4 py-3 text-center">${t.pecaQuantidade || 1}</td>
+                        <td class="px-4 py-3 text-center text-purple-700 font-bold text-xs">${t.adminMaterial || '-'}</td>
+                        <td class="px-4 py-3 text-center text-gray-600 text-xs">${t.adminPeso ? t.adminPeso+'g' : '-'}</td>
+                        <td class="px-4 py-3">${t.solicitanteArea || '-'}</td>
+                        <td class="px-4 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] uppercase bg-gray-200">${t.status}</span></td>
+                    </tr>`;
+            });
+        }
+
+        document.getElementById('download-pdf-btn').addEventListener('click', () => {
+            html2pdf().set({
+                margin: 10, filename: `Relatorio_Impressao3D.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            }).from(document.getElementById('report-printable-area')).save();
+        });
+
+        // --- ADMIN MODAL ---
+        document.getElementById('open-admin-panel-btn').addEventListener('click', () => {
+            document.getElementById('admin-modal').classList.remove('hidden');
+            db.ref(`/artifacts/${appId}/users`).once('value', snap => {
+                const tbody = document.getElementById('admin-users-tbody');
+                tbody.innerHTML = '';
+                Object.entries(snap.val() || {}).forEach(([uid, u]) => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="px-6 py-4 font-bold text-gray-800">${DOMPurify.sanitize(u.name || 'Sem nome')}</td>
+                            <td class="px-6 py-4 text-xs">${DOMPurify.sanitize(u.email || '')}</td>
+                            <td class="px-6 py-4 uppercase text-[10px] text-green-700 font-black">${DOMPurify.sanitize(u.unit || 'Alagoinhas')}</td>
+                            <td class="px-6 py-4">
+                                <select class="role-select px-3 py-1.5 border rounded text-xs" data-uid="${uid}">
+                                    <option value="user" ${u.role === 'user' ? 'selected' : ''}>Utilizador Comum</option>
+                                    <option value="operator" ${u.role === 'operator' ? 'selected' : ''}>Operador</option>
+                                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                </select>
+                            </td>
+                        </tr>`;
+                });
+                document.querySelectorAll('.role-select').forEach(s => s.addEventListener('change', async e => {
+                    await db.ref(`/artifacts/${appId}/users/${e.target.dataset.uid}`).update({ role: e.target.value });
+                    showToast("Acesso atualizado!");
+                }));
+            });
+        });
+
+        document.getElementById('close-admin-btn').addEventListener('click', () => document.getElementById('admin-modal').classList.add('hidden'));
     });
     </script>
 </body>
