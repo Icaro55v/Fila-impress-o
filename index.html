@@ -300,7 +300,14 @@
                             <option value="alagoinhas">Alagoinhas (BA) - Matriz</option>
                             <option value="igarassu">Igarassu (PE)</option>
                             <option value="araraquara">Araraquara (SP)</option>
-                            <!-- ... demais opções mantidas dinâmicas pelo JS ... -->
+                            <option value="jacarei">Jacareí (SP)</option>
+                            <option value="itu">Itu (SP)</option>
+                            <option value="passos">Passos (MG)</option>
+                            <option value="ponta-grossa">Ponta Grossa (PR)</option>
+                            <option value="igrejinha">Igrejinha (RS)</option>
+                            <option value="blumenau">Blumenau (SC)</option>
+                            <option value="manaus">Manaus (AM)</option>
+                            <option value="alexania">Alexânia (GO)</option>
                         </select>
                     </div>
                 </div>
@@ -632,8 +639,9 @@
                         await db.ref(`/artifacts/${appId}/users/${userUid}`).set(data);
                         return;
                     }
-                    userRole = data.role;
-                    currentUnit = data.unit || 'alagoinhas';
+                    // CORREÇÃO: Normalizar role e unit em minúsculas e sem espaços
+                    userRole = (data.role || 'user').trim().toLowerCase();
+                    currentUnit = (data.unit || 'alagoinhas').trim().toLowerCase();
                     currentUserName = data.name || user.email.split('@')[0];
                     
                     loginPage.classList.add('hidden');
@@ -669,7 +677,8 @@
         document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
 
         document.getElementById('admin-unit-switcher').addEventListener('change', (e) => {
-            currentUnit = e.target.value;
+            // CORREÇÃO: Forçar toLowerCase na mudança de switcher
+            currentUnit = e.target.value.toLowerCase();
             initRealtimeListener();
         });
 
@@ -706,7 +715,12 @@
             const columnIndexes = { pendente: 1, andamento: 1, concluido: 1, falha: 1 };
 
             tasksArray.forEach(task => {
-                const status = task.status || 'pendente';
+                // CORREÇÃO: Limpar e normalizar o status. Prevenir quebra caso venha vazio ou com maiúsculas
+                let status = (task.status || 'pendente').trim().toLowerCase();
+                if (!['pendente', 'andamento', 'concluido', 'falha'].includes(status)) {
+                    status = 'pendente';
+                }
+                
                 const isMine = task.createdBy === userUid;
                 const canManage = userRole === 'admin' || userRole === 'operator';
                 
@@ -734,24 +748,26 @@
             const canManage = userRole === 'admin' || userRole === 'operator';
             
             // Badges Técnicos
+            // CORREÇÃO: Convertido explicitamente para String() antes do DOMPurify para evitar erros com números
             let techBadges = '';
             if (task.adminMaterial || task.adminPeso || task.adminTempo) {
                 techBadges = `<div class="flex flex-wrap gap-1 mt-2">
-                    ${task.adminMaterial ? `<span class="text-[9px] bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded font-bold">${DOMPurify.sanitize(task.adminMaterial)}</span>` : ''}
-                    ${task.adminPeso ? `<span class="text-[9px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-bold">${DOMPurify.sanitize(task.adminPeso)}g</span>` : ''}
-                    ${task.adminTempo ? `<span class="text-[9px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-bold">⏱ ${DOMPurify.sanitize(task.adminTempo)}</span>` : ''}
+                    ${task.adminMaterial ? `<span class="text-[9px] bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded font-bold">${DOMPurify.sanitize(String(task.adminMaterial))}</span>` : ''}
+                    ${task.adminPeso ? `<span class="text-[9px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-bold">${DOMPurify.sanitize(String(task.adminPeso))}g</span>` : ''}
+                    ${task.adminTempo ? `<span class="text-[9px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-bold">⏱ ${DOMPurify.sanitize(String(task.adminTempo))}</span>` : ''}
                 </div>`;
             }
 
             let queueBadge = position !== null ? (position === 0 ? `<span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Na Impressora</span>` : `<span class="text-[9px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded">${position} à frente</span>`) : '';
 
+            // CORREÇÃO: String() nos campos de Nome, Solicitante e Área
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-1">
                     <span class="text-[10px] font-black text-indigo-800 bg-indigo-100 px-1.5 py-0.5 rounded">Nº ${listIndex}</span>
                     <span class="text-[9px] font-bold text-gray-400">${new Date(task.createdAt).toLocaleDateString('pt-PT')}</span>
                 </div>
-                <h4 class="font-black text-sm text-gray-800 truncate">${DOMPurify.sanitize(task.pecaNome === 'Outra' ? task.pecaOutra : task.pecaNome)}</h4>
-                <p class="text-[10px] font-bold text-gray-500 uppercase">${DOMPurify.sanitize(task.solicitanteNome)} • ${task.solicitanteArea || '-'}</p>
+                <h4 class="font-black text-sm text-gray-800 truncate">${DOMPurify.sanitize(String(task.pecaNome === 'Outra' ? (task.pecaOutra || '') : (task.pecaNome || '')))}</h4>
+                <p class="text-[10px] font-bold text-gray-500 uppercase">${DOMPurify.sanitize(String(task.solicitanteNome || ''))} • ${DOMPurify.sanitize(String(task.solicitanteArea || '-'))}</p>
                 
                 ${techBadges}
 
